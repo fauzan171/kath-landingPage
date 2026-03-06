@@ -27,7 +27,7 @@
     --input: 0 0% 20%;
     --ring: 47 57% 41%;
     --radius: 0.625rem;
-    
+
     /* Custom KATH Colors */
     --kath-gold: #a68a2d;
     --kath-gold-dark: #8e7526;
@@ -68,22 +68,22 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     scroll-behavior: auto;
   }
-  
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 400;
   }
-  
+
   ::selection {
     background-color: rgba(166, 138, 45, 0.4);
     color: #fafafa;
@@ -95,29 +95,46 @@
   .font-display {
     font-family: 'Cormorant Garamond', serif;
   }
-  
+
   .font-body {
     font-family: 'Inter', sans-serif;
   }
-  
-  /* Text sizes for editorial feel */
+
+  /* Premium Display Text - Responsive scaling */
   .text-display {
-    font-size: clamp(3rem, 12vw, 10rem);
+    font-size: clamp(2.5rem, 10vw, 10rem);
     line-height: 0.9;
     letter-spacing: -0.02em;
   }
-  
+
+  /* Mobile-optimized headline */
   .text-headline {
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(1.75rem, 5vw, 4rem);
     line-height: 1.1;
     letter-spacing: -0.01em;
   }
-  
+
   .text-subheadline {
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-size: clamp(1rem, 2vw, 1.5rem);
     line-height: 1.4;
   }
-  
+
+  /* Mobile Premium Text Sizes */
+  .text-premium-xl {
+    font-size: clamp(2rem, 8vw, 6rem);
+    line-height: 0.95;
+  }
+
+  .text-premium-lg {
+    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    line-height: 1;
+  }
+
+  .text-premium-md {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    line-height: 1.2;
+  }
+
   /* Gold gradient text */
   .text-gold-gradient {
     background: linear-gradient(135deg, #c9a94d 0%, #a68a2d 50%, #8e7526 100%);
@@ -125,22 +142,22 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   /* Gold border gradient */
   .border-gold-gradient {
     border-image: linear-gradient(135deg, #c9a94d 0%, #a68a2d 50%, #8e7526 100%) 1;
   }
-  
+
   /* Smooth transitions */
   .transition-smooth {
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   /* Ken Burns effect for images */
   .ken-burns {
     animation: kenBurns 20s ease-in-out infinite alternate;
   }
-  
+
   @keyframes kenBurns {
     0% {
       transform: scale(1) translate(0, 0);
@@ -149,24 +166,24 @@
       transform: scale(1.1) translate(-2%, -1%);
     }
   }
-  
+
   /* Fade in up animation */
   .fade-in-up {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
   }
-  
+
   .fade-in-up.visible {
     opacity: 1;
     transform: translateY(0);
   }
-  
+
   /* Spinning star animation */
   .spin-slow {
     animation: spinSlow 20s linear infinite;
   }
-  
+
   @keyframes spinSlow {
     from {
       transform: rotate(0deg);
@@ -175,78 +192,108 @@
       transform: rotate(360deg);
     }
   }
-  
+
   /* Parallax layer styling */
   .parallax-layer {
     will-change: transform;
   }
-  
+
   /* Card hover effect */
   .card-hover {
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
   }
-  
+
   .card-hover:hover {
     transform: translateY(-8px);
     box-shadow: 0 25px 50px -12px rgba(166, 138, 45, 0.2);
   }
-  
+
   /* Gold glow effect */
   .gold-glow {
     box-shadow: 0 0 30px rgba(166, 138, 45, 0.3);
   }
-  
+
   /* Magnetic button effect placeholder */
   .magnetic-btn {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   /* Image reveal mask */
   .image-reveal {
     clip-path: inset(100% 0 0 0);
     transition: clip-path 1s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .image-reveal.revealed {
     clip-path: inset(0 0 0 0);
   }
-  
+
   /* Gradient mask for text over images */
   .gradient-mask-bottom {
     mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
   }
-  
+
   /* Hero overlay gradient */
   .hero-overlay {
-    background: linear-gradient(to bottom, 
-      rgba(10, 10, 10, 0.3) 0%, 
-      rgba(10, 10, 10, 0.5) 50%, 
+    background: linear-gradient(to bottom,
+      rgba(10, 10, 10, 0.3) 0%,
+      rgba(10, 10, 10, 0.5) 50%,
       rgba(10, 10, 10, 0.9) 100%);
   }
-  
+
   /* Section divider */
   .section-divider {
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, #a68a2d 50%, transparent 100%);
   }
-  
+
+  /* Mobile-optimized section padding */
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  /* Mobile container */
+  .container-mobile {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+
+  /* Premium mobile card */
+  .premium-card-mobile {
+    @apply p-4 sm:p-6 rounded-xl sm:rounded-2xl;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: #0a0a0a;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: #333333;
-    border-radius: 4px;
+    border-radius: 3px;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: #a68a2d;
+  }
+
+  /* Mobile touch feedback */
+  .touch-feedback {
+    @apply active:scale-95 transition-transform duration-150;
+  }
+
+  /* Premium button mobile */
+  .btn-premium-mobile {
+    @apply px-6 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm;
+  }
+
+  /* Mobile navigation blur */
+  .nav-blur-mobile {
+    @apply backdrop-blur-xl bg-kath-black/90;
   }
 }
 

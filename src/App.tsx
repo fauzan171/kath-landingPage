@@ -21,6 +21,9 @@ import FAQ from './sections/FAQ';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 
+// Components
+import BackgroundMusic from './components/BackgroundMusic';
+
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
@@ -53,6 +56,9 @@ function App() {
 
   return (
     <div className="relative bg-kath-black min-h-screen">
+      {/* Background Music - Premium Classical */}
+      <BackgroundMusic />
+
       {/* Navigation */}
       <Navigation />
 

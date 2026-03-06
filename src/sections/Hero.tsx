@@ -145,22 +145,25 @@ const Hero = () => {
       {/* Hero overlay gradient */}
       <div className="absolute inset-0 hero-overlay" />
 
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
+      {/* Content - Mobile Optimized */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6">
         {/* Label */}
         <span
           ref={labelRef}
-          className="font-body text-kath-gold text-xs md:text-sm uppercase tracking-[0.4em] mb-6"
+          className="font-body text-kath-gold text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6"
           style={{ willChange: 'transform, opacity' }}
         >
           {heroConfig.label}
         </span>
 
-        {/* Main Title */}
+        {/* Main Title - Responsive sizing */}
         <h1
           ref={titleRef}
-          className="font-display text-kath-white text-display tracking-tight select-none text-center whitespace-pre-line"
+          className="font-display text-kath-white text-center whitespace-pre-line"
           style={{
+            fontSize: 'clamp(2rem, 10vw, 8rem)',
+            lineHeight: '0.95',
+            letterSpacing: '-0.02em',
             textShadow: '0 4px 40px rgba(0,0,0,0.5)',
             willChange: 'transform, opacity'
           }}
@@ -171,32 +174,32 @@ const Hero = () => {
         {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className="font-body text-kath-off-white/80 text-sm md:text-base mt-8 max-w-xl text-center leading-relaxed"
+          className="font-body text-kath-off-white/80 text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
           style={{ willChange: 'transform, opacity' }}
         >
           {heroConfig.subtitle}
         </p>
 
-        {/* CTA Buttons */}
-        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 mt-10">
-          <button className="group px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2">
+        {/* CTA Buttons - Mobile optimized */}
+        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto px-4 sm:px-0">
+          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-gold to-kath-gold-dark hover:from-kath-gold-light hover:to-kath-gold text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-gold touch-feedback">
             {heroConfig.ctaPrimary}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
-          <button className="px-8 py-4 border border-kath-white/30 hover:border-kath-gold text-kath-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300">
+          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-kath-white/30 hover:border-kath-gold hover:bg-kath-gold/10 text-kath-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
             {heroConfig.ctaSecondary}
           </button>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+      {/* Scroll Indicator - Mobile optimized */}
+      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
         <span className="font-body text-kath-white/60 text-xs uppercase tracking-wider">Scroll</span>
         <ChevronDown className="w-5 h-5 text-kath-gold" />
       </div>
 
       {/* Bottom gradient for seamless transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-kath-black to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-kath-black to-transparent" />
     </section>
   );
 };
