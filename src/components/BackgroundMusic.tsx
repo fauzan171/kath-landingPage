@@ -5,82 +5,82 @@ const BackgroundMusic = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    // Create audio element
-    const audio = new Audio();
-    audio.loop = true;
-    audio.volume = 0.3;
-    audio.autoplay = true;
+    // Create audio element with autoplay attributes
+    const audio = document.createElement('audio');
+    audio.setAttribute('autoplay', 'true');
+    audio.setAttribute('loop', 'true');
+    audio.setAttribute('preload', 'auto');
+    audio.volume = 0.4;
     audio.muted = false;
 
     // Classical piano music
     audio.src = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=classical-piano-101-bpm-121529.mp3';
 
+    document.body.appendChild(audio);
     audioRef.current = audio;
 
-    // Try to play immediately
-    const attemptPlay = () => {
-      if (audioRef.current) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-            })
-            .catch((error) => {
-              console.log('Autoplay blocked, retrying...', error);
-              // Try muted autoplay first (browsers allow this)
-              if (audioRef.current) {
-                audioRef.current.muted = true;
-                audioRef.current.play().then(() => {
-                  // Then unmute after a short delay
-                  setTimeout(() => {
-                    if (audioRef.current) {
-                      audioRef.current.muted = false;
-                      setIsPlaying(true);
-                    }
-                  }, 1000);
-                }).catch(() => {});
-              }
-            });
-        }
-      }
-    };
-
-    // Attempt play multiple times
-    attemptPlay();
-    setTimeout(attemptPlay, 500);
-    setTimeout(attemptPlay, 1000);
-    setTimeout(attemptPlay, 2000);
-
-    // Also try on any user interaction as fallback
-    const handleInteraction = () => {
-      if (audioRef.current && !isPlaying) {
+    const startPlayback = () => {
+      if (audioRef.current && audioRef.current.paused) {
         audioRef.current.play()
-          .then(() => setIsPlaying(true))
-          .catch(() => {});
+          .then(() => {
+            setIsPlaying(true);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+            }
+          })
+          .catch((err) => {
+            console.log('Autoplay blocked:', err);
+          });
       }
     };
 
-    document.addEventListener('click', handleInteraction, { once: true });
-    document.addEventListener('touchstart', handleInteraction, { once: true });
-    document.addEventListener('keydown', handleInteraction, { once: true });
-    document.addEventListener('scroll', handleInteraction, { once: true });
-    document.addEventListener('mousemove', handleInteraction, { once: true });
+    // Try to play immediately
+    if (document.readyState === 'complete') {
+      startPlayback();
+    } else {
+      window.addEventListener('load', startPlayback);
+    }
 
-    audio.addEventListener('playing', () => setIsPlaying(true));
-    audio.addEventListener('pause', () => setIsPlaying(false));
-    audio.addEventListener('error', (e) => console.log('Audio error:', e));
+    // Keep trying every 2 seconds
+    intervalRef.current = setInterval(startPlayback, 2000);
+
+    // Also try on first click anywhere
+    const handleFirstClick = () => {
+      startPlayback();
+    };
+
+    document.addEventListener('click', handleFirstClick, { once: true });
+    document.addEventListener('touchstart', handleFirstClick, { once: true });
+
+    // Monitor audio state
+    const handlePlaying = () => setIsPlaying(true);
+    const handlePause = () => {
+      if (audioRef.current && !audioRef.current.ended) {
+        setIsPlaying(false);
+        // Try to resume if paused unexpectedly
+        setTimeout(startPlayback, 1000);
+      }
+    };
+
+    audio.addEventListener('playing', handlePlaying);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('canplay', startPlayback);
 
     return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      window.removeEventListener('load', startPlayback);
+      document.removeEventListener('click', handleFirstClick);
+      document.removeEventListener('touchstart', handleFirstClick);
+      audio.removeEventListener('playing', handlePlaying);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('canplay', startPlayback);
       audio.pause();
-      audio.src = '';
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-      document.removeEventListener('keydown', handleInteraction);
-      document.removeEventListener('scroll', handleInteraction);
-      document.removeEventListener('mousemove', handleInteraction);
+      audio.remove();
     };
   }, []);
 
