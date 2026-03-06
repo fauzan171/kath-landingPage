@@ -1,0 +1,37 @@
+# Cloudflare Wrangler Configuration
+# For Cloudflare Pages deployment
+
+name = "kath-event-organizer"
+compatibility_date = "2025-03-06"
+compatibility_flags = ["nodejs_compat"]
+
+# Build configuration
+[build]
+command = "npm run build"
+directory = "dist"
+
+# Environment variables (define in Cloudflare Dashboard or use --secret)
+[vars]
+NODE_ENV = "production"
+
+# Optional: Custom headers (alternatively use _headers file)
+# [[headers]]
+# for = "/*"
+# [headers.values]
+# X-Frame-Options = "DENY"
+
+# Optional: Redirect rules (alternatively use _redirects file)
+# [[redirects]]
+# from = "/old-path"
+# to = "/new-path"
+# status = 301
+
+# SPA fallback
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Optional: Cloudflare Functions (if needed for API routes)
+# [[env.production.functions]]
+# directory = "functions"

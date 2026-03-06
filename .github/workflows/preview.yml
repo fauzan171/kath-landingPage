@@ -1,0 +1,36 @@
+name: Preview Build
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint || echo "No lint script"
+
+      - name: Build
+        run: npm run build
+
+      - name: Check build size
+        run: |
+          echo "Build size:"
+          du -sh dist/
+          echo ""
+          echo "Largest files:"
+          find dist/ -type f -exec ls -lh {} \; | sort -k5 -rh | head -20

@@ -1,0 +1,21 @@
+{
+  "name": "KATH Event Organizer",
+  "short_name": "KATH Events",
+  "description": "Premium Event Organizer in Jakarta - Creating Unforgettable Moments Since 2019",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/KATH-Logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "lifestyle", "events"],
+  "lang": "id",
+  "dir": "ltr"
+}
