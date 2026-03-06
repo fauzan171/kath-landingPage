@@ -1,8 +1,5 @@
 # Cloudflare Pages Redirects Configuration
-# Handle SPA routing - redirect all routes to index.html
-
-# SPA fallback - all routes serve index.html (using 200 for rewrite, not redirect)
-/*    /index.html   200
+# SPA routing is handled by wrangler.jsonc via not_found_handling: single-page-application
 
 # Optional: Custom redirects (uncomment if needed)
 # /old-page    /new-page    301
