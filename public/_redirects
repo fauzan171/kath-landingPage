@@ -1,13 +1,12 @@
 # Cloudflare Pages Redirects Configuration
 # Handle SPA routing - redirect all routes to index.html
 
-# SPA fallback - all routes serve index.html
-/* /index.html 200
+# SPA fallback - all routes serve index.html (using 200 for rewrite, not redirect)
+/*    /index.html   200
 
 # Optional: Custom redirects (uncomment if needed)
-# /old-page /new-page 301
-# /competition/* /#competition 302
+# /old-page    /new-page    301
 
 # Optional: External redirects
-# /social/instagram https://instagram.com/kathevent 301
-# /social/facebook https://facebook.com/kathevent 301
+# /instagram    https://instagram.com/kathevent    301
+# /facebook     https://facebook.com/kathevent     301
