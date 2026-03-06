@@ -12,8 +12,8 @@ const Portfolio = () => {
   const gridRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState('All');
 
-  const filteredItems = activeFilter === 'All' 
-    ? portfolioConfig.items 
+  const filteredItems = activeFilter === 'All'
+    ? portfolioConfig.items
     : portfolioConfig.items.filter(item => item.category === activeFilter);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const Portfolio = () => {
   useEffect(() => {
     const grid = gridRef.current;
     if (!grid) return;
-    
+
     const items = grid.querySelectorAll('.portfolio-item');
     gsap.set(items, { opacity: 0, y: 30, scale: 0.95 });
     gsap.to(items, {
@@ -131,14 +131,15 @@ const Portfolio = () => {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer"
+              className="portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer bg-kath-dark-gray"
             >
-              {/* Image */}
-              <div className="aspect-[4/3] overflow-hidden">
+              {/* Image Container - Centered */}
+              <div className="aspect-[4/3] overflow-hidden flex items-center justify-center">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                  style={{ objectPosition: 'center center' }}
                 />
               </div>
 

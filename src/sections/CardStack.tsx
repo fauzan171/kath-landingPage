@@ -33,7 +33,7 @@ const CardStack = () => {
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
-      end: `+=${cardElements.length * 100}%`,
+      end: `${cardElements.length * 100}%`,
       pin: wrapper,
       pinSpacing: true,
       scrub: 1,
@@ -110,12 +110,13 @@ const CardStack = () => {
               }}
             >
               <div className="relative overflow-hidden rounded-3xl shadow-deep bg-kath-dark-gray h-full border border-kath-charcoal/50">
-                {/* Image */}
-                <div className="absolute inset-0 overflow-hidden">
+                {/* Image - Centered */}
+                <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
                   <img
                     src={card.image}
                     alt={card.title}
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: 'center center' }}
                   />
                   {/* Image Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-kath-black/80 via-kath-black/20 to-transparent" />
