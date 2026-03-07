@@ -81,37 +81,37 @@ const Services = () => {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-16 md:mb-20">
+        <div ref={headerRef} className="text-center mb-12 md:mb-16 lg:mb-20">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
             {servicesConfig.sectionLabel}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
             {servicesConfig.sectionTitle}
           </h2>
-          <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
+          <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto px-4">
             {servicesConfig.sectionDescription}
           </p>
         </div>
 
         {/* Services Grid */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {servicesConfig.services.map((service) => {
             const Icon = iconMap[service.icon] || Sparkles;
             return (
               <div
                 key={service.id}
-                className="service-card group relative p-8 bg-kath-dark-gray/50 border border-kath-charcoal/50 rounded-2xl hover:border-kath-gold/50 transition-all duration-500 card-hover"
+                className="service-card group relative p-6 sm:p-8 bg-kath-dark-gray/50 border border-kath-charcoal/50 rounded-2xl hover:border-kath-gold/50 transition-all duration-500 card-hover"
               >
                 {/* Icon */}
-                <div className="w-14 h-14 rounded-xl bg-kath-gold/10 flex items-center justify-center mb-6 group-hover:bg-kath-gold/20 transition-colors duration-300">
-                  <Icon className="w-7 h-7 text-kath-gold" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-kath-gold/10 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-kath-gold/20 transition-colors duration-300">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-kath-gold" />
                 </div>
 
                 {/* Content */}
-                <h3 className="font-display text-2xl text-kath-white mb-3">
+                <h3 className="font-display text-xl sm:text-2xl text-kath-white mb-2 sm:mb-3">
                   {service.title}
                 </h3>
-                <p className="font-body text-sm text-kath-off-white/60 mb-6 leading-relaxed">
+                <p className="font-body text-sm text-kath-off-white/60 mb-4 sm:mb-6 leading-relaxed">
                   {service.description}
                 </p>
 
@@ -137,7 +137,7 @@ const Services = () => {
       </div>
 
       {/* Section divider */}
-      <div className="section-divider mt-24 md:mt-32" />
+      <div className="section-divider mt-20 md:mt-24 lg:mt-32" />
     </section>
   );
 };

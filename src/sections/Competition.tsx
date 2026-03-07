@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
 import { Trophy, Users, Award, Clock, ArrowRight, Heart, X, Calendar, Target, Gift, CheckCircle, FileText, ChevronRight } from 'lucide-react';
+import CompetitionForm from '../components/CompetitionForm';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -150,6 +151,10 @@ const Competition = () => {
   const [selectedCompetition, setSelectedCompetition] = useState<typeof competitionConfig.categories[0] | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'prizes' | 'rules'>('overview');
 
+  // Registration form state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+
   useEffect(() => {
     const deadline = new Date(competitionConfig.mainCompetition.deadline);
 
@@ -251,8 +256,18 @@ const Competition = () => {
 
   const selectedDetails = selectedCompetition ? competitionDetails[selectedCompetition.id] : null;
 
+  const handleRegisterClick = (categoryName?: string) => {
+    setSelectedCategory(categoryName || '');
+    setIsFormOpen(true);
+  };
+
   return (
     <>
+      <CompetitionForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        competitionName={selectedCategory}
+      />
       <section
         ref={sectionRef}
         id="competition"
@@ -302,7 +317,7 @@ const Competition = () => {
                   {competitionConfig.mainCompetition.description}
                 </p>
                 <button
-                  onClick={() => setSelectedCompetition(competitionConfig.categories[0])}
+                  onClick={() => handleRegisterClick(competitionConfig.mainCompetition.name)}
                   className="group px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2"
                 >
                   {competitionConfig.ctaText}
@@ -501,7 +516,10 @@ const Competition = () => {
                       <p className="font-body text-kath-off-white/60 text-sm mb-4">
                         Register now and showcase your talent. Don't miss this opportunity to win amazing prizes and gain industry recognition.
                       </p>
-                      <button className="px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300">
+                      <button
+                        onClick={() => handleRegisterClick(selectedCompetition?.name)}
+                        className="px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
+                      >
                         Register Now
                       </button>
                     </div>
@@ -590,7 +608,10 @@ const Competition = () => {
                     <p className="font-body text-kath-off-white/50 text-sm">Questions?</p>
                     <p className="font-body text-kath-gold">{selectedDetails.contact}</p>
                   </div>
-                  <button className="px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2">
+                  <button
+                    onClick={() => handleRegisterClick(selectedCompetition?.name)}
+                    className="px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2"
+                  >
                     Register Now
                     <ArrowRight className="w-4 h-4" />
                   </button>

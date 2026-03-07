@@ -82,20 +82,20 @@ const Statistics = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-black py-20 md:py-28"
+      className="relative w-full bg-kath-black py-16 sm:py-20 md:py-28"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Label */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
             {statisticsConfig.sectionLabel}
           </span>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Mobile Optimized */}
         <div
           ref={statsRef}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12"
         >
           {statItems.map((stat, index) => (
             <div
@@ -105,15 +105,15 @@ const Statistics = () => {
                 animationDelay: `${index * 100}ms`,
               }}
             >
-              <div className="relative inline-block">
-                <span className="font-display text-5xl md:text-7xl text-kath-white group-hover:text-kath-gold transition-colors duration-500">
+              <div className="relative inline-flex items-baseline justify-center">
+                <span className="font-display text-4xl sm:text-5xl md:text-7xl text-kath-white group-hover:text-kath-gold transition-colors duration-500">
                   {stat.value}
                 </span>
-                <span className="font-display text-3xl md:text-4xl text-kath-gold">
+                <span className="font-display text-2xl sm:text-3xl md:text-4xl text-kath-gold ml-1">
                   {stat.suffix}
                 </span>
               </div>
-              <p className="font-body text-sm text-kath-off-white/60 mt-3 uppercase tracking-wider">
+              <p className="font-body text-xs sm:text-sm text-kath-off-white/60 mt-2 sm:mt-3 uppercase tracking-wider">
                 {stat.label}
               </p>
             </div>
@@ -122,7 +122,7 @@ const Statistics = () => {
       </div>
 
       {/* Section divider */}
-      <div className="section-divider mt-20 md:mt-28" />
+      <div className="section-divider mt-16 sm:mt-20 md:mt-28" />
     </section>
   );
 };
