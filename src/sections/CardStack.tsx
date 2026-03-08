@@ -33,10 +33,10 @@ const CardStack = () => {
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
-      end: `${cardElements.length * 100}%`,
+      end: `${cardElements.length * 50}%`,
       pin: wrapper,
       pinSpacing: true,
-      scrub: 1,
+      scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
         const segmentSize = 1 / cardElements.length;
@@ -81,7 +81,7 @@ const CardStack = () => {
     <section
       ref={sectionRef}
       className="relative w-full bg-kath-black"
-      style={{ minHeight: `${(cards.length + 1) * 100}vh` }}
+      style={{ minHeight: `${(cards.length + 1) * 50}vh` }}
     >
       {/* Section Header */}
       <div className="absolute top-0 left-0 right-0 py-12 md:py-16 text-center z-10">
