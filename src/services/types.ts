@@ -204,7 +204,6 @@ export interface NewsQueryParams extends PaginationParams {
 
 export interface CompetitionQueryParams extends PaginationParams {
   status?: string;
-  }
 }
 
 // ==========================================
