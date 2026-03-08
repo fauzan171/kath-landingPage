@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useApi, useApiWithParams, useMutation } from './useApi';
+import { useApi, useMutation } from './useApi';
 import {
   getPortfolio,
   getPortfolioById,

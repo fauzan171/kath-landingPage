@@ -8,20 +8,19 @@ import {
   Clock,
   ArrowRight,
   Heart,
-  Calendar,
-  Target,
+  ChevronLeft,
+  Medal,
+  Sparkles,
   Gift,
   CheckCircle,
   FileText,
-  ChevronLeft,
-  Medal,
-  Star,
-  Sparkles,
   Download,
   Share2,
   Mail,
   Phone,
-  MapPin
+  Star,
+  Target,
+  Calendar
 } from 'lucide-react';
 import { competitionConfig } from '../config';
 import CompetitionForm from '../components/CompetitionForm';

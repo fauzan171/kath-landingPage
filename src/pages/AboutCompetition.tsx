@@ -5,26 +5,20 @@ import {
   Trophy,
   Users,
   Award,
-  Clock,
   ArrowRight,
   Heart,
   ChevronLeft,
   Medal,
-  Star,
   Sparkles,
-  Target,
-  Calendar,
-  CheckCircle2,
-  Camera,
-  GraduationCap,
-  ArrowUpRight,
+  ChevronDown,
   MapPin,
   Phone,
   Mail,
-  ChevronDown,
-  X
+  GraduationCap,
+  ArrowUpRight,
+  Camera,
+  CheckCircle2
 } from 'lucide-react';
-import { competitionConfig } from '../config';
 import CompetitionForm from '../components/CompetitionForm';
 import CompetitionDetail from './CompetitionDetail';
 
