@@ -398,7 +398,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {categories.map((cat, _index) => {
+            {categories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <div
