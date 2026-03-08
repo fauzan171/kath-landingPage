@@ -42,7 +42,7 @@ function getAuthHeaders(): HeadersInit {
 }
 
 // Generic GET request
-export async function get<T>(endpoint: string, params?: Record<string, string | number>): Promise<ApiResponse<T>> {
+export async function get<T>(endpoint: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
   const url = new URL(`${API_BASE_URL}${endpoint}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
