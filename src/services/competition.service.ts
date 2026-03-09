@@ -16,7 +16,7 @@ const ENDPOINT = '/competitions';
 export async function getCompetitions(
   params?: CompetitionQueryParams
 ): Promise<ApiResponse<Competition[]>> {
-  return get<Competition[]>(ENDPOINT, params);
+  return get<Competition[]>(ENDPOINT, params as Record<string, unknown>);
 }
 
 // Get main competition info (highlighted)

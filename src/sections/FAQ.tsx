@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { faqConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ChevronDown } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,7 +12,13 @@ const FAQ = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [openItems, setOpenItems] = useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState<string>('');
+  const { language } = useLanguage();
+
+  // Set initial category based on language
+  useEffect(() => {
+    setActiveCategory(language === 'id' ? 'Umum' : 'General');
+  }, [language]);
 
   const toggleItem = (id: string) => {
     setOpenItems((prev) =>
@@ -19,9 +26,11 @@ const FAQ = () => {
     );
   };
 
-  const filteredItems = activeCategory === 'All'
+  const allLabel = language === 'id' ? 'Semua' : 'All';
+  
+  const filteredItems = activeCategory === allLabel
     ? faqConfig.items
-    : faqConfig.items.filter((item) => item.category === activeCategory);
+    : faqConfig.items.filter((item) => item.category[language] === activeCategory);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -77,25 +86,26 @@ const FAQ = () => {
   return (
     <section
       ref={sectionRef}
+      id="faq"
       className="relative w-full bg-kath-black py-24 md:py-32"
     >
       <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {faqConfig.sectionLabel}
+            {faqConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {faqConfig.sectionTitle}
+            {faqConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4">
-            {faqConfig.sectionDescription}
+            {faqConfig.sectionDescription[language]}
           </p>
         </div>
 
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {['All', ...faqConfig.categories].map((category) => (
+          {[allLabel, ...faqConfig.categories.map(c => c[language])].map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
@@ -128,7 +138,7 @@ const FAQ = () => {
                   className="w-full flex items-center justify-between p-5 text-left"
                 >
                   <span className="font-body text-sm md:text-base text-kath-white pr-4">
-                    {item.question}
+                    {item.question[language]}
                   </span>
                   <ChevronDown
                     className={`w-5 h-5 text-kath-gold flex-shrink-0 transition-transform duration-300 ${
@@ -142,7 +152,7 @@ const FAQ = () => {
                   }`}
                 >
                   <p className="px-5 pb-5 font-body text-sm text-kath-off-white/70 leading-relaxed">
-                    {item.answer}
+                    {item.answer[language]}
                   </p>
                 </div>
               </div>

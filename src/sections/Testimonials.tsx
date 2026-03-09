@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { testimonialsConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,6 +12,7 @@ const Testimonials = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { language } = useLanguage();
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonialsConfig.testimonials.length);
@@ -89,13 +91,13 @@ const Testimonials = () => {
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {testimonialsConfig.sectionLabel}
+            {testimonialsConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {testimonialsConfig.sectionTitle}
+            {testimonialsConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
-            {testimonialsConfig.sectionDescription}
+            {testimonialsConfig.sectionDescription[language]}
           </p>
         </div>
 
@@ -127,7 +129,7 @@ const Testimonials = () => {
 
                     {/* Quote */}
                     <blockquote className="font-display text-xl md:text-2xl text-kath-white leading-relaxed mb-8">
-                      "{testimonial.quote}"
+                      "{testimonial.quote[language]}"
                     </blockquote>
 
                     {/* Author */}
@@ -141,10 +143,10 @@ const Testimonials = () => {
                         {testimonial.name}
                       </h4>
                       <p className="font-body text-sm text-kath-gold">
-                        {testimonial.role}
+                        {testimonial.role[language]}
                       </p>
                       <p className="font-body text-xs text-kath-off-white/50 mt-1">
-                        {testimonial.event}
+                        {testimonial.event[language]}
                       </p>
                     </div>
                   </div>

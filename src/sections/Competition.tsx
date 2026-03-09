@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
-import { Trophy, Users, Award, Clock, ArrowRight, Heart, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { Trophy, Users, Award, Clock, ArrowRight, Rocket, ChevronRight } from 'lucide-react';
 import AboutCompetition from '../pages/AboutCompetition';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -12,6 +13,7 @@ const Competition = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const mainCardRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   // Countdown timer
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -111,11 +113,17 @@ const Competition = () => {
   }, []);
 
   const getCategoryIcon = (name: string) => {
-    if (name.includes('Wedding')) return <Heart className="w-5 h-5 text-kath-gold" />;
-    if (name.includes('Design')) return <Award className="w-5 h-5 text-kath-gold" />;
-    if (name.includes('Photography')) return <Trophy className="w-5 h-5 text-kath-gold" />;
-    if (name.includes('Student')) return <Users className="w-5 h-5 text-kath-gold" />;
+    if (name.includes('Startup') || name.includes('startup')) return <Rocket className="w-5 h-5 text-kath-gold" />;
+    if (name.includes('Social') || name.includes('Sosial')) return <Award className="w-5 h-5 text-kath-gold" />;
+    if (name.includes('Student') || name.includes('Mahasiswa')) return <Users className="w-5 h-5 text-kath-gold" />;
+    if (name.includes('Corporate') || name.includes('Korporasi')) return <Trophy className="w-5 h-5 text-kath-gold" />;
     return <Trophy className="w-5 h-5 text-kath-gold" />;
+  };
+
+  const getStatusColor = (status: string) => {
+    if (status === 'Open' || status === 'Buka') return 'bg-green-500/20 text-green-400';
+    if (status === 'Coming Soon' || status === 'Segera') return 'bg-yellow-500/20 text-yellow-400';
+    return 'bg-gray-500/20 text-gray-400';
   };
 
   // Show about page if clicked
@@ -143,13 +151,13 @@ const Competition = () => {
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {competitionConfig.sectionLabel}
+            {competitionConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {competitionConfig.sectionTitle}
+            {competitionConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
-            {competitionConfig.sectionDescription}
+            {competitionConfig.sectionDescription[language]}
           </p>
         </div>
 
@@ -167,20 +175,20 @@ const Competition = () => {
               <div className="flex items-center gap-2 mb-4">
                 <Trophy className="w-5 h-5 text-kath-gold" />
                 <span className="font-body text-kath-gold text-sm uppercase tracking-wider">
-                  Main Competition
+                  {language === 'id' ? 'Kompetisi Utama' : 'Main Competition'}
                 </span>
               </div>
               <h3 className="font-display text-3xl md:text-4xl text-kath-white mb-4">
-                {competitionConfig.mainCompetition.name}
+                {competitionConfig.mainCompetition.name[language]}
               </h3>
               <p className="font-body text-kath-off-white/70 mb-6">
-                {competitionConfig.mainCompetition.description}
+                {competitionConfig.mainCompetition.description[language]}
               </p>
               <button
                 onClick={() => setShowAboutPage(true)}
                 className="group px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2"
               >
-                Lihat Detail Kompetisi
+                {language === 'id' ? 'Lihat Detail Kompetisi' : 'View Competition Details'}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -189,14 +197,14 @@ const Competition = () => {
             <div className="flex flex-col items-center lg:items-end">
               <span className="font-body text-kath-off-white/60 text-sm mb-4 flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                Registration closes in
+                {language === 'id' ? 'Pendaftaran ditutup dalam' : 'Registration closes in'}
               </span>
               <div className="grid grid-cols-4 gap-3 md:gap-4">
                 {[
-                  { value: timeLeft.days, label: 'Days' },
-                  { value: timeLeft.hours, label: 'Hours' },
-                  { value: timeLeft.minutes, label: 'Mins' },
-                  { value: timeLeft.seconds, label: 'Secs' },
+                  { value: timeLeft.days, label: language === 'id' ? 'Hari' : 'Days' },
+                  { value: timeLeft.hours, label: language === 'id' ? 'Jam' : 'Hours' },
+                  { value: timeLeft.minutes, label: language === 'id' ? 'Menit' : 'Mins' },
+                  { value: timeLeft.seconds, label: language === 'id' ? 'Detik' : 'Secs' },
                 ].map((item, index) => (
                   <div
                     key={index}
@@ -225,23 +233,21 @@ const Competition = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-kath-gold/10 flex items-center justify-center">
-                  {getCategoryIcon(category.name)}
+                  {getCategoryIcon(category.name[language])}
                 </div>
                 <span
                   className={`px-3 py-1 text-xs font-body rounded-full ${
-                    category.status === 'Open'
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-yellow-500/20 text-yellow-400'
+                    getStatusColor(category.status[language])
                   }`}
                 >
-                  {category.status}
+                  {category.status[language]}
                 </span>
               </div>
               <h4 className="font-display text-lg text-kath-white mb-2 group-hover:text-kath-gold transition-colors">
-                {category.name}
+                {category.name[language]}
               </h4>
               <p className="font-body text-xs text-kath-off-white/50 mb-3">
-                {category.target}
+                {category.target[language]}
               </p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
@@ -249,7 +255,7 @@ const Competition = () => {
                   <span className="font-body text-sm text-kath-gold">{category.prize}</span>
                 </div>
                 <span className="flex items-center gap-1 text-kath-off-white/40 text-xs font-body group-hover:text-kath-gold transition-colors">
-                  Lihat Detail
+                  {language === 'id' ? 'Lihat Detail' : 'View Details'}
                   <ChevronRight className="w-3 h-3" />
                 </span>
               </div>

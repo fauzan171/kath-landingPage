@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { contactConfig } from '../config';
-import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight, Twitter } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,7 +12,8 @@ const Contact = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
-  
+  const { language } = useLanguage();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,7 +25,10 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
-    alert('Thank you for your inquiry! We will contact you soon.');
+    alert(language === 'id' 
+      ? 'Terima kasih atas pertanyaan Anda! Kami akan segera menghubungi Anda.' 
+      : 'Thank you for your inquiry! We will contact you soon.'
+    );
     setFormData({ name: '', email: '', phone: '', eventType: '', message: '' });
   };
 
@@ -94,6 +99,43 @@ const Contact = () => {
     };
   }, []);
 
+  const labels = {
+    name: language === 'id' ? 'Nama Lengkap' : 'Full Name',
+    email: language === 'id' ? 'Alamat Email' : 'Email Address',
+    phone: language === 'id' ? 'Nomor Telepon' : 'Phone Number',
+    eventType: language === 'id' ? 'Jenis Event' : 'Event Type',
+    message: language === 'id' ? 'Pesan Anda' : 'Your Message',
+    selectEvent: language === 'id' ? 'Pilih Jenis Event' : 'Select Event Type',
+    eventTypes: [
+      { value: 'wedding', label: language === 'id' ? 'Pernikahan' : 'Wedding' },
+      { value: 'corporate', label: language === 'id' ? 'Event Korporat' : 'Corporate Event' },
+      { value: 'birthday', label: language === 'id' ? 'Ulang Tahun' : 'Birthday' },
+      { value: 'exhibition', label: language === 'id' ? 'Pameran' : 'Exhibition' },
+      { value: 'private', label: language === 'id' ? 'Pesta Pribadi' : 'Private Party' },
+      { value: 'other', label: language === 'id' ? 'Lainnya' : 'Other' },
+    ],
+    placeholders: {
+      name: language === 'id' ? 'Nama Anda' : 'Your Name',
+      email: language === 'id' ? 'email@anda.com' : 'your@email.com',
+      phone: '+62 812 3456 7890',
+      message: language === 'id' 
+        ? 'Ceritakan tentang event impian Anda...' 
+        : 'Tell us about your dream event...',
+    },
+    contactInfo: {
+      email: 'Email',
+      phone: language === 'id' ? 'Telepon' : 'Phone',
+      address: language === 'id' ? 'Alamat' : 'Address',
+      hours: language === 'id' ? 'Jam Kerja' : 'Working Hours',
+    },
+    followUs: language === 'id' ? 'Ikuti Kami' : 'Follow Us',
+    ctaTitle: language === 'id' ? 'Siap Memulai?' : 'Ready to Get Started?',
+    ctaDesc: language === 'id' 
+      ? 'Jadwalkan konsultasi gratis dengan tim ahli kami hari ini.' 
+      : 'Book a free consultation with our expert team today.',
+    scheduleCall: language === 'id' ? 'Jadwalkan Panggilan' : 'Schedule a Call',
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -108,13 +150,13 @@ const Contact = () => {
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {contactConfig.sectionLabel}
+            {contactConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {contactConfig.sectionTitle}
+            {contactConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
-            {contactConfig.sectionDescription}
+            {contactConfig.sectionDescription[language]}
           </p>
         </div>
 
@@ -129,27 +171,27 @@ const Contact = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-body text-sm text-kath-off-white/70 mb-2">
-                  Your Name
+                  {labels.name}
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-3 bg-kath-dark-gray border border-kath-charcoal rounded-lg font-body text-kath-white placeholder-kath-off-white/30 focus:border-kath-gold focus:outline-none transition-colors"
-                  placeholder="John Doe"
+                  placeholder={labels.placeholders.name}
                   required
                 />
               </div>
               <div>
                 <label className="block font-body text-sm text-kath-off-white/70 mb-2">
-                  Email Address
+                  {labels.email}
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 bg-kath-dark-gray border border-kath-charcoal rounded-lg font-body text-kath-white placeholder-kath-off-white/30 focus:border-kath-gold focus:outline-none transition-colors"
-                  placeholder="john@example.com"
+                  placeholder={labels.placeholders.email}
                   required
                 />
               </div>
@@ -158,19 +200,19 @@ const Contact = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-body text-sm text-kath-off-white/70 mb-2">
-                  Phone Number
+                  {labels.phone}
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 bg-kath-dark-gray border border-kath-charcoal rounded-lg font-body text-kath-white placeholder-kath-off-white/30 focus:border-kath-gold focus:outline-none transition-colors"
-                  placeholder="+62 812 3456 7890"
+                  placeholder={labels.placeholders.phone}
                 />
               </div>
               <div>
                 <label className="block font-body text-sm text-kath-off-white/70 mb-2">
-                  Event Type
+                  {labels.eventType}
                 </label>
                 <select
                   value={formData.eventType}
@@ -178,27 +220,24 @@ const Contact = () => {
                   className="w-full px-4 py-3 bg-kath-dark-gray border border-kath-charcoal rounded-lg font-body text-kath-white focus:border-kath-gold focus:outline-none transition-colors"
                   required
                 >
-                  <option value="">Select Event Type</option>
-                  <option value="wedding">Wedding</option>
-                  <option value="corporate">Corporate Event</option>
-                  <option value="birthday">Birthday Celebration</option>
-                  <option value="exhibition">Exhibition</option>
-                  <option value="private">Private Party</option>
-                  <option value="other">Other</option>
+                  <option value="">{labels.selectEvent}</option>
+                  {labels.eventTypes.map((type) => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
             <div>
               <label className="block font-body text-sm text-kath-off-white/70 mb-2">
-                Your Message
+                {labels.message}
               </label>
               <textarea
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 rows={5}
                 className="w-full px-4 py-3 bg-kath-dark-gray border border-kath-charcoal rounded-lg font-body text-kath-white placeholder-kath-off-white/30 focus:border-kath-gold focus:outline-none transition-colors resize-none"
-                placeholder="Tell us about your event..."
+                placeholder={labels.placeholders.message}
                 required
               />
             </div>
@@ -207,7 +246,7 @@ const Contact = () => {
               type="submit"
               className="group w-full md:w-auto px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2"
             >
-              {contactConfig.ctaText}
+              {contactConfig.ctaText[language]}
               <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </form>
@@ -220,7 +259,7 @@ const Contact = () => {
                 <div className="w-12 h-12 rounded-lg bg-kath-gold/10 flex items-center justify-center mb-4">
                   <Mail className="w-5 h-5 text-kath-gold" />
                 </div>
-                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">Email</h4>
+                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">{labels.contactInfo.email}</h4>
                 <a
                   href={`mailto:${contactConfig.contactInfo.email}`}
                   className="font-body text-kath-white hover:text-kath-gold transition-colors"
@@ -233,7 +272,7 @@ const Contact = () => {
                 <div className="w-12 h-12 rounded-lg bg-kath-gold/10 flex items-center justify-center mb-4">
                   <Phone className="w-5 h-5 text-kath-gold" />
                 </div>
-                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">Phone</h4>
+                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">{labels.contactInfo.phone}</h4>
                 <a
                   href={`tel:${contactConfig.contactInfo.phone}`}
                   className="font-body text-kath-white hover:text-kath-gold transition-colors"
@@ -246,9 +285,9 @@ const Contact = () => {
                 <div className="w-12 h-12 rounded-lg bg-kath-gold/10 flex items-center justify-center mb-4">
                   <MapPin className="w-5 h-5 text-kath-gold" />
                 </div>
-                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">Address</h4>
+                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">{labels.contactInfo.address}</h4>
                 <p className="font-body text-kath-white">
-                  {contactConfig.contactInfo.address}
+                  {contactConfig.contactInfo.address[language]}
                 </p>
               </div>
 
@@ -256,16 +295,16 @@ const Contact = () => {
                 <div className="w-12 h-12 rounded-lg bg-kath-gold/10 flex items-center justify-center mb-4">
                   <Clock className="w-5 h-5 text-kath-gold" />
                 </div>
-                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">Working Hours</h4>
+                <h4 className="font-body text-sm text-kath-off-white/60 mb-1">{labels.contactInfo.hours}</h4>
                 <p className="font-body text-kath-white">
-                  {contactConfig.contactInfo.hours}
+                  {contactConfig.contactInfo.hours[language]}
                 </p>
               </div>
             </div>
 
             {/* Social Links */}
             <div className="p-6 bg-kath-dark-gray/30 border border-kath-charcoal/30 rounded-xl">
-              <h4 className="font-body text-sm text-kath-off-white/60 mb-4">Follow Us</h4>
+              <h4 className="font-body text-sm text-kath-off-white/60 mb-4">{labels.followUs}</h4>
               <div className="flex gap-4">
                 <a
                   href={contactConfig.socials.instagram}
@@ -291,22 +330,30 @@ const Contact = () => {
                 >
                   <Linkedin className="w-5 h-5 text-kath-white" />
                 </a>
+                <a
+                  href={contactConfig.socials.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-full bg-kath-charcoal/50 flex items-center justify-center hover:bg-kath-gold/20 hover:border-kath-gold border border-transparent transition-all duration-300"
+                >
+                  <Twitter className="w-5 h-5 text-kath-white" />
+                </a>
               </div>
             </div>
 
             {/* CTA Card */}
             <div className="p-6 bg-gradient-to-br from-kath-gold/20 to-kath-gold/5 border border-kath-gold/30 rounded-xl">
               <h4 className="font-display text-xl text-kath-white mb-2">
-                Ready to Get Started?
+                {labels.ctaTitle}
               </h4>
               <p className="font-body text-sm text-kath-off-white/70 mb-4">
-                Book a free consultation with our event experts today.
+                {labels.ctaDesc}
               </p>
               <a
                 href={`mailto:${contactConfig.contactInfo.email}`}
                 className="group inline-flex items-center gap-2 font-body text-sm text-kath-gold hover:text-kath-gold-light transition-colors"
               >
-                Schedule a Call
+                {labels.scheduleCall}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>

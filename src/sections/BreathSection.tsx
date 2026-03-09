@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { breathSectionConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,6 +12,7 @@ const BreathSection = () => {
   const textRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -100,14 +102,14 @@ const BreathSection = () => {
                   textShadow: '0 4px 40px rgba(0,0,0,0.5)'
                 }}
               >
-                {breathSectionConfig.title}
+                {breathSectionConfig.title[language]}
               </h2>
               <p
                 ref={subtitleRef}
                 className="font-body text-kath-gold text-sm md:text-base uppercase tracking-[0.3em] mt-6"
                 style={{ willChange: 'transform, opacity' }}
               >
-                {breathSectionConfig.subtitle}
+                {breathSectionConfig.subtitle[language]}
               </p>
             </div>
 
@@ -122,7 +124,7 @@ const BreathSection = () => {
       {breathSectionConfig.description && (
         <div className="max-w-4xl mx-auto px-6 md:px-8 mt-16 md:mt-24 text-center">
           <p className="font-body text-sm text-kath-off-white/60 max-w-lg mx-auto leading-relaxed">
-            {breathSectionConfig.description}
+            {breathSectionConfig.description[language]}
           </p>
         </div>
       )}

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { cardStackConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +11,7 @@ const CardStack = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const { language } = useLanguage();
 
   const cards = cardStackConfig.cards;
 
@@ -86,10 +88,10 @@ const CardStack = () => {
       {/* Section Header */}
       <div className="absolute top-0 left-0 right-0 py-12 md:py-16 text-center z-10">
         <span className="font-body text-sm text-kath-gold uppercase tracking-[0.2em]">
-          {cardStackConfig.sectionSubtitle}
+          {cardStackConfig.sectionSubtitle[language]}
         </span>
         <h2 className="font-display text-headline text-kath-white mt-4">
-          {cardStackConfig.sectionTitle}
+          {cardStackConfig.sectionTitle[language]}
         </h2>
       </div>
 
@@ -114,7 +116,7 @@ const CardStack = () => {
                 <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
                   <img
                     src={card.image}
-                    alt={card.title}
+                    alt={card.title[language]}
                     className="w-full h-full object-cover"
                     style={{ objectPosition: 'center center' }}
                   />
@@ -125,13 +127,13 @@ const CardStack = () => {
                 {/* Card Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                   <span className="inline-block px-3 py-1 bg-kath-gold/20 text-kath-gold text-xs font-body rounded-full mb-3">
-                    {card.category}
+                    {card.category[language]}
                   </span>
                   <h3 className="font-display text-2xl md:text-3xl text-kath-white mb-2">
-                    {card.title}
+                    {card.title[language]}
                   </h3>
                   <p className="font-body text-sm text-kath-off-white/70">
-                    {card.description}
+                    {card.description[language]}
                   </p>
                 </div>
 

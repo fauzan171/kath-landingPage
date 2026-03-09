@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { heroConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,6 +15,7 @@ const Hero = () => {
   const ctaRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -153,7 +155,7 @@ const Hero = () => {
           className="font-body text-kath-gold text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6"
           style={{ willChange: 'transform, opacity' }}
         >
-          {heroConfig.label}
+          {heroConfig.label[language]}
         </span>
 
         {/* Main Title - Responsive sizing */}
@@ -168,7 +170,7 @@ const Hero = () => {
             willChange: 'transform, opacity'
           }}
         >
-          {heroConfig.title}
+          {heroConfig.title[language]}
         </h1>
 
         {/* Subtitle */}
@@ -177,24 +179,26 @@ const Hero = () => {
           className="font-body text-kath-off-white/80 text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
           style={{ willChange: 'transform, opacity' }}
         >
-          {heroConfig.subtitle}
+          {heroConfig.subtitle[language]}
         </p>
 
         {/* CTA Buttons - Mobile optimized */}
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto px-4 sm:px-0">
           <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-gold to-kath-gold-dark hover:from-kath-gold-light hover:to-kath-gold text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-gold touch-feedback">
-            {heroConfig.ctaPrimary}
+            {heroConfig.ctaPrimary[language]}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
           <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-kath-white/30 hover:border-kath-gold hover:bg-kath-gold/10 text-kath-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
-            {heroConfig.ctaSecondary}
+            {heroConfig.ctaSecondary[language]}
           </button>
         </div>
       </div>
 
       {/* Scroll Indicator - Mobile optimized */}
       <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="font-body text-kath-white/60 text-xs uppercase tracking-wider">Scroll</span>
+        <span className="font-body text-kath-white/60 text-xs uppercase tracking-wider">
+          {language === 'id' ? 'Gulir' : 'Scroll'}
+        </span>
         <ChevronDown className="w-5 h-5 text-kath-gold" />
       </div>
 

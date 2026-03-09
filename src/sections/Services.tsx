@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { servicesConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Heart, Building2, Cake, LayoutGrid, Sparkles, Monitor } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -19,6 +20,7 @@ const Services = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -83,13 +85,13 @@ const Services = () => {
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16 lg:mb-20">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {servicesConfig.sectionLabel}
+            {servicesConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {servicesConfig.sectionTitle}
+            {servicesConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto px-4">
-            {servicesConfig.sectionDescription}
+            {servicesConfig.sectionDescription[language]}
           </p>
         </div>
 
@@ -109,10 +111,10 @@ const Services = () => {
 
                 {/* Content */}
                 <h3 className="font-display text-xl sm:text-2xl text-kath-white mb-2 sm:mb-3">
-                  {service.title}
+                  {service.title[language]}
                 </h3>
                 <p className="font-body text-sm text-kath-off-white/60 mb-4 sm:mb-6 leading-relaxed">
-                  {service.description}
+                  {service.description[language]}
                 </p>
 
                 {/* Features */}
@@ -123,7 +125,7 @@ const Services = () => {
                       className="font-body text-xs text-kath-off-white/40 flex items-center gap-2"
                     >
                       <span className="w-1 h-1 rounded-full bg-kath-gold" />
-                      {feature}
+                      {feature[language]}
                     </li>
                   ))}
                 </ul>

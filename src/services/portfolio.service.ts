@@ -12,7 +12,7 @@ const ENDPOINT = '/portfolio';
 export async function getPortfolio(
   params?: PortfolioQueryParams
 ): Promise<ApiResponse<PortfolioItem[]>> {
-  return get<PortfolioItem[]>(ENDPOINT, params);
+  return get<PortfolioItem[]>(ENDPOINT, params as Record<string, unknown>);
 }
 
 // Get single portfolio item by ID
