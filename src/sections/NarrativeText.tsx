@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { narrativeTextConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,6 +24,7 @@ const NarrativeText = () => {
   const line3Ref = useRef<HTMLParagraphElement>(null);
   const starRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -136,6 +138,7 @@ const NarrativeText = () => {
   return (
     <section
       ref={sectionRef}
+      id="about"
       className="relative w-full py-24 md:py-32 lg:py-40 bg-kath-black"
     >
       <div className="max-w-4xl mx-auto px-6 md:px-8 text-center">
@@ -155,7 +158,7 @@ const NarrativeText = () => {
             className="font-display text-headline text-kath-white"
             style={{ willChange: 'transform, opacity' }}
           >
-            {narrativeTextConfig.line1}
+            {narrativeTextConfig.line1[language]}
           </p>
 
           <p
@@ -163,7 +166,7 @@ const NarrativeText = () => {
             className="font-display text-subheadline text-kath-gold italic max-w-2xl mx-auto"
             style={{ willChange: 'transform, opacity' }}
           >
-            {narrativeTextConfig.line2}
+            {narrativeTextConfig.line2[language]}
           </p>
 
           <p
@@ -171,7 +174,7 @@ const NarrativeText = () => {
             className="font-body text-sm md:text-base text-kath-off-white/60 max-w-2xl mx-auto leading-relaxed"
             style={{ willChange: 'transform, opacity' }}
           >
-            {narrativeTextConfig.line3}
+            {narrativeTextConfig.line3[language]}
           </p>
         </div>
 
@@ -185,7 +188,7 @@ const NarrativeText = () => {
               {narrativeTextConfig.stats.years}
             </span>
             <p className="font-body text-xs text-kath-off-white/50 mt-2 uppercase tracking-wider">
-              Years Experience
+              {language === 'id' ? 'Tahun' : 'Years'}
             </p>
           </div>
           <div className="text-center">
@@ -193,7 +196,7 @@ const NarrativeText = () => {
               {narrativeTextConfig.stats.events}
             </span>
             <p className="font-body text-xs text-kath-off-white/50 mt-2 uppercase tracking-wider">
-              Events Delivered
+              {language === 'id' ? 'Event' : 'Events'}
             </p>
           </div>
           <div className="text-center">
@@ -201,7 +204,7 @@ const NarrativeText = () => {
               {narrativeTextConfig.stats.clients}
             </span>
             <p className="font-body text-xs text-kath-off-white/50 mt-2 uppercase tracking-wider">
-              Happy Clients
+              {language === 'id' ? 'Klien' : 'Clients'}
             </p>
           </div>
           <div className="text-center">
@@ -209,7 +212,7 @@ const NarrativeText = () => {
               {narrativeTextConfig.stats.awards}
             </span>
             <p className="font-body text-xs text-kath-off-white/50 mt-2 uppercase tracking-wider">
-              Awards Won
+              {language === 'id' ? 'Penghargaan' : 'Awards'}
             </p>
           </div>
         </div>

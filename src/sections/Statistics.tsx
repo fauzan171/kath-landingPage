@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { statisticsConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,7 @@ const Statistics = () => {
     awards: 0,
   });
   const [hasAnimated, setHasAnimated] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -73,10 +75,10 @@ const Statistics = () => {
   };
 
   const statItems = [
-    { key: 'years', value: counts.years, suffix: '+', label: statisticsConfig.stats.years.label },
-    { key: 'events', value: counts.events, suffix: '+', label: statisticsConfig.stats.events.label },
-    { key: 'clients', value: counts.clients, suffix: '+', label: statisticsConfig.stats.clients.label },
-    { key: 'awards', value: counts.awards, suffix: '+', label: statisticsConfig.stats.awards.label },
+    { key: 'years', value: counts.years, suffix: '+', label: statisticsConfig.stats.years.label[language] },
+    { key: 'events', value: counts.events, suffix: '+', label: statisticsConfig.stats.events.label[language] },
+    { key: 'clients', value: counts.clients, suffix: '+', label: statisticsConfig.stats.clients.label[language] },
+    { key: 'awards', value: counts.awards, suffix: '+', label: statisticsConfig.stats.awards.label[language] },
   ];
 
   return (
@@ -88,7 +90,7 @@ const Statistics = () => {
         {/* Label */}
         <div className="text-center mb-10 sm:mb-12">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {statisticsConfig.sectionLabel}
+            {statisticsConfig.sectionLabel[language]}
           </span>
         </div>
 

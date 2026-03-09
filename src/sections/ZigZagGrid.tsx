@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { zigZagGridConfig, type ZigZagGridItem } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +17,7 @@ const GridItem = ({
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const itemEl = itemRef.current;
@@ -99,13 +101,13 @@ const GridItem = ({
         className={`${item.reverse ? 'lg:order-1 lg:pr-8' : 'lg:order-2 lg:pl-8'}`}
       >
         <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-gold">
-          {item.subtitle}
+          {item.subtitle[language]}
         </span>
         <h3 className="font-display text-headline text-kath-white mt-3">
-          {item.title}
+          {item.title[language]}
         </h3>
         <p className="font-body text-sm md:text-base text-kath-off-white/70 leading-relaxed mt-6">
-          {item.description}
+          {item.description[language]}
         </p>
 
         {/* Decorative line */}
@@ -118,6 +120,7 @@ const GridItem = ({
 const ZigZagGrid = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const header = headerRef.current;
@@ -156,10 +159,10 @@ const ZigZagGrid = () => {
         {/* Section Header */}
         <div ref={headerRef} className="text-center mb-20 md:mb-28">
           <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-gold">
-            {zigZagGridConfig.sectionLabel}
+            {zigZagGridConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {zigZagGridConfig.sectionTitle}
+            {zigZagGridConfig.sectionTitle[language]}
           </h2>
         </div>
 

@@ -1,12 +1,15 @@
 import { useEffect, useState, useRef } from 'react';
 import { gsap } from 'gsap';
 import { navigationConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { Menu, X } from 'lucide-react';
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,34 +69,38 @@ const Navigation = () => {
             <div className="hidden lg:flex items-center gap-8">
               {navigationConfig.items.map((item) => (
                 <a
-                  key={item.label}
+                  key={item.label.id}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
                   className="font-body text-sm text-kath-white/80 hover:text-kath-gold transition-colors relative group"
                 >
-                  {item.label}
+                  {item.label[language]}
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-kath-gold transition-all duration-300 group-hover:w-full" />
                 </a>
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden lg:block">
+            {/* CTA Button & Language Switcher */}
+            <div className="hidden lg:flex items-center gap-4">
+              <LanguageSwitcher />
               <button
                 onClick={() => scrollToSection('#contact')}
                 className="px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
               >
-                {navigationConfig.ctaText}
+                {navigationConfig.ctaText[language]}
               </button>
             </div>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-kath-white"
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            <div className="flex items-center gap-3 lg:hidden">
+              <LanguageSwitcher />
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="w-10 h-10 flex items-center justify-center text-kath-white"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -107,7 +114,7 @@ const Navigation = () => {
         <div className="flex flex-col items-center justify-center h-full gap-8">
           {navigationConfig.items.map((item, index) => (
             <a
-              key={item.label}
+              key={item.label.id}
               href={item.href}
               onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
               className="font-display text-3xl text-kath-white hover:text-kath-gold transition-colors"
@@ -118,7 +125,7 @@ const Navigation = () => {
                 transition: 'all 0.4s ease-out',
               }}
             >
-              {item.label}
+              {item.label[language]}
             </a>
           ))}
           <button
@@ -131,7 +138,7 @@ const Navigation = () => {
               transition: 'all 0.4s ease-out',
             }}
           >
-            {navigationConfig.ctaText}
+            {navigationConfig.ctaText[language]}
           </button>
         </div>
       </div>

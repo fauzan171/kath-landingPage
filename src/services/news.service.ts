@@ -12,7 +12,7 @@ const ENDPOINT = '/news';
 export async function getNews(
   params?: NewsQueryParams
 ): Promise<ApiResponse<NewsItem[]>> {
-  return get<NewsItem[]>(ENDPOINT, params);
+  return get<NewsItem[]>(ENDPOINT, params as Record<string, unknown>);
 }
 
 // Get single news item by slug

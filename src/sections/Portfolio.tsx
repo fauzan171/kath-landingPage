@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { portfolioConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { MapPin, Calendar, ArrowUpRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,10 +12,16 @@ const Portfolio = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState('All');
+  const { language } = useLanguage();
 
-  const filteredItems = activeFilter === 'All'
+  const allLabel = language === 'id' ? 'Semua' : 'All';
+  const currentFilter = activeFilter === 'All' || activeFilter === 'Semua' 
+    ? allLabel 
+    : activeFilter;
+
+  const filteredItems = currentFilter === allLabel
     ? portfolioConfig.items
-    : portfolioConfig.items.filter(item => item.category === activeFilter);
+    : portfolioConfig.items.filter(item => item.category[language] === currentFilter);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -85,7 +92,7 @@ const Portfolio = () => {
       stagger: 0.08,
       ease: 'power3.out',
     });
-  }, [activeFilter]);
+  }, [activeFilter, language]);
 
   if (!portfolioConfig.items.length) return null;
 
@@ -99,13 +106,13 @@ const Portfolio = () => {
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-            {portfolioConfig.sectionLabel}
+            {portfolioConfig.sectionLabel[language]}
           </span>
           <h2 className="font-display text-headline text-kath-white mt-4">
-            {portfolioConfig.sectionTitle}
+            {portfolioConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
-            {portfolioConfig.sectionDescription}
+            {portfolioConfig.sectionDescription[language]}
           </p>
         </div>
 
@@ -113,15 +120,15 @@ const Portfolio = () => {
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {portfolioConfig.categories.map((category) => (
             <button
-              key={category}
-              onClick={() => setActiveFilter(category)}
+              key={category.id}
+              onClick={() => setActiveFilter(category[language])}
               className={`px-5 py-2 font-body text-sm rounded-full transition-all duration-300 ${
-                activeFilter === category
+                currentFilter === category[language]
                   ? 'bg-kath-gold text-kath-black'
                   : 'bg-kath-dark-gray text-kath-off-white/70 hover:text-kath-white border border-kath-charcoal hover:border-kath-gold/50'
               }`}
             >
-              {category}
+              {category[language]}
             </button>
           ))}
         </div>
@@ -137,7 +144,7 @@ const Portfolio = () => {
               <div className="aspect-[4/3] overflow-hidden flex items-center justify-center">
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={item.title[language]}
                   className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   style={{ objectPosition: 'center center' }}
                 />
@@ -150,12 +157,12 @@ const Portfolio = () => {
               <div className="absolute inset-0 p-6 flex flex-col justify-end">
                 {/* Category Badge */}
                 <span className="inline-block self-start px-3 py-1 bg-kath-gold/20 text-kath-gold text-xs font-body rounded-full mb-3">
-                  {item.category}
+                  {item.category[language]}
                 </span>
 
                 {/* Title */}
                 <h3 className="font-display text-xl text-kath-white mb-2 group-hover:text-kath-gold transition-colors duration-300">
-                  {item.title}
+                  {item.title[language]}
                 </h3>
 
                 {/* Meta */}

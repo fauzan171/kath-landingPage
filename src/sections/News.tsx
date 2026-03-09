@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { newsConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Calendar, ArrowRight, User, X, Clock, Tag } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -10,15 +11,28 @@ const News = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   const [selectedNews, setSelectedNews] = useState<typeof newsConfig.items[0] | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeCategory, setActiveCategory] = useState<string>('');
 
-  const categories = ['All', 'Competition', 'Announcement', 'News'];
+  // Set initial category based on language
+  useEffect(() => {
+    setActiveCategory(language === 'id' ? 'Semua' : 'All');
+  }, [language]);
 
-  const filteredNews = activeCategory === 'All'
+  const categories = [
+    { id: 'all', label: language === 'id' ? 'Semua' : 'All' },
+    { id: 'competition', label: language === 'id' ? 'Kompetisi' : 'Competition' },
+    { id: 'announcement', label: language === 'id' ? 'Pengumuman' : 'Announcement' },
+    { id: 'news', label: language === 'id' ? 'Berita' : 'News' },
+  ];
+
+  const allLabel = language === 'id' ? 'Semua' : 'All';
+
+  const filteredNews = activeCategory === allLabel
     ? newsConfig.items
-    : newsConfig.items.filter(item => item.category === activeCategory);
+    : newsConfig.items.filter(item => item.category[language] === activeCategory);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -69,15 +83,22 @@ const News = () => {
     return () => {
       triggers.forEach(trigger => trigger.kill());
     };
-  }, [activeCategory]);
+  }, [activeCategory, language]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
+    return date.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
+  };
+
+  const labels = {
+    readMore: language === 'id' ? 'Baca Selengkapnya' : 'Read More',
+    close: language === 'id' ? 'Tutup' : 'Close',
+    share: language === 'id' ? 'Bagikan artikel ini' : 'Share this article',
+    minRead: language === 'id' ? 'menit baca' : 'min read',
   };
 
   return (
@@ -96,28 +117,28 @@ const News = () => {
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12 md:mb-16">
             <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
-              {newsConfig.sectionLabel}
+              {newsConfig.sectionLabel[language]}
             </span>
             <h2 className="font-display text-headline text-kath-white mt-4">
-              {newsConfig.sectionTitle}
+              {newsConfig.sectionTitle[language]}
             </h2>
             <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
-              {newsConfig.sectionDescription}
+              {newsConfig.sectionDescription[language]}
             </p>
 
             {/* Category Filter */}
             <div className="flex flex-wrap justify-center gap-3 mt-8">
               {categories.map((category) => (
                 <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.label)}
                   className={`px-5 py-2 font-body text-sm rounded-full transition-all duration-300 ${
-                    activeCategory === category
+                    activeCategory === category.label
                       ? 'bg-kath-gold text-kath-black'
                       : 'bg-kath-charcoal/50 text-kath-off-white/70 hover:bg-kath-gold/20 hover:text-kath-gold'
                   }`}
                 >
-                  {category}
+                  {category.label}
                 </button>
               ))}
             </div>
@@ -134,12 +155,12 @@ const News = () => {
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={item.image}
-                    alt={item.title}
+                    alt={item.title[language]}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-kath-black/80 to-transparent" />
                   <span className="absolute top-4 left-4 px-3 py-1 bg-kath-gold/90 text-kath-black text-xs font-body uppercase tracking-wider rounded-full">
-                    {item.category}
+                    {item.category[language]}
                   </span>
                 </div>
 
@@ -157,18 +178,18 @@ const News = () => {
                   </div>
 
                   <h3 className="font-display text-lg text-kath-white mb-3 line-clamp-2 group-hover:text-kath-gold transition-colors">
-                    {item.title}
+                    {item.title[language]}
                   </h3>
 
                   <p className="font-body text-sm text-kath-off-white/60 mb-4 line-clamp-2">
-                    {item.excerpt}
+                    {item.excerpt[language]}
                   </p>
 
                   <button
                     onClick={() => setSelectedNews(item)}
                     className="group/btn flex items-center gap-2 text-kath-gold font-body text-sm hover:gap-3 transition-all"
                   >
-                    Read More
+                    {labels.readMore}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -209,7 +230,7 @@ const News = () => {
               <div className="relative h-64 md:h-80">
                 <img
                   src={selectedNews.image}
-                  alt={selectedNews.title}
+                  alt={selectedNews.title[language]}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-kath-dark-gray via-kath-dark-gray/50 to-transparent" />
@@ -220,12 +241,12 @@ const News = () => {
                 {/* Category Badge */}
                 <span className="inline-flex items-center gap-1 px-4 py-1.5 bg-kath-gold text-kath-black text-xs font-body uppercase tracking-wider rounded-full mb-4">
                   <Tag className="w-3 h-3" />
-                  {selectedNews.category}
+                  {selectedNews.category[language]}
                 </span>
 
                 {/* Title */}
                 <h2 className="font-display text-2xl md:text-4xl text-kath-white mb-6">
-                  {selectedNews.title}
+                  {selectedNews.title[language]}
                 </h2>
 
                 {/* Meta */}
@@ -240,29 +261,23 @@ const News = () => {
                   </span>
                   <span className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-kath-gold" />
-                    5 min read
+                    5 {labels.minRead}
                   </span>
                 </div>
 
                 {/* Article Content */}
                 <div className="prose prose-invert max-w-none">
                   <p className="font-body text-lg text-kath-off-white/80 leading-relaxed mb-6">
-                    {selectedNews.excerpt}
+                    {selectedNews.excerpt[language]}
                   </p>
                   <p className="font-body text-kath-off-white/70 leading-relaxed">
-                    {selectedNews.content}
-                  </p>
-                  <p className="font-body text-kath-off-white/70 leading-relaxed mt-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                  </p>
-                  <p className="font-body text-kath-off-white/70 leading-relaxed mt-4">
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.
+                    {selectedNews.content[language]}
                   </p>
                 </div>
 
                 {/* Share Section */}
                 <div className="mt-12 pt-8 border-t border-kath-charcoal/50">
-                  <p className="font-body text-sm text-kath-off-white/50 mb-4">Share this article</p>
+                  <p className="font-body text-sm text-kath-off-white/50 mb-4">{labels.share}</p>
                   <div className="flex gap-3">
                     {['Twitter', 'Facebook', 'LinkedIn', 'WhatsApp'].map((platform) => (
                       <button

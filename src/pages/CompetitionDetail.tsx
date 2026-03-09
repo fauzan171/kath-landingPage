@@ -23,6 +23,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { competitionConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 import CompetitionForm from '../components/CompetitionForm';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -282,6 +283,7 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
   const heroRef = useRef<HTMLDivElement>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'prizes' | 'rules' | 'faq'>('overview');
+  const { language } = useLanguage();
 
   const competition = competitionConfig.categories.find(c => c.id === competitionId);
   const details = competitionDetails[competitionId];
@@ -330,9 +332,10 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
   if (!competition || !details) return null;
 
   const getCategoryIcon = () => {
-    if (competition.name.includes('Wedding')) return <Heart className="w-6 h-6" />;
-    if (competition.name.includes('Design')) return <Sparkles className="w-6 h-6" />;
-    if (competition.name.includes('Photography')) return <Award className="w-6 h-6" />;
+    const name = competition.name[language];
+    if (name.includes('Wedding') || name.includes('Startup')) return <Heart className="w-6 h-6" />;
+    if (name.includes('Design') || name.includes('Social')) return <Sparkles className="w-6 h-6" />;
+    if (name.includes('Photography') || name.includes('Student')) return <Award className="w-6 h-6" />;
     return <Users className="w-6 h-6" />;
   };
 
@@ -341,7 +344,7 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
       <CompetitionForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        competitionName={competition.name}
+        competitionName={competition.name[language]}
       />
 
       {/* Navigation Bar */}
@@ -391,7 +394,7 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
               </div>
 
               <h1 className="animate-item font-display text-4xl md:text-5xl lg:text-6xl text-kath-white mb-6 leading-tight">
-                {competition.name}
+                {competition.name[language]}
               </h1>
 
               <p className="animate-item font-body text-kath-off-white/70 text-lg mb-8 leading-relaxed">
@@ -405,15 +408,15 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-kath-dark-gray/50 rounded-full border border-kath-charcoal/30">
                   <Target className="w-4 h-4 text-kath-gold" />
-                  <span className="font-body text-kath-white text-sm">{competition.target}</span>
+                  <span className="font-body text-kath-white text-sm">{competition.target[language]}</span>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${
-                  competition.status === 'Open'
+                  competition.status[language] === (language === 'id' ? 'Buka' : 'Open')
                     ? 'bg-green-500/10 border-green-500/30 text-green-400'
                     : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'
                 }`}>
                   <Clock className="w-4 h-4" />
-                  <span className="font-body text-sm">{competition.status}</span>
+                  <span className="font-body text-sm">{competition.status[language]}</span>
                 </div>
               </div>
 
@@ -447,7 +450,7 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
                       <Medal className="w-5 h-5 text-kath-gold" />
                     </div>
                     <div>
-                      <p className="font-body text-kath-off-white/50 text-xs">Total Hadiah</p>
+                      <p className="font-body text-kath-off-white/50 text-xs">{language === 'id' ? 'Total Hadiah' : 'Total Prize'}</p>
                       <p className="font-display text-kath-gold">{competition.prize}</p>
                     </div>
                   </div>
@@ -457,8 +460,8 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
                       <Users className="w-5 h-5 text-kath-gold" />
                     </div>
                     <div>
-                      <p className="font-body text-kath-off-white/50 text-xs">Target Peserta</p>
-                      <p className="font-display text-kath-white">{competition.target}</p>
+                      <p className="font-body text-kath-off-white/50 text-xs">{language === 'id' ? 'Target Peserta' : 'Target Participants'}</p>
+                      <p className="font-display text-kath-white">{competition.target[language]}</p>
                     </div>
                   </div>
 
@@ -468,8 +471,8 @@ const CompetitionDetail = ({ competitionId, onBack }: CompetitionDetailProps) =>
                     </div>
                     <div>
                       <p className="font-body text-kath-off-white/50 text-xs">Status</p>
-                      <p className={`font-display ${competition.status === 'Open' ? 'text-green-400' : 'text-yellow-400'}`}>
-                        {competition.status}
+                      <p className={`font-display ${competition.status[language] === (language === 'id' ? 'Buka' : 'Open') ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {competition.status[language]}
                       </p>
                     </div>
                   </div>

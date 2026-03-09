@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook, Linkedin, Twitter } from 'lucide-react';
 import { footerConfig } from '../config';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,9 +11,11 @@ gsap.registerPlugin(ScrollTrigger);
 const MagneticButton = ({
   children,
   className,
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -50,6 +53,7 @@ const MagneticButton = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
       style={{ willChange: 'transform' }}
     >
       <span className={`relative z-10 transition-colors duration-300 ${isHovered ? 'text-kath-black' : ''}`}>
@@ -67,12 +71,15 @@ const MagneticButton = ({
 const iconMap: Record<string, typeof Instagram> = {
   instagram: Instagram,
   facebook: Facebook,
+  linkedin: Linkedin,
+  twitter: Twitter,
 };
 
 const Footer = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -125,6 +132,13 @@ const Footer = () => {
     };
   }, []);
 
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   if (!footerConfig.heading && !footerConfig.logoText) return null;
 
   return (
@@ -143,15 +157,18 @@ const Footer = () => {
             {/* Left Column - CTA */}
             <div className="lg:col-span-5">
               <h2 className="font-display text-headline text-kath-white">
-                {footerConfig.heading}
+                {footerConfig.heading[language]}
               </h2>
               <p className="font-body text-sm text-kath-off-white/60 mt-6 max-w-md leading-relaxed">
-                {footerConfig.description}
+                {footerConfig.description[language]}
               </p>
               {footerConfig.ctaText && (
-                <MagneticButton className="relative mt-8 px-8 py-4 border border-kath-gold/50 rounded-full font-body text-sm uppercase tracking-wider overflow-hidden transition-colors hover:border-kath-gold text-kath-white">
+                <MagneticButton 
+                  className="relative mt-8 px-8 py-4 border border-kath-gold/50 rounded-full font-body text-sm uppercase tracking-wider overflow-hidden transition-colors hover:border-kath-gold text-kath-white"
+                  onClick={() => scrollToSection('#contact')}
+                >
                   <span className="flex items-center gap-2">
-                    {footerConfig.ctaText}
+                    {footerConfig.ctaText[language]}
                     <ArrowUpRight className="w-4 h-4" />
                   </span>
                 </MagneticButton>
@@ -165,7 +182,7 @@ const Footer = () => {
                 {footerConfig.contact.length > 0 && (
                   <div>
                     <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
-                      Contact
+                      {language === 'id' ? 'Kontak' : 'Contact'}
                     </h4>
                     <ul className="space-y-3">
                       {footerConfig.contact.map((item, index) => (
@@ -187,7 +204,7 @@ const Footer = () => {
                 {footerConfig.address.length > 0 && (
                   <div>
                     <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
-                      {footerConfig.locationLabel}
+                      {footerConfig.locationLabel[language]}
                     </h4>
                     <div className="flex items-start gap-2">
                       <MapPin className="w-4 h-4 text-kath-off-white/70 mt-0.5 flex-shrink-0" />
@@ -207,7 +224,7 @@ const Footer = () => {
                 {footerConfig.socials.length > 0 && (
                   <div>
                     <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
-                      {footerConfig.socialLabel}
+                      {footerConfig.socialLabel[language]}
                     </h4>
                     <div className="flex gap-4">
                       {footerConfig.socials.map((social, index) => {
@@ -216,6 +233,8 @@ const Footer = () => {
                           <a
                             key={index}
                             href={social.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="w-10 h-10 rounded-full border border-kath-charcoal flex items-center justify-center hover:border-kath-gold hover:bg-kath-gold/10 transition-all"
                             aria-label={social.platform}
                           >
@@ -272,7 +291,7 @@ const Footer = () => {
                     fill: 'rgba(250, 250, 250, 0.4)',
                   }}
                 >
-                  {footerConfig.tagline}
+                  {footerConfig.tagline[language]}
                 </text>
               </svg>
             </div>
@@ -289,7 +308,7 @@ const Footer = () => {
               <div className="flex gap-6">
                 {footerConfig.links.map((link, index) => (
                   <a key={index} href={link.href} className="font-body text-xs text-kath-off-white/40 hover:text-kath-gold transition-colors">
-                    {link.label}
+                    {link.label[language]}
                   </a>
                 ))}
               </div>
