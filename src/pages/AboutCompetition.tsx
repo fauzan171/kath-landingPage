@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -19,8 +20,6 @@ import {
   Camera,
   CheckCircle2
 } from 'lucide-react';
-import CompetitionForm from '../components/CompetitionForm';
-import CompetitionDetail from './CompetitionDetail';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,10 +28,9 @@ interface AboutCompetitionProps {
 }
 
 const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
+  const navigate = useNavigate();
   const sectionRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedCompetitionId, setSelectedCompetitionId] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
@@ -83,15 +81,6 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
 
     return () => ctx.revert();
   }, []);
-
-  if (selectedCompetitionId) {
-    return (
-      <CompetitionDetail
-        competitionId={selectedCompetitionId}
-        onBack={() => setSelectedCompetitionId(null)}
-      />
-    );
-  }
 
   const categories = [
     {
@@ -205,7 +194,6 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
 
   return (
     <div ref={sectionRef} className="relative min-h-screen bg-kath-black">
-      <CompetitionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
 
       {/* Fixed Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-kath-black/80 backdrop-blur-xl border-b border-white/5">
@@ -224,7 +212,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
             </span>
 
             <button
-              onClick={() => setIsFormOpen(true)}
+              onClick={() => navigate('/register')}
               className="px-5 py-2 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm font-medium rounded-full transition-all"
             >
               Daftar
@@ -282,7 +270,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
               {/* CTAs */}
               <div className="hero-cta flex flex-wrap justify-center lg:justify-start gap-4">
                 <button
-                  onClick={() => setIsFormOpen(true)}
+                  onClick={() => navigate('/register')}
                   className="group px-8 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body font-medium rounded-full transition-all flex items-center gap-2"
                 >
                   Daftar Sekarang
@@ -403,7 +391,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
               return (
                 <div
                   key={cat.id}
-                  onClick={() => setSelectedCompetitionId(cat.id)}
+                  onClick={() => navigate(`/competition/comp_00${cat.id}`)}
                   className={`group p-8 bg-kath-dark-gray/40 border border-kath-charcoal/30 rounded-3xl cursor-pointer transition-all duration-300 ${cat.borderColor} hover:bg-kath-dark-gray/60`}
                 >
                   <div className="flex items-start justify-between mb-6">
@@ -562,7 +550,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
 
               <div className="flex flex-wrap justify-center gap-4">
                 <button
-                  onClick={() => setIsFormOpen(true)}
+                  onClick={() => navigate('/register')}
                   className="group px-10 py-4 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body font-medium rounded-full transition-all flex items-center gap-2"
                 >
                   Daftar Sekarang

@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
+import { createTestAccount } from './utils/testData';
+import { initializeMockData } from './services/mockData';
 
 // Sections
 import Navigation from './sections/Navigation';
@@ -21,29 +24,31 @@ import FAQ from './sections/FAQ';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 
+// Pages
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import MyCompetitions from './pages/MyCompetitions';
+import EditProfile from './pages/EditProfile';
+import Settings from './pages/Settings';
+import MyTeam from './pages/MyTeam';
+import CompetitionDetail from './pages/CompetitionDetail';
+import SubmissionForm from './pages/SubmissionForm';
+
 // Components
 import BackgroundMusic from './components/BackgroundMusic';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function App() {
-  // Initialize Lenis smooth scrolling
-  useLenis();
-
+// Landing Page Component
+const LandingPage = () => {
   useEffect(() => {
-    // Set document language if configured
-    if (siteConfig.language) {
-      document.documentElement.lang = siteConfig.language;
-    }
-
     // Refresh ScrollTrigger after all content is loaded
     const handleLoad = () => {
       ScrollTrigger.refresh();
     };
 
     window.addEventListener('load', handleLoad);
-
-    // Also refresh after a short delay to ensure images are loaded
     const refreshTimeout = setTimeout(() => {
       ScrollTrigger.refresh();
     }, 500);
@@ -106,6 +111,56 @@ function App() {
       {/* Footer */}
       <Footer />
     </div>
+  );
+};
+
+function App() {
+  const location = useLocation();
+  
+  // Initialize Lenis smooth scrolling
+  useLenis();
+
+  useEffect(() => {
+    // Set document language if configured
+    if (siteConfig.language) {
+      document.documentElement.lang = siteConfig.language;
+    }
+
+    // Create test account for development
+    createTestAccount();
+    
+    // Initialize mock data
+    initializeMockData();
+  }, []);
+
+  // Check if current route is auth route (no background music)
+  const isAuthRoute = [
+    '/register',
+    '/login',
+    '/dashboard',
+    '/my-competitions',
+    '/edit-profile',
+    '/settings',
+    '/my-teams',
+  ].includes(location.pathname);
+
+  return (
+    <>
+      {!isAuthRoute && <BackgroundMusic />}
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/my-competitions" element={<MyCompetitions />} />
+        <Route path="/competition" element={<MyCompetitions />} />
+        <Route path="/competition/:id" element={<CompetitionDetail />} />
+        <Route path="/competition/:id/submit" element={<SubmissionForm />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/my-teams" element={<MyTeam />} />
+      </Routes>
+    </>
   );
 }
 
