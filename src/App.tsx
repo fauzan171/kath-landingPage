@@ -34,6 +34,7 @@ import Settings from './pages/Settings';
 import MyTeam from './pages/MyTeam';
 import CompetitionDetail from './pages/CompetitionDetail';
 import SubmissionForm from './pages/SubmissionForm';
+import BMCCompetition from './pages/BMCCompetition';
 
 // Components
 import BackgroundMusic from './components/BackgroundMusic';
@@ -60,7 +61,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="relative bg-kath-black min-h-screen">
+    <div className="relative bg-kath-bg-main min-h-screen">
       {/* Background Music - Premium Classical */}
       <BackgroundMusic />
 
@@ -159,6 +160,7 @@ function App() {
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/my-teams" element={<MyTeam />} />
+        <Route path="/bmc-competition" element={<BMCCompetition />} />
       </Routes>
     </>
   );

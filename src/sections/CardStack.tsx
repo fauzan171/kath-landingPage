@@ -82,15 +82,15 @@ const CardStack = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-black"
+      className="relative w-full bg-kath-bg-section"
       style={{ minHeight: `${(cards.length + 1) * 50}vh` }}
     >
       {/* Section Header */}
       <div className="absolute top-0 left-0 right-0 py-12 md:py-16 text-center z-10">
-        <span className="font-body text-sm text-kath-gold uppercase tracking-[0.2em]">
+        <span className="font-body text-sm text-kath-primary uppercase tracking-[0.2em]">
           {cardStackConfig.sectionSubtitle[language]}
         </span>
-        <h2 className="font-display text-headline text-kath-white mt-4">
+        <h2 className="font-display text-headline text-kath-text-primary mt-4">
           {cardStackConfig.sectionTitle[language]}
         </h2>
       </div>
@@ -111,7 +111,7 @@ const CardStack = () => {
                 zIndex: index,
               }}
             >
-              <div className="relative overflow-hidden rounded-3xl shadow-deep bg-kath-dark-gray h-full border border-kath-charcoal/50">
+              <div className="relative overflow-hidden rounded-3xl shadow-lg shadow-kath-primary/10 bg-white h-full border border-kath-bg-section">
                 {/* Image - Centered */}
                 <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
                   <img
@@ -121,25 +121,25 @@ const CardStack = () => {
                     style={{ objectPosition: 'center center' }}
                   />
                   {/* Image Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-kath-black/80 via-kath-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-kath-text-primary/80 via-kath-text-primary/20 to-transparent" />
                 </div>
 
                 {/* Card Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className="inline-block px-3 py-1 bg-kath-gold/20 text-kath-gold text-xs font-body rounded-full mb-3">
+                  <span className="inline-block px-3 py-1 bg-kath-primary/20 text-white text-xs font-body rounded-full mb-3">
                     {card.category[language]}
                   </span>
-                  <h3 className="font-display text-2xl md:text-3xl text-kath-white mb-2">
+                  <h3 className="font-display text-2xl md:text-3xl text-white mb-2">
                     {card.title[language]}
                   </h3>
-                  <p className="font-body text-sm text-kath-off-white/70">
+                  <p className="font-body text-sm text-white/70">
                     {card.description[language]}
                   </p>
                 </div>
 
                 {/* Card Number */}
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-kath-gold/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="font-body text-xs text-kath-gold">
+                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-kath-primary/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="font-body text-xs text-white">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>

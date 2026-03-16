@@ -118,24 +118,25 @@ const Login = () => {
   };
 
   const inputClasses = (fieldName: string) => `
-    w-full px-4 py-3 bg-kath-black/50 border rounded-xl font-body text-kath-white 
-    placeholder-kath-off-white/30 focus:outline-none focus:border-kath-gold transition-colors
-    ${errors[fieldName] ? 'border-red-500' : 'border-kath-charcoal/50'}
+    w-full px-4 py-3.5 bg-white border rounded-xl font-body text-kath-text-primary
+    placeholder-kath-text-muted focus:outline-none focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 transition-all
+    ${errors[fieldName] ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' : 'border-kath-bg-section hover:border-kath-primary/30'}
   `;
 
   return (
-    <div className="min-h-screen bg-kath-black flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-kath-bg-main flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-kath-gold/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-gold/3 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-kath-primary/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-gold/5 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-kath-primary/3 rounded-full blur-[120px]" />
       </div>
 
       <div className="relative w-full max-w-md">
         {/* Back Button */}
         <button
           onClick={() => navigate('/')}
-          className="mb-6 flex items-center gap-2 text-kath-off-white/70 hover:text-kath-gold transition-colors"
+          className="mb-6 flex items-center gap-2 text-kath-text-secondary hover:text-kath-primary transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           <span className="font-body text-sm">Kembali</span>
@@ -143,43 +144,43 @@ const Login = () => {
 
         {/* Success Message */}
         {successMessage && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <p className="font-body text-green-400 text-sm">{successMessage}</p>
+            <p className="font-body text-green-700 text-sm">{successMessage}</p>
           </div>
         )}
 
         {/* Form Card */}
-        <div className="bg-kath-dark-gray/50 border border-kath-charcoal/30 rounded-3xl p-8">
+        <div className="bg-white border border-kath-bg-section rounded-3xl p-8 shadow-xl shadow-kath-primary/5">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-kath-gold/20 flex items-center justify-center">
-              <Lock className="w-8 h-8 text-kath-gold" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center shadow-lg shadow-kath-primary/25">
+              <Lock className="w-8 h-8 text-white" />
             </div>
-            <h1 className="font-display text-3xl text-kath-white mb-2">
+            <h1 className="font-display text-3xl text-kath-text-primary mb-2">
               Selamat Datang
             </h1>
-            <p className="font-body text-kath-off-white/60">
+            <p className="font-body text-kath-text-secondary">
               Login untuk mengakses dashboard peserta
             </p>
           </div>
 
           {/* Error Message */}
           {submitError && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <p className="font-body text-red-400 text-sm">{submitError}</p>
+              <p className="font-body text-red-600 text-sm">{submitError}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block font-body text-sm text-kath-off-white mb-2">
-                Email <span className="text-kath-gold">*</span>
+              <label className="block font-body text-sm text-kath-text-primary mb-2">
+                Email <span className="text-kath-primary">*</span>
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                 <input
                   type="email"
                   name="email"
@@ -190,17 +191,20 @@ const Login = () => {
                 />
               </div>
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.email}
+                </p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block font-body text-sm text-kath-off-white mb-2">
-                Password <span className="text-kath-gold">*</span>
+              <label className="block font-body text-sm text-kath-text-primary mb-2">
+                Password <span className="text-kath-primary">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
@@ -212,75 +216,85 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-off-white/40 hover:text-kath-gold transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-text-muted hover:text-kath-primary transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.password}
+                </p>
               )}
             </div>
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer group">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="w-4 h-4 rounded border-kath-charcoal/50 bg-kath-black/50 text-kath-gold focus:ring-kath-gold focus:ring-offset-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-kath-bg-section text-kath-primary focus:ring-kath-primary/20"
                 />
-                <span className="font-body text-sm text-kath-off-white/70 group-hover:text-kath-off-white transition-colors">
-                  Ingat saya
-                </span>
+                <span className="font-body text-sm text-kath-text-secondary">Ingat saya</span>
               </label>
-
-              <button
-                type="button"
-                className="font-body text-sm text-kath-gold hover:underline"
-                onClick={() => alert('Fitur lupa password akan segera hadir!')}
+              <Link
+                to="#"
+                className="font-body text-sm text-kath-primary hover:text-kath-primary-dark transition-colors"
               >
                 Lupa password?
-              </button>
+              </Link>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-black font-body font-medium rounded-full transition-all duration-300 flex items-center justify-center gap-2 group"
+              className="w-full py-4 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-white font-body font-medium rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-kath-primary/25 hover:shadow-xl hover:shadow-kath-primary/30"
             >
               {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-kath-black/30 border-t-kath-black rounded-full animate-spin" />
-                  <span>Login...</span>
-                </>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Login</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Login
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
+          </form>
 
-            {/* Register Link */}
-            <p className="text-center font-body text-sm text-kath-off-white/60">
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-kath-bg-section" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="px-4 bg-white font-body text-sm text-kath-text-muted">
+                atau
+              </span>
+            </div>
+          </div>
+
+          {/* Register Link */}
+          <div className="text-center">
+            <p className="font-body text-kath-text-secondary">
               Belum punya akun?{' '}
-              <Link to="/register" className="text-kath-gold hover:underline">
+              <Link
+                to="/register"
+                className="text-kath-primary hover:text-kath-primary-dark font-medium transition-colors"
+              >
                 Daftar sekarang
               </Link>
             </p>
-          </form>
+          </div>
         </div>
 
-        {/* Help Text */}
-        <p className="mt-6 text-center font-body text-xs text-kath-off-white/40">
-          Butuh bantuan? Hubungi kami di{' '}
-          <a href="mailto:support@kathevent.com" className="text-kath-gold hover:underline">
-            support@kathevent.com
-          </a>
+        {/* Footer */}
+        <p className="text-center mt-8 font-body text-sm text-kath-text-muted">
+          © 2026 KATH Event Organizer. All rights reserved.
         </p>
       </div>
     </div>

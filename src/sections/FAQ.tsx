@@ -87,18 +87,18 @@ const FAQ = () => {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative w-full bg-kath-black py-24 md:py-32"
+      className="relative w-full bg-kath-bg-section py-24 md:py-32"
     >
       <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12">
-          <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
             {faqConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-white mt-4">
+          <h2 className="font-display text-headline text-kath-text-primary mt-4">
             {faqConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-off-white/60 mt-4">
+          <p className="font-body text-kath-text-secondary mt-4">
             {faqConfig.sectionDescription[language]}
           </p>
         </div>
@@ -111,8 +111,8 @@ const FAQ = () => {
               onClick={() => setActiveCategory(category)}
               className={`px-4 py-2 font-body text-xs rounded-full transition-all duration-300 ${
                 activeCategory === category
-                  ? 'bg-kath-gold text-kath-black'
-                  : 'bg-kath-dark-gray text-kath-off-white/70 hover:text-kath-white'
+                  ? 'bg-kath-primary text-white'
+                  : 'bg-white text-kath-text-secondary hover:text-kath-text-primary border border-kath-bg-section'
               }`}
             >
               {category}
@@ -129,19 +129,19 @@ const FAQ = () => {
                 key={item.id}
                 className={`border rounded-xl transition-all duration-300 ${
                   isOpen
-                    ? 'border-kath-gold/50 bg-kath-dark-gray/30'
-                    : 'border-kath-charcoal/50 bg-transparent'
+                    ? 'border-kath-primary/30 bg-white shadow-sm'
+                    : 'border-kath-bg-section bg-white'
                 }`}
               >
                 <button
                   onClick={() => toggleItem(item.id)}
                   className="w-full flex items-center justify-between p-5 text-left"
                 >
-                  <span className="font-body text-sm md:text-base text-kath-white pr-4">
+                  <span className="font-body text-sm md:text-base text-kath-text-primary pr-4">
                     {item.question[language]}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-kath-gold flex-shrink-0 transition-transform duration-300 ${
+                    className={`w-5 h-5 text-kath-primary flex-shrink-0 transition-transform duration-300 ${
                       isOpen ? 'rotate-180' : ''
                     }`}
                   />
@@ -151,7 +151,7 @@ const FAQ = () => {
                     isOpen ? 'max-h-96' : 'max-h-0'
                   }`}
                 >
-                  <p className="px-5 pb-5 font-body text-sm text-kath-off-white/70 leading-relaxed">
+                  <p className="px-5 pb-5 font-body text-sm text-kath-text-secondary leading-relaxed">
                     {item.answer[language]}
                   </p>
                 </div>

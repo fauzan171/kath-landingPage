@@ -8,7 +8,6 @@ import {
   Lock,
   Calendar,
   MapPin,
-  Building,
   Building2,
   GraduationCap,
   CreditCard,
@@ -19,7 +18,8 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowRight,
-  ChevronLeft
+  ChevronLeft,
+  Check
 } from 'lucide-react';
 
 interface FormData {
@@ -55,13 +55,13 @@ const institutionTypes = [
 ];
 
 const competitionCategories = [
-  'Wedding Concept Competition',
-  'Event Design Challenge',
-  'Event Photography Contest',
-  'Student Event Competition',
+  { id: 'startup', name: 'BMC Startup Challenge', prize: '$50,000' },
+  { id: 'social', name: 'BMC Social Enterprise', prize: '$30,000' },
+  { id: 'student', name: 'BMC Student Innovation', prize: '$15,000' },
+  { id: 'corporate', name: 'BMC Corporate Innovation', prize: '$25,000' },
 ];
 
-const teamSizeOptions = ['1', '2', '3', '4'];
+const teamSizeOptions = ['1', '2', '3', '4', '5', '6'];
 
 const Register = () => {
   const navigate = useNavigate();
@@ -72,6 +72,7 @@ const Register = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -93,85 +94,85 @@ const Register = () => {
     dataConsent: false,
   });
 
-  const isStudentCompetition = formData.competitionCategory === 'Student Event Competition';
+  const isStudentCompetition = formData.competitionCategory === 'BMC Student Innovation';
 
-  const validateForm = (): boolean => {
+  const validateStep = (step: number): boolean => {
     const newErrors: FormErrors = {};
 
-    // Personal Info
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Nama lengkap wajib diisi';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email wajib diisi';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Format email tidak valid';
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Nomor telepon wajib diisi';
-    } else if (formData.phone.length < 10) {
-      newErrors.phone = 'Nomor telepon minimal 10 digit';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password wajib diisi';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password minimal 8 karakter';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Password tidak cocok';
-    }
-
-    if (!formData.birthDate) {
-      newErrors.birthDate = 'Tanggal lahir wajib diisi';
-    }
-
-    if (!formData.address.trim()) {
-      newErrors.address = 'Alamat wajib diisi';
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = 'Kota wajib diisi';
-    }
-
-    // Institution
-    if (!formData.institutionType) {
-      newErrors.institutionType = 'Jenis institusi wajib dipilih';
-    }
-
-    if (!formData.institution.trim()) {
-      newErrors.institution = 'Nama institusi wajib diisi';
-    }
-
-    // Student-specific fields
-    if (isStudentCompetition) {
-      if (!formData.major.trim()) {
-        newErrors.major = 'Jurusan wajib diisi';
+    if (step === 1) {
+      if (!formData.fullName.trim()) {
+        newErrors.fullName = 'Nama lengkap wajib diisi';
       }
-      if (!formData.nim.trim()) {
-        newErrors.nim = 'NIM wajib diisi';
+      if (!formData.email.trim()) {
+        newErrors.email = 'Email wajib diisi';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Format email tidak valid';
+      }
+      if (!formData.phone.trim()) {
+        newErrors.phone = 'Nomor telepon wajib diisi';
+      } else if (formData.phone.length < 10) {
+        newErrors.phone = 'Nomor telepon minimal 10 digit';
+      }
+      if (!formData.password) {
+        newErrors.password = 'Password wajib diisi';
+      } else if (formData.password.length < 8) {
+        newErrors.password = 'Password minimal 8 karakter';
+      }
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Password tidak cocok';
       }
     }
 
-    // Competition
-    if (!formData.competitionCategory) {
-      newErrors.competitionCategory = 'Kategori lomba wajib dipilih';
+    if (step === 2) {
+      if (!formData.birthDate) {
+        newErrors.birthDate = 'Tanggal lahir wajib diisi';
+      }
+      if (!formData.address.trim()) {
+        newErrors.address = 'Alamat wajib diisi';
+      }
+      if (!formData.city.trim()) {
+        newErrors.city = 'Kota wajib diisi';
+      }
+      if (!formData.institutionType) {
+        newErrors.institutionType = 'Jenis institusi wajib dipilih';
+      }
+      if (!formData.institution.trim()) {
+        newErrors.institution = 'Nama institusi wajib diisi';
+      }
+      if (isStudentCompetition) {
+        if (!formData.major.trim()) {
+          newErrors.major = 'Jurusan wajib diisi';
+        }
+        if (!formData.nim.trim()) {
+          newErrors.nim = 'NIM wajib diisi';
+        }
+      }
     }
 
-    // Agreements
-    if (!formData.agreement) {
-      newErrors.agreement = 'Anda harus menyetujui syarat dan ketentuan';
-    }
-
-    if (!formData.dataConsent) {
-      newErrors.dataConsent = 'Anda harus menyetujui penggunaan data';
+    if (step === 3) {
+      if (!formData.competitionCategory) {
+        newErrors.competitionCategory = 'Kategori lomba wajib dipilih';
+      }
+      if (!formData.agreement) {
+        newErrors.agreement = 'Anda harus menyetujui syarat dan ketentuan';
+      }
+      if (!formData.dataConsent) {
+        newErrors.dataConsent = 'Anda harus menyetujui penggunaan data';
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(prev => prev - 1);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -183,12 +184,9 @@ const Register = () => {
       [name]: type === 'checkbox' ? checked : value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-
-    // Clear submit error
     if (submitError) {
       setSubmitError('');
     }
@@ -198,7 +196,7 @@ const Register = () => {
     e.preventDefault();
     setSubmitError('');
 
-    if (!validateForm()) {
+    if (!validateStep(currentStep)) {
       return;
     }
 
@@ -238,26 +236,32 @@ const Register = () => {
   };
 
   const inputClasses = (fieldName: string) => `
-    w-full px-4 py-3 bg-kath-black/50 border rounded-xl font-body text-kath-white 
-    placeholder-kath-off-white/30 focus:outline-none focus:border-kath-gold transition-colors
-    ${errors[fieldName] ? 'border-red-500' : 'border-kath-charcoal/50'}
+    w-full px-4 py-3.5 bg-white border rounded-xl font-body text-kath-text-primary
+    placeholder-kath-text-muted focus:outline-none focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 transition-all
+    ${errors[fieldName] ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' : 'border-kath-bg-section hover:border-kath-primary/30'}
+  `;
+
+  const selectClasses = (fieldName: string) => `
+    w-full px-4 py-3.5 bg-white border rounded-xl font-body text-kath-text-primary
+    focus:outline-none focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 transition-all appearance-none cursor-pointer
+    ${errors[fieldName] ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' : 'border-kath-bg-section hover:border-kath-primary/30'}
   `;
 
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-kath-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-kath-bg-main flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <CheckCircle className="w-10 h-10 text-green-500" />
           </div>
-          <h2 className="font-display text-3xl text-kath-white mb-4">
+          <h2 className="font-display text-3xl text-kath-text-primary mb-4">
             Registrasi Berhasil!
           </h2>
-          <p className="font-body text-kath-off-white/70 mb-8">
+          <p className="font-body text-kath-text-secondary mb-8">
             Akun Anda telah berhasil dibuat. Mengalihkan ke halaman login...
           </p>
-          <div className="w-full h-1 bg-kath-charcoal/30 rounded-full overflow-hidden">
-            <div className="h-full bg-kath-gold animate-pulse" />
+          <div className="w-full h-1.5 bg-kath-bg-section rounded-full overflow-hidden">
+            <div className="h-full bg-kath-primary animate-pulse rounded-full" />
           </div>
         </div>
       </div>
@@ -265,18 +269,19 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen bg-kath-black py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-kath-bg-main py-8 px-4 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-kath-gold/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-gold/3 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-kath-primary/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-gold/5 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-kath-primary/3 rounded-full blur-[120px]" />
       </div>
 
       <div className="relative max-w-2xl mx-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate('/')}
-          className="mb-6 flex items-center gap-2 text-kath-off-white/70 hover:text-kath-gold transition-colors"
+          className="mb-6 flex items-center gap-2 text-kath-text-secondary hover:text-kath-primary transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
           <span className="font-body text-sm">Kembali</span>
@@ -284,42 +289,71 @@ const Register = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-kath-gold/20 flex items-center justify-center">
-            <Award className="w-8 h-8 text-kath-gold" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center shadow-lg shadow-kath-primary/25">
+            <Award className="w-8 h-8 text-white" />
           </div>
-          <h1 className="font-display text-3xl md:text-4xl text-kath-white mb-2">
+          <h1 className="font-display text-3xl md:text-4xl text-kath-text-primary mb-2">
             Daftar Kompetisi
           </h1>
-          <p className="font-body text-kath-off-white/60">
-            Lengkapi data diri Anda untuk mendaftar
+          <p className="font-body text-kath-text-secondary">
+            Lengkapi data diri Anda untuk mendaftar BMC International 2026
           </p>
         </div>
 
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center mb-8">
+          {[1, 2, 3].map((step) => (
+            <div key={step} className="flex items-center">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-body text-sm font-medium transition-all ${
+                  currentStep >= step
+                    ? 'bg-kath-primary text-white shadow-lg shadow-kath-primary/25'
+                    : 'bg-kath-bg-section text-kath-text-muted'
+                }`}
+              >
+                {currentStep > step ? <Check className="w-5 h-5" /> : step}
+              </div>
+              {step < 3 && (
+                <div
+                  className={`w-16 h-1 mx-2 rounded-full transition-all ${
+                    currentStep > step ? 'bg-kath-primary' : 'bg-kath-bg-section'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
         {/* Form Card */}
-        <div className="bg-kath-dark-gray/50 border border-kath-charcoal/30 rounded-3xl p-6 md:p-8">
+        <div className="bg-white border border-kath-bg-section rounded-3xl p-6 md:p-8 shadow-xl shadow-kath-primary/5">
           {submitError && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <p className="font-body text-red-400 text-sm">{submitError}</p>
+              <p className="font-body text-red-600 text-sm">{submitError}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information */}
-            <div>
-              <h3 className="font-display text-lg text-kath-gold mb-4 flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Data Pribadi
-              </h3>
+            {/* Step 1: Account Information */}
+            {currentStep === 1 && (
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                    <User className="w-5 h-5 text-kath-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-kath-text-primary">Informasi Akun</h3>
+                    <p className="font-body text-sm text-kath-text-muted">Buat akun untuk mengakses dashboard</p>
+                  </div>
+                </div>
 
-              <div className="space-y-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block font-body text-sm text-kath-off-white mb-2">
-                    Nama Lengkap <span className="text-kath-gold">*</span>
+                  <label className="block font-body text-sm text-kath-text-primary mb-2">
+                    Nama Lengkap <span className="text-kath-primary">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                     <input
                       type="text"
                       name="fullName"
@@ -330,18 +364,21 @@ const Register = () => {
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.fullName}
+                    </p>
                   )}
                 </div>
 
                 {/* Email & Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Email <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Email <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="email"
                         name="email"
@@ -352,16 +389,19 @@ const Register = () => {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Nomor Telepon <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Nomor Telepon <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="tel"
                         name="phone"
@@ -372,7 +412,10 @@ const Register = () => {
                       />
                     </div>
                     {errors.phone && (
-                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.phone}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -380,11 +423,11 @@ const Register = () => {
                 {/* Password & Confirm */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Password <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Password <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
@@ -396,22 +439,25 @@ const Register = () => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-off-white/40 hover:text-kath-gold transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-text-muted hover:text-kath-primary transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.password}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Konfirmasi Password <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Konfirmasi Password <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         name="confirmPassword"
@@ -423,25 +469,43 @@ const Register = () => {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-off-white/40 hover:text-kath-gold transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-kath-text-muted hover:text-kath-primary transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                     {errors.confirmPassword && (
-                      <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.confirmPassword}
+                      </p>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Personal Information */}
+            {currentStep === 2 && (
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-kath-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-kath-text-primary">Data Pribadi</h3>
+                    <p className="font-body text-sm text-kath-text-muted">Lengkapi data diri Anda</p>
                   </div>
                 </div>
 
                 {/* Birth Date & City */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Tanggal Lahir <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Tanggal Lahir <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="date"
                         name="birthDate"
@@ -451,16 +515,19 @@ const Register = () => {
                       />
                     </div>
                     {errors.birthDate && (
-                      <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.birthDate}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Kota <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Kota <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="text"
                         name="city"
@@ -471,15 +538,18 @@ const Register = () => {
                       />
                     </div>
                     {errors.city && (
-                      <p className="text-red-500 text-xs mt-1">{errors.city}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.city}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Address */}
                 <div>
-                  <label className="block font-body text-sm text-kath-off-white mb-2">
-                    Alamat Lengkap <span className="text-kath-gold">*</span>
+                  <label className="block font-body text-sm text-kath-text-primary mb-2">
+                    Alamat Lengkap <span className="text-kath-primary">*</span>
                   </label>
                   <textarea
                     name="address"
@@ -490,50 +560,47 @@ const Register = () => {
                     className={`${inputClasses('address')} resize-none`}
                   />
                   {errors.address && (
-                    <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.address}
+                    </p>
                   )}
                 </div>
-              </div>
-            </div>
 
-            {/* Divider */}
-            <div className="border-t border-kath-charcoal/30" />
-
-            {/* Institution Information */}
-            <div>
-              <h3 className="font-display text-lg text-kath-gold mb-4 flex items-center gap-2">
-                <Building className="w-5 h-5" />
-                Data Institusi
-              </h3>
-
-              <div className="space-y-4">
+                {/* Institution Type & Name */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Jenis Institusi <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Jenis Institusi <span className="text-kath-primary">*</span>
                     </label>
-                    <select
-                      name="institutionType"
-                      value={formData.institutionType}
-                      onChange={handleChange}
-                      className={`${inputClasses('institutionType')} appearance-none cursor-pointer`}
-                    >
-                      <option value="" className="bg-kath-dark-gray">Pilih jenis institusi</option>
-                      {institutionTypes.map(type => (
-                        <option key={type} value={type} className="bg-kath-dark-gray">{type}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted pointer-events-none z-10" />
+                      <select
+                        name="institutionType"
+                        value={formData.institutionType}
+                        onChange={handleChange}
+                        className={`${selectClasses('institutionType')} pl-12`}
+                      >
+                        <option value="">Pilih jenis institusi</option>
+                        {institutionTypes.map((type) => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
                     {errors.institutionType && (
-                      <p className="text-red-500 text-xs mt-1">{errors.institutionType}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.institutionType}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Nama Institusi <span className="text-kath-gold">*</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Nama Institusi <span className="text-kath-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="text"
                         name="institution"
@@ -544,40 +611,46 @@ const Register = () => {
                       />
                     </div>
                     {errors.institution && (
-                      <p className="text-red-500 text-xs mt-1">{errors.institution}</p>
+                      <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.institution}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Student-specific fields */}
                 {isStudentCompetition && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-kath-gold/5 border border-kath-gold/20 rounded-xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-body text-sm text-kath-off-white mb-2">
-                        Jurusan <span className="text-kath-gold">*</span>
+                      <label className="block font-body text-sm text-kath-text-primary mb-2">
+                        Jurusan <span className="text-kath-primary">*</span>
                       </label>
                       <div className="relative">
-                        <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                        <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                         <input
                           type="text"
                           name="major"
                           value={formData.major}
                           onChange={handleChange}
-                          placeholder="Contoh: Manajemen Perhotelan"
+                          placeholder="Jurusan/program studi"
                           className={`${inputClasses('major')} pl-12`}
                         />
                       </div>
                       {errors.major && (
-                        <p className="text-red-500 text-xs mt-1">{errors.major}</p>
+                        <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors.major}
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <label className="block font-body text-sm text-kath-off-white mb-2">
-                        NIM <span className="text-kath-gold">*</span>
+                      <label className="block font-body text-sm text-kath-text-primary mb-2">
+                        NIM <span className="text-kath-primary">*</span>
                       </label>
                       <div className="relative">
-                        <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                        <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                         <input
                           type="text"
                           name="nim"
@@ -588,152 +661,221 @@ const Register = () => {
                         />
                       </div>
                       {errors.nim && (
-                        <p className="text-red-500 text-xs mt-1">{errors.nim}</p>
+                        <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors.nim}
+                        </p>
                       )}
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Divider */}
-            <div className="border-t border-kath-charcoal/30" />
-
-            {/* Competition Information */}
-            <div>
-              <h3 className="font-display text-lg text-kath-gold mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                Informasi Kompetisi
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block font-body text-sm text-kath-off-white mb-2">
-                    Kategori Lomba <span className="text-kath-gold">*</span>
-                  </label>
-                  <select
-                    name="competitionCategory"
-                    value={formData.competitionCategory}
-                    onChange={handleChange}
-                    className={`${inputClasses('competitionCategory')} appearance-none cursor-pointer`}
-                  >
-                    <option value="" className="bg-kath-dark-gray">Pilih kategori lomba</option>
-                    {competitionCategories.map(cat => (
-                      <option key={cat} value={cat} className="bg-kath-dark-gray">{cat}</option>
-                    ))}
-                  </select>
-                  {errors.competitionCategory && (
-                    <p className="text-red-500 text-xs mt-1">{errors.competitionCategory}</p>
-                  )}
+            {/* Step 3: Competition Selection */}
+            {currentStep === 3 && (
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-kath-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-kath-text-primary">Pilih Kompetisi</h3>
+                    <p className="font-body text-sm text-kath-text-muted">Pilih kategori yang sesuai dengan Anda</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Competition Categories */}
+                <div className="grid grid-cols-1 gap-3">
+                  {competitionCategories.map((category) => (
+                    <label
+                      key={category.id}
+                      className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        formData.competitionCategory === category.name
+                          ? 'border-kath-primary bg-kath-primary/5'
+                          : 'border-kath-bg-section hover:border-kath-primary/30 bg-white'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="competitionCategory"
+                        value={category.name}
+                        checked={formData.competitionCategory === category.name}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            formData.competitionCategory === category.name
+                              ? 'border-kath-primary'
+                              : 'border-kath-text-muted'
+                          }`}>
+                            {formData.competitionCategory === category.name && (
+                              <div className="w-2.5 h-2.5 rounded-full bg-kath-primary" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-body font-medium text-kath-text-primary">{category.name}</p>
+                            <p className="font-body text-xs text-kath-text-muted">
+                              {category.id === 'student' ? 'Khusus mahasiswa' : 'Terbuka untuk umum'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-display text-lg text-kath-primary">{category.prize}</p>
+                          <p className="font-body text-xs text-kath-text-muted">Grand Prize</p>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                {errors.competitionCategory && (
+                  <p className="text-red-500 text-xs flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    {errors.competitionCategory}
+                  </p>
+                )}
+
+                {/* Team Info (Optional) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-kath-bg-section">
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Nama Tim <span className="text-kath-off-white/50">(Opsional)</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Nama Tim <span className="text-kath-text-muted">(Opsional)</span>
                     </label>
                     <div className="relative">
-                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-off-white/40" />
+                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-kath-text-muted" />
                       <input
                         type="text"
                         name="teamName"
                         value={formData.teamName}
                         onChange={handleChange}
-                        placeholder="Nama tim jika berkelompok"
+                        placeholder="Nama tim Anda"
                         className={`${inputClasses('teamName')} pl-12`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-body text-sm text-kath-off-white mb-2">
-                      Jumlah Anggota <span className="text-kath-off-white/50">(Opsional)</span>
+                    <label className="block font-body text-sm text-kath-text-primary mb-2">
+                      Jumlah Anggota <span className="text-kath-text-muted">(Opsional)</span>
                     </label>
                     <select
                       name="teamMembers"
                       value={formData.teamMembers}
                       onChange={handleChange}
-                      className={`${inputClasses('teamMembers')} appearance-none cursor-pointer`}
+                      className={selectClasses('teamMembers')}
                     >
-                      <option value="" className="bg-kath-dark-gray">Pilih jumlah anggota</option>
-                      {teamSizeOptions.map(size => (
-                        <option key={size} value={size} className="bg-kath-dark-gray">{size} orang</option>
+                      <option value="">Pilih jumlah anggota</option>
+                      {teamSizeOptions.map((size) => (
+                        <option key={size} value={size}>{size} orang</option>
                       ))}
                     </select>
                   </div>
                 </div>
+
+                {/* Agreements */}
+                <div className="space-y-3 pt-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="agreement"
+                      checked={formData.agreement}
+                      onChange={handleChange}
+                      className="w-5 h-5 rounded border-kath-bg-section text-kath-primary focus:ring-kath-primary/20 mt-0.5"
+                    />
+                    <span className="font-body text-sm text-kath-text-secondary">
+                      Saya menyetujui{' '}
+                      <Link to="#" className="text-kath-primary hover:underline">Syarat dan Ketentuan</Link>
+                      {' '}serta{' '}
+                      <Link to="#" className="text-kath-primary hover:underline">Peraturan Kompetisi</Link>
+                    </span>
+                  </label>
+                  {errors.agreement && (
+                    <p className="text-red-500 text-xs flex items-center gap-1 ml-8">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.agreement}
+                    </p>
+                  )}
+
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="dataConsent"
+                      checked={formData.dataConsent}
+                      onChange={handleChange}
+                      className="w-5 h-5 rounded border-kath-bg-section text-kath-primary focus:ring-kath-primary/20 mt-0.5"
+                    />
+                    <span className="font-body text-sm text-kath-text-secondary">
+                      Saya menyetujui pengumpulan dan penggunaan data pribadi saya sesuai dengan{' '}
+                      <Link to="#" className="text-kath-primary hover:underline">Kebijakan Privasi</Link>
+                    </span>
+                  </label>
+                  {errors.dataConsent && (
+                    <p className="text-red-500 text-xs flex items-center gap-1 ml-8">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.dataConsent}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Divider */}
-            <div className="border-t border-kath-charcoal/30" />
-
-            {/* Agreements */}
-            <div className="space-y-4">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="agreement"
-                  checked={formData.agreement}
-                  onChange={handleChange}
-                  className="mt-1 w-5 h-5 rounded border-kath-charcoal/50 bg-kath-black/50 text-kath-gold focus:ring-kath-gold focus:ring-offset-0 cursor-pointer"
-                />
-                <span className="font-body text-sm text-kath-off-white/70 group-hover:text-kath-off-white transition-colors">
-                  Saya menyetujui{' '}
-                  <span className="text-kath-gold hover:underline">syarat dan ketentuan</span>
-                  {' '}yang berlaku dalam kompetisi ini <span className="text-kath-gold">*</span>
-                </span>
-              </label>
-              {errors.agreement && (
-                <p className="text-red-500 text-xs">{errors.agreement}</p>
-              )}
-
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="dataConsent"
-                  checked={formData.dataConsent}
-                  onChange={handleChange}
-                  className="mt-1 w-5 h-5 rounded border-kath-charcoal/50 bg-kath-black/50 text-kath-gold focus:ring-kath-gold focus:ring-offset-0 cursor-pointer"
-                />
-                <span className="font-body text-sm text-kath-off-white/70 group-hover:text-kath-off-white transition-colors">
-                  Saya menyetujui penggunaan data pribadi saya untuk keperluan kompetisi ini{' '}
-                  <span className="text-kath-gold">*</span>
-                </span>
-              </label>
-              {errors.dataConsent && (
-                <p className="text-red-500 text-xs">{errors.dataConsent}</p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-black font-body font-medium rounded-full transition-all duration-300 flex items-center justify-center gap-2 group"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-kath-black/30 border-t-kath-black rounded-full animate-spin" />
-                  <span>Mendaftar...</span>
-                </>
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t border-kath-bg-section">
+              {currentStep > 1 ? (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-6 py-3 border border-kath-bg-section hover:border-kath-primary/30 text-kath-text-primary font-body rounded-xl transition-all"
+                >
+                  Kembali
+                </button>
               ) : (
-                <>
-                  <span>Daftar Sekarang</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </>
+                <div />
               )}
-            </button>
 
-            {/* Login Link */}
-            <p className="text-center font-body text-sm text-kath-off-white/60">
-              Sudah punya akun?{' '}
-              <Link to="/login" className="text-kath-gold hover:underline">
-                Login di sini
-              </Link>
-            </p>
+              {currentStep < 3 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark text-white font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
+                >
+                  Lanjut
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-white font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
+                >
+                  {isSubmitting ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      Daftar
+                      <CheckCircle className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </form>
         </div>
+
+        {/* Login Link */}
+        <p className="text-center mt-8 font-body text-sm text-kath-text-secondary">
+          Sudah punya akun?{' '}
+          <Link to="/login" className="text-kath-primary hover:text-kath-primary-dark font-medium transition-colors">
+            Login sekarang
+          </Link>
+        </p>
+
+        {/* Footer */}
+        <p className="text-center mt-4 font-body text-xs text-kath-text-muted">
+          © 2026 KATH Event Organizer. All rights reserved.
+        </p>
       </div>
     </div>
   );

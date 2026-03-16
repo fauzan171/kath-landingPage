@@ -107,7 +107,7 @@ const MyCompetitions = () => {
     switch (result) {
       case 'winner':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#a68a2d]/20 text-[#a68a2d] rounded-full text-sm font-medium border border-[#a68a2d]/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-gold/20 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/30">
             <Trophy className="w-4 h-4" />
             Champion
           </span>
@@ -178,15 +178,15 @@ const MyCompetitions = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -197,7 +197,7 @@ const MyCompetitions = () => {
 
             <button
               onClick={() => navigate('/competition')}
-              className="flex items-center gap-2 px-4 py-2 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body text-sm font-medium rounded-full transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-full transition-all"
             >
               <Plus className="w-4 h-4" />
               Join New Event
@@ -214,10 +214,10 @@ const MyCompetitions = () => {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 hover:border-[#a68a2d]/30 transition-all group cursor-pointer"
+                className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 hover:border-kath-gold/30 transition-all group cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center text-[#a68a2d] group-hover:bg-[#a68a2d]/20 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-kath-gold/10 flex items-center justify-center text-kath-gold group-hover:bg-kath-gold/20 transition-all">
                     <stat.icon className="w-5 h-5" />
                   </div>
                   <span className="text-xs font-medium text-emerald-400">{stat.trend}</span>
@@ -241,12 +241,12 @@ const MyCompetitions = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                     activeTab === tab.id
-                      ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
+                      ? 'bg-kath-gold/20 text-kath-gold'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {tab.label}
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-[#a68a2d]/30' : 'bg-white/10'}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-kath-gold/30' : 'bg-white/10'}`}>
                     {tab.count}
                   </span>
                 </button>
@@ -261,12 +261,12 @@ const MyCompetitions = () => {
                   placeholder="Search competitions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
                 />
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-2.5 border rounded-xl transition-all ${showFilters ? 'border-[#a68a2d]/50 bg-[#a68a2d]/10 text-[#a68a2d]' : 'border-white/5 text-white/60 hover:text-white hover:bg-white/5'}`}
+                className={`p-2.5 border rounded-xl transition-all ${showFilters ? 'border-kath-gold/50 bg-kath-gold/10 text-kath-gold' : 'border-white/5 text-white/60 hover:text-white hover:bg-white/5'}`}
               >
                 <Filter className="w-5 h-5" />
               </button>
@@ -282,7 +282,7 @@ const MyCompetitions = () => {
               return (
                 <div
                   key={comp.id}
-                  className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:border-[#a68a2d]/30 transition-all"
+                  className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:border-kath-gold/30 transition-all"
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -290,7 +290,7 @@ const MyCompetitions = () => {
                       alt={comp.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-kath-bg-dark via-kath-bg-dark/50 to-transparent" />
                     <div className="absolute top-4 left-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${status.badge}`}>
                         {status.icon}
@@ -312,7 +312,7 @@ const MyCompetitions = () => {
 
                   <div className="p-6">
                     <div className="mb-4">
-                      <h3 className="font-display text-lg text-white mb-1 group-hover:text-[#a68a2d] transition-colors">
+                      <h3 className="font-display text-lg text-white mb-1 group-hover:text-kath-gold transition-colors">
                         {comp.name}
                       </h3>
                       <p className="font-body text-white/50 text-sm">{comp.category}</p>
@@ -346,11 +346,11 @@ const MyCompetitions = () => {
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-body text-white/50 text-sm">Progress</span>
-                        <span className="font-body text-[#a68a2d] text-sm">{comp.progress}%</span>
+                        <span className="font-body text-kath-gold text-sm">{comp.progress}%</span>
                       </div>
                       <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#a68a2d] to-[#c9a94d] rounded-full transition-all"
+                          className="h-full bg-gradient-to-r from-kath-gold to-kath-gold-light rounded-full transition-all"
                           style={{ width: `${comp.progress}%` }}
                         />
                       </div>
@@ -377,16 +377,16 @@ const MyCompetitions = () => {
                     )}
 
                     {comp.prize && (
-                      <div className="flex items-center gap-2 mb-4 p-3 bg-[#a68a2d]/10 border border-[#a68a2d]/20 rounded-xl">
-                        <Trophy className="w-5 h-5 text-[#a68a2d]" />
-                        <span className="font-body text-[#a68a2d] text-sm font-medium">Prize: {comp.prize}</span>
+                      <div className="flex items-center gap-2 mb-4 p-3 bg-kath-gold/10 border border-kath-gold/20 rounded-xl">
+                        <Trophy className="w-5 h-5 text-kath-gold" />
+                        <span className="font-body text-kath-gold text-sm font-medium">Prize: {comp.prize}</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleViewDetail(comp)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body text-sm font-medium rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-xl transition-all"
                       >
                         <Eye className="w-4 h-4" />
                         View Details
@@ -394,7 +394,7 @@ const MyCompetitions = () => {
                       {comp.status === 'in_progress' && !comp.hasSubmitted && (
                         <button
                           onClick={() => handleSubmit(comp.id)}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[#a68a2d]/30 text-[#a68a2d] hover:bg-[#a68a2d]/10 font-body text-sm font-medium rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 font-body text-sm font-medium rounded-xl transition-all"
                         >
                           <Upload className="w-4 h-4" />
                           Submit
@@ -427,7 +427,7 @@ const MyCompetitions = () => {
               </p>
               <button
                 onClick={() => navigate('/competition')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-full transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
               >
                 <Plus className="w-5 h-5" />
                 Browse Competitions
@@ -440,7 +440,7 @@ const MyCompetitions = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedCompetition && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-kath-bg-dark border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">{selectedCompetition.name}</h2>
@@ -462,7 +462,7 @@ const MyCompetitions = () => {
                 <ul className="space-y-2">
                   {selectedCompetition.requirements.map((req, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#a68a2d] mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-kath-gold mt-0.5" />
                       <span className="font-body text-white/70 text-sm">{req}</span>
                     </li>
                   ))}
@@ -486,7 +486,7 @@ const MyCompetitions = () => {
                   setShowDetailModal(false);
                   navigate(`/competition/${selectedCompetition.id}`);
                 }}
-                className="flex-1 px-4 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                className="flex-1 px-4 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-xl transition-all"
               >
                 Full Details
               </button>
@@ -504,7 +504,7 @@ const MyCompetitions = () => {
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-md w-full p-6">
+          <div className="bg-kath-bg-dark border border-white/10 rounded-2xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-red-400" />

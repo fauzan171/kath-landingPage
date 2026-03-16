@@ -100,18 +100,18 @@ const Portfolio = () => {
     <section
       ref={sectionRef}
       id="portfolio"
-      className="relative w-full bg-kath-black py-24 md:py-32"
+      className="relative w-full bg-kath-bg-section py-24 md:py-32"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
-          <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
             {portfolioConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-white mt-4">
+          <h2 className="font-display text-headline text-kath-text-primary mt-4">
             {portfolioConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
+          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto">
             {portfolioConfig.sectionDescription[language]}
           </p>
         </div>
@@ -124,8 +124,8 @@ const Portfolio = () => {
               onClick={() => setActiveFilter(category[language])}
               className={`px-5 py-2 font-body text-sm rounded-full transition-all duration-300 ${
                 currentFilter === category[language]
-                  ? 'bg-kath-gold text-kath-black'
-                  : 'bg-kath-dark-gray text-kath-off-white/70 hover:text-kath-white border border-kath-charcoal hover:border-kath-gold/50'
+                  ? 'bg-kath-primary text-white'
+                  : 'bg-white text-kath-text-secondary hover:text-kath-text-primary border border-kath-bg-section hover:border-kath-primary/30'
               }`}
             >
               {category[language]}
@@ -138,7 +138,7 @@ const Portfolio = () => {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer bg-kath-dark-gray"
+              className="portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer bg-white shadow-sm hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300"
             >
               {/* Image Container - Centered */}
               <div className="aspect-[4/3] overflow-hidden flex items-center justify-center">
@@ -151,22 +151,22 @@ const Portfolio = () => {
               </div>
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-kath-black via-kath-black/50 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-kath-text-primary/90 via-kath-text-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               {/* Content */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-end">
+              <div className="absolute inset-0 p-6 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 {/* Category Badge */}
-                <span className="inline-block self-start px-3 py-1 bg-kath-gold/20 text-kath-gold text-xs font-body rounded-full mb-3">
+                <span className="inline-block self-start px-3 py-1 bg-kath-primary/20 text-white text-xs font-body rounded-full mb-3">
                   {item.category[language]}
                 </span>
 
                 {/* Title */}
-                <h3 className="font-display text-xl text-kath-white mb-2 group-hover:text-kath-gold transition-colors duration-300">
+                <h3 className="font-display text-xl text-white mb-2">
                   {item.title[language]}
                 </h3>
 
                 {/* Meta */}
-                <div className="flex items-center gap-4 text-kath-off-white/60">
+                <div className="flex items-center gap-4 text-white/70">
                   <span className="flex items-center gap-1 text-xs font-body">
                     <MapPin className="w-3 h-3" />
                     {item.location}
@@ -176,11 +176,11 @@ const Portfolio = () => {
                     {item.year}
                   </span>
                 </div>
+              </div>
 
-                {/* View Button */}
-                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-kath-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                  <ArrowUpRight className="w-5 h-5 text-kath-black" />
-                </div>
+              {/* View Button */}
+              <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-kath-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                <ArrowUpRight className="w-5 h-5 text-white" />
               </div>
             </div>
           ))}

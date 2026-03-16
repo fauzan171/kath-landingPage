@@ -82,21 +82,21 @@ const Testimonials = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-black py-24 md:py-32 overflow-hidden"
+      className="relative w-full bg-kath-bg-section py-24 md:py-32 overflow-hidden"
     >
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-gold/5 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-primary/5 rounded-full blur-[150px]" />
 
       <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
-          <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
             {testimonialsConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-white mt-4">
+          <h2 className="font-display text-headline text-kath-text-primary mt-4">
             {testimonialsConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
+          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto">
             {testimonialsConfig.sectionDescription[language]}
           </p>
         </div>
@@ -104,8 +104,8 @@ const Testimonials = () => {
         {/* Carousel */}
         <div ref={carouselRef} className="relative max-w-4xl mx-auto">
           {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-kath-gold/10 rounded-full flex items-center justify-center">
-            <Quote className="w-6 h-6 text-kath-gold" />
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-kath-primary/10 rounded-full flex items-center justify-center">
+            <Quote className="w-6 h-6 text-kath-primary" />
           </div>
 
           {/* Testimonial Cards */}
@@ -128,7 +128,7 @@ const Testimonials = () => {
                     </div>
 
                     {/* Quote */}
-                    <blockquote className="font-display text-xl md:text-2xl text-kath-white leading-relaxed mb-8">
+                    <blockquote className="font-display text-xl md:text-2xl text-kath-text-primary leading-relaxed mb-8">
                       "{testimonial.quote[language]}"
                     </blockquote>
 
@@ -137,15 +137,15 @@ const Testimonials = () => {
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-kath-gold/30 mb-4"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-kath-primary/30 mb-4"
                       />
-                      <h4 className="font-display text-lg text-kath-white">
+                      <h4 className="font-display text-lg text-kath-text-primary">
                         {testimonial.name}
                       </h4>
-                      <p className="font-body text-sm text-kath-gold">
+                      <p className="font-body text-sm text-kath-primary">
                         {testimonial.role[language]}
                       </p>
-                      <p className="font-body text-xs text-kath-off-white/50 mt-1">
+                      <p className="font-body text-xs text-kath-text-muted mt-1">
                         {testimonial.event[language]}
                       </p>
                     </div>
@@ -159,9 +159,9 @@ const Testimonials = () => {
           <div className="flex items-center justify-center gap-4 mt-10">
             <button
               onClick={prevSlide}
-              className="w-12 h-12 rounded-full border border-kath-charcoal hover:border-kath-gold flex items-center justify-center transition-colors duration-300"
+              className="w-12 h-12 rounded-full border border-kath-bg-section hover:border-kath-primary flex items-center justify-center transition-colors duration-300"
             >
-              <ChevronLeft className="w-5 h-5 text-kath-white" />
+              <ChevronLeft className="w-5 h-5 text-kath-text-primary" />
             </button>
 
             {/* Dots */}
@@ -172,8 +172,8 @@ const Testimonials = () => {
                   onClick={() => setCurrentIndex(index)}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     index === currentIndex
-                      ? 'w-8 bg-kath-gold'
-                      : 'bg-kath-charcoal hover:bg-kath-gold/50'
+                      ? 'w-8 bg-kath-primary'
+                      : 'bg-kath-bg-section hover:bg-kath-primary/50'
                   }`}
                 />
               ))}
@@ -181,9 +181,9 @@ const Testimonials = () => {
 
             <button
               onClick={nextSlide}
-              className="w-12 h-12 rounded-full border border-kath-charcoal hover:border-kath-gold flex items-center justify-center transition-colors duration-300"
+              className="w-12 h-12 rounded-full border border-kath-bg-section hover:border-kath-primary flex items-center justify-center transition-colors duration-300"
             >
-              <ChevronRight className="w-5 h-5 text-kath-white" />
+              <ChevronRight className="w-5 h-5 text-kath-text-primary" />
             </button>
           </div>
         </div>

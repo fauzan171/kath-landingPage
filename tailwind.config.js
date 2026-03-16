@@ -41,18 +41,41 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // KATH Luxury Gold Colors
+        // KATH Premium Gold & Black Theme
         kath: {
-          gold: '#a68a2d',
-          goldDark: '#8e7526',
-          goldLight: '#c9a94d',
-          black: '#0a0a0a',
-          darkGray: '#1a1a1a',
-          charcoal: '#333333',
-          mediumGray: '#666666',
-          lightGray: '#f5f5f5',
-          offWhite: '#fafafa',
-          white: '#ffffff',
+          // Primary Gold (Luxury & Premium)
+          primary: '#AE8E1C',
+          primaryDark: '#8B7316',
+          primaryLight: '#C9A82F',
+          primaryMuted: '#D4B84A',
+          // Accent Gold variations
+          gold: '#AE8E1C',
+          goldDark: '#8B7316',
+          goldLight: '#C9A82F',
+          goldMuted: '#E8D89A',
+          // Backgrounds
+          bgMain: '#FAFAFA',
+          bgCard: '#FFFFFF',
+          bgSection: '#F5F5F5',
+          bgDark: '#1A1A1A',
+          bgDarker: '#0D0D0D',
+          // Text
+          textPrimary: '#1A1A1A',
+          textSecondary: '#4A4A4A',
+          textMuted: '#8A8A8A',
+          // Semantic
+          success: '#10B981',
+          warning: '#F59E0B',
+          error: '#EF4444',
+          info: '#3B82F6',
+          // Legacy (for backward compatibility)
+          black: '#1A1A1A',
+          darkGray: '#2A2A2A',
+          charcoal: '#3A3A3A',
+          mediumGray: '#6A6A6A',
+          lightGray: '#E5E5E5',
+          offWhite: '#FAFAFA',
+          white: '#FFFFFF',
         },
       },
       fontFamily: {
@@ -83,8 +106,18 @@ module.exports = {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
         'soft': '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
         'deep': '0 35px 60px -15px rgba(0, 0, 0, 0.2)',
-        'gold': '0 0 40px rgba(166, 138, 45, 0.3)',
-        'gold-lg': '0 0 60px rgba(166, 138, 45, 0.4)',
+        'gold': '0 0 40px rgba(174, 142, 28, 0.3)',
+        'gold-lg': '0 0 60px rgba(174, 142, 28, 0.4)',
+        'gold-sm': '0 0 20px rgba(174, 142, 28, 0.2)',
+        'premium': '0 25px 50px -12px rgba(26, 26, 26, 0.15)',
+        'card': '0 10px 40px -10px rgba(0, 0, 0, 0.1)',
+        'card-hover': '0 25px 50px -12px rgba(0, 0, 0, 0.2)',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gold-gradient': 'linear-gradient(135deg, #AE8E1C 0%, #C9A82F 50%, #AE8E1C 100%)',
+        'gold-gradient-light': 'linear-gradient(135deg, #C9A82F 0%, #D4B84A 50%, #C9A82F 100%)',
+        'dark-gradient': 'linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%)',
       },
       keyframes: {
         "accordion-down": {
@@ -116,12 +149,20 @@ module.exports = {
           "50%": { transform: "translateY(-10px)" },
         },
         "pulse-gold": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(166, 138, 45, 0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(166, 138, 45, 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px rgba(174, 142, 28, 0.3)" },
+          "50%": { boxShadow: "0 0 40px rgba(174, 142, 28, 0.6)" },
         },
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
+        },
+        "gold-shimmer": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { opacity: "0.5" },
+          "50%": { opacity: "1" },
         },
       },
       animation: {
@@ -134,14 +175,22 @@ module.exports = {
         "float": "float 6s ease-in-out infinite",
         "pulse-gold": "pulse-gold 2s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
+        "gold-shimmer": "gold-shimmer 3s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
         'bounce-soft': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'premium': 'cubic-bezier(0.25, 0.1, 0.25, 1)',
       },
       spacing: {
         '18': '4.5rem',
         '22': '5.5rem',
+      },
+      transitionDuration: {
+        '400': '400ms',
+        '600': '600ms',
+        '800': '800ms',
       },
     },
   },

@@ -164,15 +164,15 @@ const MyTeam = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -183,7 +183,7 @@ const MyTeam = () => {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body text-sm font-medium rounded-full transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-full transition-all"
             >
               <Plus className="w-4 h-4" />
               Create Team
@@ -207,7 +207,7 @@ const MyTeam = () => {
               </p>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-full transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
               >
                 <Plus className="w-5 h-5" />
                 Create Your First Team
@@ -225,7 +225,7 @@ const MyTeam = () => {
                       placeholder="Search teams..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50"
+                      className="w-full pl-10 pr-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
                     />
                   </div>
                   
@@ -236,12 +236,12 @@ const MyTeam = () => {
                         onClick={() => setActiveTeam(team)}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
                           activeTeam?.id === team.id
-                            ? 'bg-[#a68a2d]/20 border border-[#a68a2d]/30'
+                            ? 'bg-kath-gold/20 border border-kath-gold/30'
                             : 'hover:bg-white/[0.02] border border-transparent'
                         }`}
                       >
-                        <div className="w-10 h-10 rounded-lg bg-[#a68a2d]/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-[#a68a2d]" />
+                        <div className="w-10 h-10 rounded-lg bg-kath-gold/10 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-kath-gold" />
                         </div>
                         <div className="flex-1 text-left">
                           <p className="font-body text-white font-medium">{team.name}</p>
@@ -268,7 +268,7 @@ const MyTeam = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setShowInviteModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body text-sm font-medium rounded-full transition-all"
+                            className="flex items-center gap-2 px-4 py-2 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-full transition-all"
                           >
                             <Plus className="w-4 h-4" />
                             Invite
@@ -286,7 +286,7 @@ const MyTeam = () => {
                         </div>
                         <button
                           onClick={handleCopyCode}
-                          className="flex items-center gap-2 px-4 py-2 border border-white/10 hover:border-[#a68a2d]/50 text-white/70 hover:text-[#a68a2d] rounded-lg transition-all"
+                          className="flex items-center gap-2 px-4 py-2 border border-white/10 hover:border-kath-gold/50 text-white/70 hover:text-kath-gold rounded-lg transition-all"
                         >
                           {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           <span className="font-body text-sm">{copiedCode ? 'Copied!' : 'Copy'}</span>
@@ -310,8 +310,8 @@ const MyTeam = () => {
                             className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#a68a2d] to-[#8e7526] flex items-center justify-center">
-                                <span className="font-display text-[#0a0a0a] text-sm">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-gold to-kath-gold-dark flex items-center justify-center">
+                                <span className="font-display text-kath-bg-dark text-sm">
                                   {member.name.charAt(0).toUpperCase()}
                                 </span>
                               </div>
@@ -319,7 +319,7 @@ const MyTeam = () => {
                                 <div className="flex items-center gap-2">
                                   <p className="font-body text-white font-medium">{member.name}</p>
                                   {member.role === 'leader' && (
-                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-[#a68a2d]/20 text-[#a68a2d] rounded-full text-xs">
+                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-kath-gold/20 text-kath-gold rounded-full text-xs">
                                       <Crown className="w-3 h-3" />
                                       Leader
                                     </span>
@@ -345,10 +345,10 @@ const MyTeam = () => {
                                   </button>
                                   
                                   {showMemberMenu === member.id && (
-                                    <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl z-10">
+                                    <div className="absolute right-0 top-full mt-2 w-48 bg-kath-dark-gray border border-white/10 rounded-xl shadow-xl z-10">
                                       <button
                                         onClick={() => handlePromoteMember(member.id)}
-                                        className="w-full flex items-center gap-2 px-4 py-3 text-white/70 hover:text-[#a68a2d] hover:bg-white/5 rounded-t-xl transition-all"
+                                        className="w-full flex items-center gap-2 px-4 py-3 text-white/70 hover:text-kath-gold hover:bg-white/5 rounded-t-xl transition-all"
                                       >
                                         <Crown className="w-4 h-4" />
                                         Make Leader
@@ -389,7 +389,7 @@ const MyTeam = () => {
       {/* Create Team Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-md w-full">
+          <div className="bg-kath-bg-dark border border-white/10 rounded-2xl max-w-md w-full">
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">Create New Team</h2>
@@ -408,7 +408,7 @@ const MyTeam = () => {
                   type="text"
                   value={newTeamName}
                   onChange={(e) => setNewTeamName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50"
+                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
                   placeholder="Enter team name (min 3 chars)"
                 />
               </div>
@@ -417,7 +417,7 @@ const MyTeam = () => {
                 <select
                   value={selectedCompetition}
                   onChange={(e) => setSelectedCompetition(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white focus:outline-none focus:border-[#a68a2d]/50"
+                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white focus:outline-none focus:border-kath-gold/50"
                 >
                   <option value="">Select competition</option>
                   {competitions.map((comp) => (
@@ -431,7 +431,7 @@ const MyTeam = () => {
                   value={newTeamDesc}
                   onChange={(e) => setNewTeamDesc(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50 resize-none"
+                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50 resize-none"
                   placeholder="Describe your team..."
                 />
               </div>
@@ -445,7 +445,7 @@ const MyTeam = () => {
               </button>
               <button
                 onClick={handleCreateTeam}
-                className="flex-1 px-4 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                className="flex-1 px-4 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-xl transition-all"
               >
                 Create Team
               </button>
@@ -457,7 +457,7 @@ const MyTeam = () => {
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-md w-full">
+          <div className="bg-kath-bg-dark border border-white/10 rounded-2xl max-w-md w-full">
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">Invite Member</h2>
@@ -481,7 +481,7 @@ const MyTeam = () => {
                     type="email"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
                     placeholder="member@example.com"
                   />
                 </div>
@@ -496,7 +496,7 @@ const MyTeam = () => {
               </button>
               <button
                 onClick={handleInvite}
-                className="flex-1 px-4 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                className="flex-1 px-4 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-xl transition-all"
               >
                 Send Invite
               </button>

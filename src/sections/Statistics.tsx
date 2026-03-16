@@ -84,12 +84,12 @@ const Statistics = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-black py-16 sm:py-20 md:py-28"
+      className="relative w-full bg-kath-bg-main py-16 sm:py-20 md:py-28"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Label */}
         <div className="text-center mb-10 sm:mb-12">
-          <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
             {statisticsConfig.sectionLabel[language]}
           </span>
         </div>
@@ -102,20 +102,20 @@ const Statistics = () => {
           {statItems.map((stat, index) => (
             <div
               key={stat.key}
-              className="text-center group"
+              className="text-center group p-6 bg-white rounded-2xl border border-kath-bg-section hover:border-kath-primary/20 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300"
               style={{
                 animationDelay: `${index * 100}ms`,
               }}
             >
               <div className="relative inline-flex items-baseline justify-center">
-                <span className="font-display text-4xl sm:text-5xl md:text-7xl text-kath-white group-hover:text-kath-gold transition-colors duration-500">
+                <span className="font-display text-4xl sm:text-5xl md:text-6xl text-kath-text-primary group-hover:text-kath-primary transition-colors duration-500">
                   {stat.value}
                 </span>
-                <span className="font-display text-2xl sm:text-3xl md:text-4xl text-kath-gold ml-1">
+                <span className="font-display text-2xl sm:text-3xl md:text-4xl text-kath-primary ml-1">
                   {stat.suffix}
                 </span>
               </div>
-              <p className="font-body text-xs sm:text-sm text-kath-off-white/60 mt-2 sm:mt-3 uppercase tracking-wider">
+              <p className="font-body text-xs sm:text-sm text-kath-text-muted mt-2 sm:mt-3 uppercase tracking-wider">
                 {stat.label}
               </p>
             </div>

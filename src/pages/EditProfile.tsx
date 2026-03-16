@@ -168,7 +168,7 @@ const EditProfile = () => {
 
   const inputClasses = (fieldName: string) => `
     w-full px-4 py-3 bg-white/[0.02] border rounded-xl font-body text-white 
-    placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50 transition-all
+    placeholder-white/30 focus:outline-none focus:border-kath-gold/50 transition-all
     ${errors[fieldName] ? 'border-red-500/50' : 'border-white/5'}
   `;
 
@@ -179,13 +179,13 @@ const EditProfile = () => {
         <div className="relative">
           <div
             onClick={handleAvatarClick}
-            className="w-32 h-32 rounded-full overflow-hidden cursor-pointer group border-4 border-[#a68a2d]/30"
+            className="w-32 h-32 rounded-full overflow-hidden cursor-pointer group border-4 border-kath-gold/30"
           >
             {avatarPreview ? (
               <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#a68a2d] to-[#8e7526] flex items-center justify-center">
-                <span className="font-display text-[#0a0a0a] text-4xl">
+              <div className="w-full h-full bg-gradient-to-br from-kath-gold to-kath-gold-dark flex items-center justify-center">
+                <span className="font-display text-kath-bg-dark text-4xl">
                   {formData.fullName.charAt(0).toUpperCase() || 'U'}
                 </span>
               </div>
@@ -197,7 +197,7 @@ const EditProfile = () => {
           <button
             type="button"
             onClick={handleAvatarClick}
-            className="absolute bottom-0 right-0 w-10 h-10 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] rounded-full flex items-center justify-center transition-all"
+            className="absolute bottom-0 right-0 w-10 h-10 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark rounded-full flex items-center justify-center transition-all"
           >
             <Camera className="w-5 h-5" />
           </button>
@@ -217,7 +217,7 @@ const EditProfile = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">
-            Nama Lengkap <span className="text-[#a68a2d]">*</span>
+            Nama Lengkap <span className="text-kath-gold">*</span>
           </label>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -235,7 +235,7 @@ const EditProfile = () => {
 
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">
-            Email <span className="text-[#a68a2d]">*</span>
+            Email <span className="text-kath-gold">*</span>
           </label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -256,7 +256,7 @@ const EditProfile = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">
-            Nomor Telepon <span className="text-[#a68a2d]">*</span>
+            Nomor Telepon <span className="text-kath-gold">*</span>
           </label>
           <div className="relative">
             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -305,7 +305,7 @@ const EditProfile = () => {
       {/* City */}
       <div>
         <label className="block font-body text-sm text-white/70 mb-2">
-          Kota <span className="text-[#a68a2d]">*</span>
+          Kota <span className="text-kath-gold">*</span>
         </label>
         <div className="relative">
           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -344,7 +344,7 @@ const EditProfile = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">
-            Jenis Institusi <span className="text-[#a68a2d]">*</span>
+            Jenis Institusi <span className="text-kath-gold">*</span>
           </label>
           <div className="relative">
             <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -354,9 +354,9 @@ const EditProfile = () => {
               onChange={handleChange}
               className={`${inputClasses('institutionType')} pl-12 appearance-none cursor-pointer`}
             >
-              <option value="" className="bg-[#1a1a1a]">Pilih jenis institusi</option>
+              <option value="" className="bg-kath-dark-gray">Pilih jenis institusi</option>
               {institutionTypes.map((type) => (
-                <option key={type} value={type} className="bg-[#1a1a1a]">
+                <option key={type} value={type} className="bg-kath-dark-gray">
                   {type}
                 </option>
               ))}
@@ -366,7 +366,7 @@ const EditProfile = () => {
 
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">
-            Nama Institusi <span className="text-[#a68a2d]">*</span>
+            Nama Institusi <span className="text-kath-gold">*</span>
           </label>
           <div className="relative">
             <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -470,15 +470,15 @@ const EditProfile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -505,7 +505,7 @@ const EditProfile = () => {
                 onClick={() => setActiveSection(tab.id as any)}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                   activeSection === tab.id
-                    ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
+                    ? 'bg-kath-gold/20 text-kath-gold'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -533,7 +533,7 @@ const EditProfile = () => {
               <button
                 type="submit"
                 disabled={isLoading || isSuccess}
-                className="flex items-center gap-2 px-8 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] disabled:bg-[#a68a2d]/50 text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                className="flex items-center gap-2 px-8 py-3 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all"
               >
                 {isLoading ? (
                   <>

@@ -118,14 +118,14 @@ const Settings = () => {
 
   const inputClasses = `
     w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white 
-    placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50 transition-all
+    placeholder-white/30 focus:outline-none focus:border-kath-gold/50 transition-all
   `;
 
   const renderPasswordSection = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-          <Lock className="w-6 h-6 text-[#a68a2d]" />
+        <div className="w-12 h-12 rounded-xl bg-kath-gold/10 flex items-center justify-center">
+          <Lock className="w-6 h-6 text-kath-gold" />
         </div>
         <div>
           <h3 className="font-display text-lg text-white">Change Password</h3>
@@ -211,7 +211,7 @@ const Settings = () => {
           <button
             type="submit"
             disabled={isLoading || isSuccess}
-            className="flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] disabled:bg-[#a68a2d]/50 text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all"
           >
             {isLoading ? (
               <>
@@ -238,8 +238,8 @@ const Settings = () => {
   const renderNotificationsSection = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-          <Bell className="w-6 h-6 text-[#a68a2d]" />
+        <div className="w-12 h-12 rounded-xl bg-kath-gold/10 flex items-center justify-center">
+          <Bell className="w-6 h-6 text-kath-gold" />
         </div>
         <div>
           <h3 className="font-display text-lg text-white">Notification Preferences</h3>
@@ -291,8 +291,8 @@ const Settings = () => {
             className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:border-white/10 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-[#a68a2d]/10 flex items-center justify-center">
-                <item.icon className="w-5 h-5 text-[#a68a2d]" />
+              <div className="w-10 h-10 rounded-lg bg-kath-gold/10 flex items-center justify-center">
+                <item.icon className="w-5 h-5 text-kath-gold" />
               </div>
               <div>
                 <p className="font-body text-white font-medium">{item.label}</p>
@@ -301,7 +301,7 @@ const Settings = () => {
             </div>
             <button
               onClick={() => toggleNotification(item.key)}
-              className={`transition-all ${notifications[item.key] ? 'text-[#a68a2d]' : 'text-white/20'}`}
+              className={`transition-all ${notifications[item.key] ? 'text-kath-gold' : 'text-white/20'}`}
             >
               {notifications[item.key] ? (
                 <ToggleRight className="w-12 h-7" />
@@ -317,7 +317,7 @@ const Settings = () => {
         <button
           onClick={handleSaveNotifications}
           disabled={isLoading || isSuccess}
-          className="flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] disabled:bg-[#a68a2d]/50 text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all"
         >
           {isLoading ? (
             <>
@@ -343,8 +343,8 @@ const Settings = () => {
   const renderPrivacySection = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-          <Shield className="w-6 h-6 text-[#a68a2d]" />
+        <div className="w-12 h-12 rounded-xl bg-kath-gold/10 flex items-center justify-center">
+          <Shield className="w-6 h-6 text-kath-gold" />
         </div>
         <div>
           <h3 className="font-display text-lg text-white">Privacy & Security</h3>
@@ -364,7 +364,7 @@ const Settings = () => {
           <p className="font-body text-white/50 text-sm mb-4">
             Profil Anda dapat dilihat oleh pengguna lain dan tim pencari talenta
           </p>
-          <button className="text-[#a68a2d] hover:text-[#c9a94d] font-body text-sm transition-colors">
+          <button className="text-kath-gold hover:text-kath-gold-light font-body text-sm transition-colors">
             Change Visibility
           </button>
         </div>
@@ -379,7 +379,7 @@ const Settings = () => {
           <p className="font-body text-white/50 text-sm mb-4">
             Tambahkan lapisan keamanan ekstra untuk akun Anda
           </p>
-          <button className="text-[#a68a2d] hover:text-[#c9a94d] font-body text-sm transition-colors">
+          <button className="text-kath-gold hover:text-kath-gold-light font-body text-sm transition-colors">
             Enable 2FA
           </button>
         </div>
@@ -391,7 +391,7 @@ const Settings = () => {
           <p className="font-body text-white/50 text-sm mb-4">
             Lihat riwayat login akun Anda
           </p>
-          <button className="text-[#a68a2d] hover:text-[#c9a94d] font-body text-sm transition-colors">
+          <button className="text-kath-gold hover:text-kath-gold-light font-body text-sm transition-colors">
             View History
           </button>
         </div>
@@ -443,15 +443,15 @@ const Settings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -478,7 +478,7 @@ const Settings = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                   activeTab === tab.id
-                    ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
+                    ? 'bg-kath-gold/20 text-kath-gold'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >

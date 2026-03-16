@@ -23,7 +23,7 @@ const Navigation = () => {
   useEffect(() => {
     if (navRef.current) {
       gsap.to(navRef.current, {
-        backgroundColor: isScrolled ? 'rgba(10, 10, 10, 0.95)' : 'transparent',
+        backgroundColor: isScrolled ? 'rgba(250, 250, 250, 0.95)' : 'transparent',
         backdropFilter: isScrolled ? 'blur(10px)' : 'blur(0px)',
         duration: 0.3,
         ease: 'power2.out',
@@ -60,7 +60,7 @@ const Navigation = () => {
                 alt={navigationConfig.logoAlt}
                 className="h-12 w-12 md:h-14 md:w-14 object-contain transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="font-display text-2xl md:text-3xl text-kath-white group-hover:text-kath-gold transition-colors hidden sm:block">
+              <span className="font-display text-2xl md:text-3xl text-kath-text-primary group-hover:text-kath-primary transition-colors hidden sm:block">
                 KATH
               </span>
             </a>
@@ -72,10 +72,10 @@ const Navigation = () => {
                   key={item.label.id}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                  className="font-body text-sm text-kath-white/80 hover:text-kath-gold transition-colors relative group"
+                  className="font-body text-sm text-kath-text-secondary hover:text-kath-primary transition-colors relative group"
                 >
                   {item.label[language]}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-kath-gold transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-kath-primary transition-all duration-300 group-hover:w-full" />
                 </a>
               ))}
             </div>
@@ -85,7 +85,7 @@ const Navigation = () => {
               <LanguageSwitcher />
               <button
                 onClick={() => scrollToSection('#contact')}
-                className="px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
+                className="px-6 py-3 bg-kath-primary hover:bg-kath-primary-dark text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
               >
                 {navigationConfig.ctaText[language]}
               </button>
@@ -96,7 +96,7 @@ const Navigation = () => {
               <LanguageSwitcher />
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="w-10 h-10 flex items-center justify-center text-kath-white"
+                className="w-10 h-10 flex items-center justify-center text-kath-text-primary"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -107,7 +107,7 @@ const Navigation = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 z-40 bg-kath-black/98 backdrop-blur-lg transition-all duration-500 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-kath-bg-main/98 backdrop-blur-lg transition-all duration-500 lg:hidden ${
           isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
@@ -117,7 +117,7 @@ const Navigation = () => {
               key={item.label.id}
               href={item.href}
               onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-              className="font-display text-3xl text-kath-white hover:text-kath-gold transition-colors"
+              className="font-display text-3xl text-kath-text-primary hover:text-kath-primary transition-colors"
               style={{
                 transitionDelay: isMobileMenuOpen ? `${index * 50}ms` : '0ms',
                 opacity: isMobileMenuOpen ? 1 : 0,
@@ -130,7 +130,7 @@ const Navigation = () => {
           ))}
           <button
             onClick={() => scrollToSection('#contact')}
-            className="mt-4 px-8 py-4 bg-kath-gold text-kath-black font-body text-sm uppercase tracking-wider rounded-full"
+            className="mt-4 px-8 py-4 bg-kath-primary text-white font-body text-sm uppercase tracking-wider rounded-full"
             style={{
               transitionDelay: isMobileMenuOpen ? `${navigationConfig.items.length * 50}ms` : '0ms',
               opacity: isMobileMenuOpen ? 1 : 0,

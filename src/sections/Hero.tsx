@@ -122,7 +122,7 @@ const Hero = () => {
     <section
       ref={sectionRef}
       id="home"
-      className="relative h-[100svh] w-full overflow-hidden"
+      className="relative h-[100svh] w-full overflow-hidden bg-kath-bg-main"
     >
       {/* Background Image with Ken Burns */}
       <div
@@ -137,22 +137,19 @@ const Hero = () => {
         />
       </div>
 
-      {/* Dark overlay for depth */}
+      {/* Light overlay for readability */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 bg-kath-black opacity-30"
+        className="absolute inset-0 bg-gradient-to-b from-kath-bg-main/60 via-kath-bg-main/40 to-kath-bg-main/90"
         style={{ willChange: 'opacity' }}
       />
-
-      {/* Hero overlay gradient */}
-      <div className="absolute inset-0 hero-overlay" />
 
       {/* Content - Mobile Optimized */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6">
         {/* Label */}
         <span
           ref={labelRef}
-          className="font-body text-kath-gold text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6"
+          className="font-body text-kath-primary text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6"
           style={{ willChange: 'transform, opacity' }}
         >
           {heroConfig.label[language]}
@@ -161,12 +158,12 @@ const Hero = () => {
         {/* Main Title - Responsive sizing */}
         <h1
           ref={titleRef}
-          className="font-display text-kath-white text-center whitespace-pre-line"
+          className="font-display text-kath-text-primary text-center whitespace-pre-line"
           style={{
             fontSize: 'clamp(2rem, 10vw, 8rem)',
             lineHeight: '0.95',
             letterSpacing: '-0.02em',
-            textShadow: '0 4px 40px rgba(0,0,0,0.5)',
+            textShadow: '0 4px 40px rgba(255,255,255,0.3)',
             willChange: 'transform, opacity'
           }}
         >
@@ -176,7 +173,7 @@ const Hero = () => {
         {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className="font-body text-kath-off-white/80 text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
+          className="font-body text-kath-text-secondary text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
           style={{ willChange: 'transform, opacity' }}
         >
           {heroConfig.subtitle[language]}
@@ -184,11 +181,11 @@ const Hero = () => {
 
         {/* CTA Buttons - Mobile optimized */}
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto px-4 sm:px-0">
-          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-gold to-kath-gold-dark hover:from-kath-gold-light hover:to-kath-gold text-kath-black font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-gold touch-feedback">
+          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-primary to-kath-primary-dark hover:from-kath-primary-light hover:to-kath-primary text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-kath-primary/25 touch-feedback">
             {heroConfig.ctaPrimary[language]}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-kath-white/30 hover:border-kath-gold hover:bg-kath-gold/10 text-kath-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
+          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-kath-text-muted/30 hover:border-kath-primary hover:bg-kath-primary/10 text-kath-text-primary font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
             {heroConfig.ctaSecondary[language]}
           </button>
         </div>
@@ -196,14 +193,14 @@ const Hero = () => {
 
       {/* Scroll Indicator - Mobile optimized */}
       <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="font-body text-kath-white/60 text-xs uppercase tracking-wider">
+        <span className="font-body text-kath-text-muted text-xs uppercase tracking-wider">
           {language === 'id' ? 'Gulir' : 'Scroll'}
         </span>
-        <ChevronDown className="w-5 h-5 text-kath-gold" />
+        <ChevronDown className="w-5 h-5 text-kath-primary" />
       </div>
 
       {/* Bottom gradient for seamless transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-kath-black to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-kath-bg-main to-transparent" />
     </section>
   );
 };

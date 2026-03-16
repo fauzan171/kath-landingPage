@@ -186,9 +186,9 @@ const SubmissionForm = () => {
 
   if (!competition) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-kath-bg-dark flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-[#a68a2d] animate-spin mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 text-kath-gold animate-spin mx-auto mb-4" />
           <p className="font-body text-white/60">Loading...</p>
         </div>
       </div>
@@ -197,7 +197,7 @@ const SubmissionForm = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-kath-bg-dark flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-400" />
@@ -210,7 +210,7 @@ const SubmissionForm = () => {
           </p>
           <button
             onClick={() => navigate(`/competition/${id}`)}
-            className="px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-full transition-all"
+            className="px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
           >
             View Submission
           </button>
@@ -220,15 +220,15 @@ const SubmissionForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate(`/competition/${id}`)}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -248,8 +248,8 @@ const SubmissionForm = () => {
           {/* Competition Info */}
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-[#a68a2d]/20 flex items-center justify-center">
-                <FileText className="w-7 h-7 text-[#a68a2d]" />
+              <div className="w-14 h-14 rounded-xl bg-kath-gold/20 flex items-center justify-center">
+                <FileText className="w-7 h-7 text-kath-gold" />
               </div>
               <div>
                 <p className="font-body text-white/50 text-sm">Submitting for</p>
@@ -267,10 +267,10 @@ const SubmissionForm = () => {
               {/* Upload Area */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-white/10 hover:border-[#a68a2d]/50 rounded-xl p-8 text-center cursor-pointer transition-all"
+                className="border-2 border-dashed border-white/10 hover:border-kath-gold/50 rounded-xl p-8 text-center cursor-pointer transition-all"
               >
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#a68a2d]/10 flex items-center justify-center">
-                  <Upload className="w-8 h-8 text-[#a68a2d]" />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-kath-gold/10 flex items-center justify-center">
+                  <Upload className="w-8 h-8 text-kath-gold" />
                 </div>
                 <p className="font-body text-white mb-2">Click to upload files</p>
                 <p className="font-body text-white/50 text-sm">
@@ -294,8 +294,8 @@ const SubmissionForm = () => {
                       key={file.id}
                       className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-[#a68a2d]/10 flex items-center justify-center">
-                        <File className="w-5 h-5 text-[#a68a2d]" />
+                      <div className="w-10 h-10 rounded-lg bg-kath-gold/10 flex items-center justify-center">
+                        <File className="w-5 h-5 text-kath-gold" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-body text-white text-sm truncate">{file.name}</p>
@@ -304,7 +304,7 @@ const SubmissionForm = () => {
                           <div className="mt-2">
                             <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-[#a68a2d] rounded-full transition-all"
+                                className="h-full bg-kath-gold rounded-full transition-all"
                                 style={{ width: `${file.progress}%` }}
                               />
                             </div>
@@ -331,7 +331,7 @@ const SubmissionForm = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-[#a68a2d]/50 resize-none"
+                className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50 resize-none"
                 placeholder="Describe your submission, concept, and any additional information..."
               />
               <p className="mt-2 font-body text-white/30 text-xs text-right">
@@ -374,7 +374,7 @@ const SubmissionForm = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] disabled:bg-[#a68a2d]/50 text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light disabled:bg-kath-gold/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all"
               >
                 {isSubmitting ? (
                   <>

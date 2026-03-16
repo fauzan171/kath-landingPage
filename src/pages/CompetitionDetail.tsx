@@ -49,7 +49,7 @@ const CompetitionDetail = () => {
 
   if (!competition) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-kath-bg-dark flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/[0.02] flex items-center justify-center">
             <Trophy className="w-8 h-8 text-white/20" />
@@ -57,7 +57,7 @@ const CompetitionDetail = () => {
           <h2 className="font-display text-xl text-white mb-2">Competition not found</h2>
           <button
             onClick={() => navigate('/my-competitions')}
-            className="text-[#a68a2d] hover:text-[#c9a94d] font-body text-sm"
+            className="text-kath-gold hover:text-kath-gold-light font-body text-sm"
           >
             Back to My Competitions
           </button>
@@ -85,15 +85,15 @@ const CompetitionDetail = () => {
   const daysLeft = Math.ceil((new Date(competition.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-dark">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-kath-bg-dark/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/my-competitions')}
-                className="flex items-center gap-2 text-white/60 hover:text-[#a68a2d] transition-colors"
+                className="flex items-center gap-2 text-text-white/60 hover:text-kath-gold transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="font-body text-sm">Back</span>
@@ -107,13 +107,13 @@ const CompetitionDetail = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => alert('Shared!')}
-                className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                className="p-2 text-text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
               >
                 <Share2 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => alert('Bookmarked!')}
-                className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                className="p-2 text-text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
               >
                 <Bookmark className="w-5 h-5" />
               </button>
@@ -133,7 +133,7 @@ const CompetitionDetail = () => {
                 alt={competition.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-[#0a0a0a]/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-kath-bg-dark via-kath-bg-dark/80 to-kath-bg-dark/40" />
             </div>
             
             <div className="relative p-6 sm:p-8">
@@ -142,7 +142,7 @@ const CompetitionDetail = () => {
                   {status.label}
                 </span>
                 {competition.result && (
-                  <span className="px-3 py-1.5 bg-[#a68a2d]/20 text-[#a68a2d] rounded-full text-sm font-medium border border-[#a68a2d]/30">
+                  <span className="px-3 py-1.5 bg-kath-gold/20 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/30">
                     <Trophy className="w-4 h-4 inline mr-1" />
                     {competition.result === 'winner' ? 'Champion' : 'Runner Up'}
                   </span>
@@ -153,21 +153,21 @@ const CompetitionDetail = () => {
               <p className="font-body text-white/70 max-w-2xl mb-6">{competition.description}</p>
 
               <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-2 text-white/60">
+                <div className="flex items-center gap-2 text-text-white/60">
                   <Building2 className="w-4 h-4" />
                   <span className="font-body text-sm">{competition.organizer}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
+                <div className="flex items-center gap-2 text-text-white/60">
                   <MapPin className="w-4 h-4" />
                   <span className="font-body text-sm">{competition.location}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
+                <div className="flex items-center gap-2 text-text-white/60">
                   <Calendar className="w-4 h-4" />
                   <span className="font-body text-sm">
                     {new Date(competition.startDate).toLocaleDateString('id-ID')} - {new Date(competition.endDate).toLocaleDateString('id-ID')}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
+                <div className="flex items-center gap-2 text-text-white/60">
                   <Users className="w-4 h-4" />
                   <span className="font-body text-sm">{teams.length} Teams</span>
                 </div>
@@ -176,12 +176,12 @@ const CompetitionDetail = () => {
               {/* Progress Bar */}
               <div className="max-w-md">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-body text-white/60 text-sm">Progress</span>
-                  <span className="font-body text-[#a68a2d] text-sm">{competition.progress}%</span>
+                  <span className="font-body text-text-white/60 text-sm">Progress</span>
+                  <span className="font-body text-kath-gold text-sm">{competition.progress}%</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#a68a2d] to-[#c9a94d] rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-kath-gold to-kath-gold-light rounded-full transition-all"
                     style={{ width: `${competition.progress}%` }}
                   />
                 </div>
@@ -194,7 +194,7 @@ const CompetitionDetail = () => {
             {competition.status === 'in_progress' && !competition.hasSubmitted && (
               <button
                 onClick={() => navigate(`/competition/${competition.id}/submit`)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-full transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
               >
                 <Upload className="w-5 h-5" />
                 Submit Now
@@ -203,7 +203,7 @@ const CompetitionDetail = () => {
             {competition.status === 'in_progress' && competition.hasSubmitted && (
               <button
                 onClick={() => navigate(`/competition/${competition.id}/submit`)}
-                className="flex items-center gap-2 px-6 py-3 border border-[#a68a2d]/30 text-[#a68a2d] hover:bg-[#a68a2d]/10 font-body font-medium rounded-full transition-all"
+                className="flex items-center gap-2 px-6 py-3 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 font-body font-medium rounded-full transition-all"
               >
                 <Edit3 className="w-5 h-5" />
                 Edit Submission
@@ -231,8 +231,8 @@ const CompetitionDetail = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                   activeTab === tab.id
-                    ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    ? 'bg-kath-gold/20 text-kath-gold'
+                    : 'text-text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -252,7 +252,7 @@ const CompetitionDetail = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 bg-white/[0.02] rounded-xl">
-                    <Clock className="w-5 h-5 text-[#a68a2d] mb-2" />
+                    <Clock className="w-5 h-5 text-kath-gold mb-2" />
                     <p className="font-body text-white/50 text-sm">Deadline</p>
                     <p className="font-body text-white">{new Date(competition.deadline).toLocaleDateString('id-ID')}</p>
                     <p className={`font-body text-sm mt-1 ${daysLeft < 7 ? 'text-red-400' : 'text-emerald-400'}`}>
@@ -260,30 +260,30 @@ const CompetitionDetail = () => {
                     </p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
-                    <Users className="w-5 h-5 text-[#a68a2d] mb-2" />
+                    <Users className="w-5 h-5 text-kath-gold mb-2" />
                     <p className="font-body text-white/50 text-sm">Team Size</p>
                     <p className="font-body text-white">{competition.teamSize} members</p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
-                    <Trophy className="w-5 h-5 text-[#a68a2d] mb-2" />
+                    <Trophy className="w-5 h-5 text-kath-gold mb-2" />
                     <p className="font-body text-white/50 text-sm">Prize Pool</p>
                     <p className="font-body text-white">Rp 500.000.000</p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-[#a68a2d] mb-2" />
+                    <CheckCircle2 className="w-5 h-5 text-kath-gold mb-2" />
                     <p className="font-body text-white/50 text-sm">Status</p>
                     <p className="font-body text-white">{competition.hasSubmitted ? 'Submitted' : 'Not Submitted'}</p>
                   </div>
                 </div>
 
                 {competition.prize && (
-                  <div className="p-6 bg-gradient-to-br from-[#a68a2d]/10 to-transparent border border-[#a68a2d]/20 rounded-xl">
+                  <div className="p-6 bg-gradient-to-br from-kath-gold/10 to-transparent border border-kath-gold/20 rounded-xl">
                     <div className="flex items-center gap-3 mb-4">
-                      <Trophy className="w-6 h-6 text-[#a68a2d]" />
+                      <Trophy className="w-6 h-6 text-kath-gold" />
                       <h3 className="font-display text-lg text-white">Your Achievement</h3>
                     </div>
-                    <p className="font-display text-3xl text-[#a68a2d] mb-2">{competition.prize}</p>
-                    <p className="font-body text-white/60">
+                    <p className="font-display text-3xl text-kath-gold mb-2">{competition.prize}</p>
+                    <p className="font-body text-text-white/60">
                       Congratulations on your {competition.result === 'winner' ? 'victory' : 'achievement'}!
                     </p>
                   </div>
@@ -330,7 +330,7 @@ const CompetitionDetail = () => {
                   <ul className="space-y-3">
                     {competition.requirements.map((req, index) => (
                       <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
-                        <CheckCircle2 className="w-5 h-5 text-[#a68a2d] mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 text-kath-gold mt-0.5 flex-shrink-0" />
                         <span className="font-body text-white/70">{req}</span>
                       </li>
                     ))}
@@ -361,7 +361,7 @@ const CompetitionDetail = () => {
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                         <span className="font-body text-emerald-400 font-medium">Submitted</span>
                       </div>
-                      <p className="font-body text-white/60 text-sm">
+                      <p className="font-body text-text-white/60 text-sm">
                         Submitted on {new Date(submission.submittedAt).toLocaleDateString('id-ID')}
                       </p>
                     </div>
@@ -375,7 +375,7 @@ const CompetitionDetail = () => {
                             className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl"
                           >
                             <div className="flex items-center gap-3">
-                              <FileText className="w-5 h-5 text-[#a68a2d]" />
+                              <FileText className="w-5 h-5 text-kath-gold" />
                               <div>
                                 <p className="font-body text-white text-sm">{file.name}</p>
                                 <p className="font-body text-white/40 text-xs">{file.size}</p>
@@ -383,7 +383,7 @@ const CompetitionDetail = () => {
                             </div>
                             <button
                               onClick={() => alert(`Downloading ${file.name}...`)}
-                              className="p-2 text-white/40 hover:text-[#a68a2d] hover:bg-[#a68a2d]/10 rounded-lg transition-all"
+                              className="p-2 text-white/40 hover:text-kath-gold hover:bg-kath-gold/10 rounded-lg transition-all"
                             >
                               <Download className="w-4 h-4" />
                             </button>
@@ -401,7 +401,7 @@ const CompetitionDetail = () => {
 
                     <button
                       onClick={() => navigate(`/competition/${competition.id}/submit`)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-[#a68a2d]/30 text-[#a68a2d] hover:bg-[#a68a2d]/10 rounded-xl transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 rounded-xl transition-all"
                     >
                       <Edit3 className="w-4 h-4" />
                       Edit Submission
@@ -418,7 +418,7 @@ const CompetitionDetail = () => {
                     </p>
                     <button
                       onClick={() => navigate(`/competition/${competition.id}/submit`)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-full transition-all"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
                     >
                       <Upload className="w-5 h-5" />
                       Submit Now

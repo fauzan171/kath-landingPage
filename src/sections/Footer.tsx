@@ -56,11 +56,11 @@ const MagneticButton = ({
       onClick={onClick}
       style={{ willChange: 'transform' }}
     >
-      <span className={`relative z-10 transition-colors duration-300 ${isHovered ? 'text-kath-black' : ''}`}>
+      <span className={`relative z-10 transition-colors duration-300 ${isHovered ? 'text-kath-bg-dark' : ''}`}>
         {children}
       </span>
       <span
-        className={`absolute inset-0 bg-kath-gold rounded-full transition-transform duration-300 ${
+        className={`absolute inset-0 bg-gradient-to-r from-kath-primary to-kath-primary-light rounded-full transition-transform duration-300 ${
           isHovered ? 'scale-100' : 'scale-0'
         }`}
       />
@@ -144,8 +144,17 @@ const Footer = () => {
   return (
     <footer
       ref={sectionRef}
-      className="relative w-full bg-kath-dark-gray text-kath-white overflow-hidden"
+      className="relative w-full bg-kath-bg-dark overflow-hidden"
     >
+      {/* Gold gradient top border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kath-primary/50 to-transparent" />
+
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-kath-primary/5 rounded-full blur-[200px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-primary/3 rounded-full blur-[150px]" />
+      </div>
+
       {/* Content */}
       <div className="relative z-10">
         {/* Upper Section */}
@@ -156,15 +165,15 @@ const Footer = () => {
           >
             {/* Left Column - CTA */}
             <div className="lg:col-span-5">
-              <h2 className="font-display text-headline text-kath-white">
+              <h2 className="font-display text-headline text-white">
                 {footerConfig.heading[language]}
               </h2>
-              <p className="font-body text-sm text-kath-off-white/60 mt-6 max-w-md leading-relaxed">
+              <p className="font-body text-sm text-white/60 mt-6 max-w-md leading-relaxed">
                 {footerConfig.description[language]}
               </p>
               {footerConfig.ctaText && (
-                <MagneticButton 
-                  className="relative mt-8 px-8 py-4 border border-kath-gold/50 rounded-full font-body text-sm uppercase tracking-wider overflow-hidden transition-colors hover:border-kath-gold text-kath-white"
+                <MagneticButton
+                  className="relative mt-8 px-8 py-4 border border-kath-primary/50 rounded-full font-body text-sm uppercase tracking-wider overflow-hidden transition-colors hover:border-kath-primary text-white hover:text-kath-bg-dark"
                   onClick={() => scrollToSection('#contact')}
                 >
                   <span className="flex items-center gap-2">
@@ -181,7 +190,7 @@ const Footer = () => {
                 {/* Contact */}
                 {footerConfig.contact.length > 0 && (
                   <div>
-                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
+                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-primary mb-4">
                       {language === 'id' ? 'Kontak' : 'Contact'}
                     </h4>
                     <ul className="space-y-3">
@@ -189,9 +198,11 @@ const Footer = () => {
                         <li key={index}>
                           <a
                             href={item.href}
-                            className="font-body text-sm text-kath-off-white/70 hover:text-kath-gold transition-colors flex items-center gap-2"
+                            className="font-body text-sm text-white/70 hover:text-kath-primary transition-colors flex items-center gap-2 group"
                           >
-                            {item.type === 'email' ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
+                            <span className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-kath-primary/20 transition-colors">
+                              {item.type === 'email' ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
+                            </span>
                             {item.label}
                           </a>
                         </li>
@@ -203,12 +214,14 @@ const Footer = () => {
                 {/* Address */}
                 {footerConfig.address.length > 0 && (
                   <div>
-                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
+                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-primary mb-4">
                       {footerConfig.locationLabel[language]}
                     </h4>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-kath-off-white/70 mt-0.5 flex-shrink-0" />
-                      <p className="font-body text-sm text-kath-off-white/70 leading-relaxed">
+                    <div className="flex items-start gap-3">
+                      <span className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-white/70" />
+                      </span>
+                      <p className="font-body text-sm text-white/70 leading-relaxed">
                         {footerConfig.address.map((line, i) => (
                           <span key={i}>
                             {line}
@@ -223,10 +236,10 @@ const Footer = () => {
                 {/* Social */}
                 {footerConfig.socials.length > 0 && (
                   <div>
-                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-gold mb-4">
+                    <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kath-primary mb-4">
                       {footerConfig.socialLabel[language]}
                     </h4>
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                       {footerConfig.socials.map((social, index) => {
                         const Icon = iconMap[social.platform.toLowerCase()] || Instagram;
                         return (
@@ -235,10 +248,10 @@ const Footer = () => {
                             href={social.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-10 h-10 rounded-full border border-kath-charcoal flex items-center justify-center hover:border-kath-gold hover:bg-kath-gold/10 transition-all"
+                            className="w-10 h-10 rounded-xl border border-white/20 flex items-center justify-center hover:border-kath-primary hover:bg-kath-primary/10 transition-all group"
                             aria-label={social.platform}
                           >
-                            <Icon className="w-4 h-4" />
+                            <Icon className="w-4 h-4 text-white/70 group-hover:text-kath-primary transition-colors" />
                           </a>
                         );
                       })}
@@ -254,7 +267,7 @@ const Footer = () => {
         {footerConfig.logoText && (
           <div
             ref={logoRef}
-            className="border-t border-kath-charcoal/50 py-12 md:py-16"
+            className="border-t border-white/10 py-12 md:py-16"
             style={{ willChange: 'transform, opacity' }}
           >
             <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 text-center">
@@ -263,6 +276,13 @@ const Footer = () => {
                 className="w-full max-w-3xl mx-auto h-auto"
                 fill="currentColor"
               >
+                <defs>
+                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#AE8E1C" stopOpacity="0.4" />
+                    <stop offset="50%" stopColor="#C9A82F" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#AE8E1C" stopOpacity="0.4" />
+                  </linearGradient>
+                </defs>
                 <text
                   x="50%"
                   y="40%"
@@ -273,7 +293,7 @@ const Footer = () => {
                     fontSize: '80px',
                     fontFamily: 'Cormorant Garamond, serif',
                     letterSpacing: '0.1em',
-                    fill: 'rgba(166, 138, 45, 0.3)',
+                    fill: 'url(#goldGradient)',
                   }}
                 >
                   {footerConfig.logoText}
@@ -288,7 +308,7 @@ const Footer = () => {
                     fontSize: '14px',
                     fontFamily: 'Inter, sans-serif',
                     letterSpacing: '0.3em',
-                    fill: 'rgba(250, 250, 250, 0.4)',
+                    fill: 'rgba(174, 142, 28, 0.5)',
                   }}
                 >
                   {footerConfig.tagline[language]}
@@ -299,15 +319,19 @@ const Footer = () => {
         )}
 
         {/* Bottom Bar */}
-        <div className="border-t border-kath-charcoal/50 py-6">
+        <div className="border-t border-white/10 py-6">
           <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-body text-xs text-kath-off-white/40">
+            <p className="font-body text-xs text-white/40">
               {footerConfig.copyright}
             </p>
             {footerConfig.links.length > 0 && (
               <div className="flex gap-6">
                 {footerConfig.links.map((link, index) => (
-                  <a key={index} href={link.href} className="font-body text-xs text-kath-off-white/40 hover:text-kath-gold transition-colors">
+                  <a 
+                    key={index} 
+                    href={link.href} 
+                    className="font-body text-xs text-white/40 hover:text-kath-primary transition-colors"
+                  >
                     {link.label[language]}
                   </a>
                 ))}

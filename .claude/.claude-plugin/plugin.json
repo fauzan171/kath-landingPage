@@ -1,0 +1,26 @@
+{
+  "name": "kath-skills",
+  "description": "Koleksi skill agent profesional untuk development dan business consulting",
+  "version": "1.0.0",
+  "author": {
+    "name": "KATH Event Organizer",
+    "email": "contact@kath-event.com"
+  },
+  "skills": [
+    {
+      "name": "bmc-consultant",
+      "description": "Mentor veteran kompetisi BMC internasional dengan pengalaman langsung mengikuti berbagai lomba",
+      "command": "bmc-consultant"
+    },
+    {
+      "name": "uiux-consultant",
+      "description": "Senior UI/UX Consultant dengan pengalaman project internasional, expert color theory dan design validation",
+      "command": "uiux-consultant"
+    },
+    {
+      "name": "frontend-engineer",
+      "description": "Senior Frontend Engineer dengan 10+ tahun pengalaman - expert React, Next.js, TypeScript, dan performance optimization",
+      "command": "frontend-engineer"
+    }
+  ]
+}

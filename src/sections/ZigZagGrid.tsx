@@ -77,7 +77,7 @@ const GridItem = ({
       {/* Image Column */}
       <div
         ref={imageContainerRef}
-        className={`relative overflow-hidden rounded-3xl border border-kath-charcoal/50 ${
+        className={`relative overflow-hidden rounded-3xl border border-kath-bg-section shadow-lg shadow-kath-primary/5 ${
           item.reverse ? 'lg:order-2' : 'lg:order-1'
         }`}
       >
@@ -100,18 +100,18 @@ const GridItem = ({
         ref={textRef}
         className={`${item.reverse ? 'lg:order-1 lg:pr-8' : 'lg:order-2 lg:pl-8'}`}
       >
-        <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-gold">
+        <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-primary">
           {item.subtitle[language]}
         </span>
-        <h3 className="font-display text-headline text-kath-white mt-3">
+        <h3 className="font-display text-headline text-kath-text-primary mt-3">
           {item.title[language]}
         </h3>
-        <p className="font-body text-sm md:text-base text-kath-off-white/70 leading-relaxed mt-6">
+        <p className="font-body text-sm md:text-base text-kath-text-secondary leading-relaxed mt-6">
           {item.description[language]}
         </p>
 
         {/* Decorative line */}
-        <div className="w-16 h-px bg-kath-gold/30 mt-8" />
+        <div className="w-16 h-px bg-kath-primary/30 mt-8" />
       </div>
     </div>
   );
@@ -153,15 +153,15 @@ const ZigZagGrid = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-24 md:py-32 lg:py-40 bg-kath-black"
+      className="relative w-full py-24 md:py-32 lg:py-40 bg-kath-bg-main"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Section Header */}
         <div ref={headerRef} className="text-center mb-20 md:mb-28">
-          <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-gold">
+          <span className="font-body text-xs uppercase tracking-[0.2em] text-kath-primary">
             {zigZagGridConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-white mt-4">
+          <h2 className="font-display text-headline text-kath-text-primary mt-4">
             {zigZagGridConfig.sectionTitle[language]}
           </h2>
         </div>

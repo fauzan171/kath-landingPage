@@ -79,18 +79,18 @@ const Services = () => {
     <section
       ref={sectionRef}
       id="services"
-      className="relative w-full bg-kath-black py-24 md:py-32"
+      className="relative w-full bg-kath-bg-main py-24 md:py-32"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16 lg:mb-20">
-          <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
             {servicesConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-white mt-4">
+          <h2 className="font-display text-headline text-kath-text-primary mt-4">
             {servicesConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto px-4">
+          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto px-4">
             {servicesConfig.sectionDescription[language]}
           </p>
         </div>
@@ -102,18 +102,18 @@ const Services = () => {
             return (
               <div
                 key={service.id}
-                className="service-card group relative p-6 sm:p-8 bg-kath-dark-gray/50 border border-kath-charcoal/50 rounded-2xl hover:border-kath-gold/50 transition-all duration-500 card-hover"
+                className="service-card group relative p-6 sm:p-8 bg-white border border-kath-bg-section rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-500 card-hover"
               >
                 {/* Icon */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-kath-gold/10 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-kath-gold/20 transition-colors duration-300">
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-kath-gold" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-kath-primary/10 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-kath-primary/20 transition-colors duration-300">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-kath-primary" />
                 </div>
 
                 {/* Content */}
-                <h3 className="font-display text-xl sm:text-2xl text-kath-white mb-2 sm:mb-3">
+                <h3 className="font-display text-xl sm:text-2xl text-kath-text-primary mb-2 sm:mb-3">
                   {service.title[language]}
                 </h3>
-                <p className="font-body text-sm text-kath-off-white/60 mb-4 sm:mb-6 leading-relaxed">
+                <p className="font-body text-sm text-kath-text-secondary mb-4 sm:mb-6 leading-relaxed">
                   {service.description[language]}
                 </p>
 
@@ -122,16 +122,16 @@ const Services = () => {
                   {service.features.map((feature, index) => (
                     <li
                       key={index}
-                      className="font-body text-xs text-kath-off-white/40 flex items-center gap-2"
+                      className="font-body text-xs text-kath-text-muted flex items-center gap-2"
                     >
-                      <span className="w-1 h-1 rounded-full bg-kath-gold" />
+                      <span className="w-1 h-1 rounded-full bg-kath-primary" />
                       {feature[language]}
                     </li>
                   ))}
                 </ul>
 
                 {/* Hover glow effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-kath-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-kath-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               </div>
             );
           })}

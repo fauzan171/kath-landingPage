@@ -106,7 +106,7 @@ const Dashboard = () => {
       case 'active':
         return {
           badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 text-emerald-400 rounded-full text-sm font-medium border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-success/10 text-kath-success rounded-full text-sm font-medium border border-kath-success/20">
               <CheckCircle2 className="w-4 h-4" />
               Aktif
             </span>
@@ -116,7 +116,7 @@ const Dashboard = () => {
       case 'pending':
         return {
           badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/15 text-amber-400 rounded-full text-sm font-medium border border-amber-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-gold/10 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/20">
               <Clock className="w-4 h-4" />
               Menunggu Verifikasi
             </span>
@@ -126,7 +126,7 @@ const Dashboard = () => {
       case 'rejected':
         return {
           badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500/15 text-red-400 rounded-full text-sm font-medium border border-red-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-error/10 text-kath-error rounded-full text-sm font-medium border border-kath-error/20">
               <XCircle className="w-4 h-4" />
               Ditolak
             </span>
@@ -204,10 +204,10 @@ const Dashboard = () => {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-kath-bg-main flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-3 border-[#a68a2d]/30 border-t-[#a68a2d] rounded-full animate-spin" />
-          <p className="font-body text-[#a68a2d] text-sm">Memuat dashboard...</p>
+          <div className="w-12 h-12 border-3 border-kath-primary/30 border-t-kath-primary rounded-full animate-spin" />
+          <p className="font-body text-kath-primary text-sm">Memuat dashboard...</p>
         </div>
       </div>
     );
@@ -216,19 +216,19 @@ const Dashboard = () => {
   const statusConfig = getStatusConfig(user.status);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-kath-bg-main">
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-kath-bg-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#a68a2d] to-[#8e7526] flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-[#0a0a0a]" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-white" />
               </div>
               <div className="hidden sm:block">
-                <span className="font-display text-[#a68a2d] text-xl tracking-wide">KATH</span>
-                <span className="font-body text-white/60 text-sm ml-2">Dashboard</span>
+                <span className="font-display text-kath-primary text-xl tracking-wide">KATH</span>
+                <span className="font-body text-kath-text-secondary text-sm ml-2">Dashboard</span>
               </div>
             </div>
 
@@ -244,8 +244,8 @@ const Dashboard = () => {
                   onClick={() => setActiveTab(item.id as any)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                     activeTab === item.id
-                      ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-kath-primary/10 text-kath-primary'
+                      : 'text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -257,9 +257,9 @@ const Dashboard = () => {
             {/* Right Actions */}
             <div className="flex items-center gap-3">
               {/* Notifications */}
-              <button 
+              <button
                 onClick={() => setShowAllNotifications(!showAllNotifications)}
-                className="relative p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                className="relative p-2 text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section rounded-lg transition-all"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -270,16 +270,16 @@ const Dashboard = () => {
               </button>
 
               {/* User Menu */}
-              <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-white/10">
+              <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-kath-bg-section">
                 <div className="text-right">
-                  <p className="font-body text-white text-sm font-medium">{user.fullName}</p>
-                  <p className="font-body text-white/50 text-xs">{user.competitionCategory}</p>
+                  <p className="font-body text-kath-text-primary text-sm font-medium">{user.fullName}</p>
+                  <p className="font-body text-kath-text-muted text-xs">{user.competitionCategory}</p>
                 </div>
-                <div 
+                <div
                   onClick={() => navigate('/edit-profile')}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-[#a68a2d] to-[#8e7526] flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#a68a2d]/50 transition-all"
+                  className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
                 >
-                  <span className="font-display text-[#0a0a0a] text-lg">
+                  <span className="font-display text-white text-lg">
                     {user.fullName.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -288,7 +288,7 @@ const Dashboard = () => {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="md:hidden p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                className="md:hidden p-2 text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section rounded-lg transition-all"
               >
                 {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -296,7 +296,7 @@ const Dashboard = () => {
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 text-white/60 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                className="hidden sm:flex items-center gap-2 px-3 py-2 text-kath-text-secondary hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="font-body text-sm">Logout</span>
@@ -307,7 +307,7 @@ const Dashboard = () => {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="md:hidden border-t border-white/5 bg-[#0a0a0a]/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-kath-bg-section bg-white/95 backdrop-blur-xl">
             <div className="px-4 py-4 space-y-2">
               {[
                 { id: 'overview', label: 'Overview', icon: Activity },
@@ -322,18 +322,18 @@ const Dashboard = () => {
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                     activeTab === item.id
-                      ? 'bg-[#a68a2d]/20 text-[#a68a2d]'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-kath-primary/10 text-kath-primary'
+                      : 'text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section'
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
                   {item.label}
                 </button>
               ))}
-              <div className="pt-2 border-t border-white/10">
+              <div className="pt-2 border-t border-kath-bg-section">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-all"
                 >
                   <LogOut className="w-5 h-5" />
                   <span className="font-body text-sm">Logout</span>
@@ -351,10 +351,10 @@ const Dashboard = () => {
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="font-display text-3xl sm:text-4xl text-white mb-2">
-                  Selamat Datang, <span className="text-[#a68a2d]">{user.fullName.split(' ')[0]}</span>
+                <h1 className="font-display text-3xl sm:text-4xl text-kath-text-primary mb-2">
+                  Selamat Datang, <span className="text-kath-primary">{user.fullName.split(' ')[0]}</span>
                 </h1>
-                <p className="font-body text-white/60">
+                <p className="font-body text-kath-text-secondary">
                   Kelola pendaftaran dan persiapan kompetisi Anda di sini
                 </p>
               </div>
@@ -367,31 +367,31 @@ const Dashboard = () => {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { 
-                label: 'Total Competitions', 
-                value: stats.totalCompetitions.toString(), 
-                icon: Trophy, 
+              {
+                label: 'Total Competitions',
+                value: stats.totalCompetitions.toString(),
+                icon: Trophy,
                 trend: '+2',
                 onClick: () => navigate('/my-competitions')
               },
-              { 
-                label: 'Active', 
-                value: stats.active.toString(), 
-                icon: Target, 
+              {
+                label: 'Active',
+                value: stats.active.toString(),
+                icon: Target,
                 trend: '2',
                 onClick: () => navigate('/my-competitions')
               },
-              { 
-                label: 'Wins', 
-                value: stats.wins.toString(), 
-                icon: Award, 
+              {
+                label: 'Wins',
+                value: stats.wins.toString(),
+                icon: Award,
                 trend: '+1',
                 onClick: () => navigate('/my-competitions')
               },
-              { 
-                label: 'Certificates', 
-                value: stats.certificates.toString(), 
-                icon: FileText, 
+              {
+                label: 'Certificates',
+                value: stats.certificates.toString(),
+                icon: FileText,
                 trend: '3',
                 onClick: () => navigate('/my-competitions')
               },
@@ -399,16 +399,16 @@ const Dashboard = () => {
               <div
                 key={index}
                 onClick={stat.onClick}
-                className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 hover:border-[#a68a2d]/30 transition-all group cursor-pointer"
+                className="bg-white border border-kath-bg-section rounded-2xl p-5 hover:border-kath-primary/30 hover:shadow-lg transition-all group cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center text-[#a68a2d] group-hover:bg-[#a68a2d]/20 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center text-kath-primary group-hover:bg-kath-primary/20 transition-all">
                     <stat.icon className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-medium text-emerald-400">{stat.trend}</span>
+                  <span className="text-xs font-medium text-kath-success">{stat.trend}</span>
                 </div>
-                <p className="font-display text-2xl text-white mb-1">{stat.value}</p>
-                <p className="font-body text-white/50 text-sm">{stat.label}</p>
+                <p className="font-display text-2xl text-kath-text-primary mb-1">{stat.value}</p>
+                <p className="font-body text-kath-text-muted text-sm">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -419,22 +419,22 @@ const Dashboard = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Current Competition Card */}
               {currentCompetition && (
-                <div className="bg-gradient-to-br from-[#a68a2d]/20 via-[#a68a2d]/5 to-transparent border border-[#a68a2d]/30 rounded-2xl p-6">
+                <div className="bg-gradient-to-br from-kath-primary/10 via-kath-primary/5 to-transparent border border-kath-primary/20 rounded-2xl p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#a68a2d]/20 flex items-center justify-center">
-                        <Trophy className="w-7 h-7 text-[#a68a2d]" />
+                      <div className="w-14 h-14 rounded-2xl bg-kath-primary/20 flex items-center justify-center">
+                        <Trophy className="w-7 h-7 text-kath-primary" />
                       </div>
                       <div>
-                        <p className="font-body text-[#a68a2d] text-sm uppercase tracking-wider mb-1">
+                        <p className="font-body text-kath-primary text-sm uppercase tracking-wider mb-1">
                           Kompetisi Aktif
                         </p>
-                        <h2 className="font-display text-xl text-white">{currentCompetition.name}</h2>
+                        <h2 className="font-display text-xl text-kath-text-primary">{currentCompetition.name}</h2>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => navigate('/my-competitions')}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body text-sm font-medium rounded-full transition-all"
+                      className="flex items-center gap-2 px-4 py-2 bg-kath-primary hover:bg-kath-primary-dark text-white font-body text-sm font-medium rounded-full transition-all"
                     >
                       <Eye className="w-4 h-4" />
                       View Details
@@ -444,12 +444,12 @@ const Dashboard = () => {
                   {/* Progress Bar */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-body text-white/60 text-sm">Progress</span>
-                      <span className="font-body text-[#a68a2d] text-sm">{currentCompetition.progress}%</span>
+                      <span className="font-body text-kath-text-secondary text-sm">Progress</span>
+                      <span className="font-body text-kath-primary text-sm">{currentCompetition.progress}%</span>
                     </div>
-                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-[#a68a2d] to-[#c9a94d] rounded-full transition-all"
+                    <div className="h-2 bg-kath-bg-section rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-kath-primary to-kath-primary-light rounded-full transition-all"
                         style={{ width: `${currentCompetition.progress}%` }}
                       />
                     </div>
@@ -457,14 +457,14 @@ const Dashboard = () => {
 
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-white/40" />
-                      <span className="font-body text-white/60">
+                      <Calendar className="w-4 h-4 text-kath-text-muted" />
+                      <span className="font-body text-kath-text-secondary">
                         Deadline: {new Date(currentCompetition.deadline).toLocaleDateString('id-ID')}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-white/40" />
-                      <span className="font-body text-white/60">
+                      <Users className="w-4 h-4 text-kath-text-muted" />
+                      <span className="font-body text-kath-text-secondary">
                         {currentCompetition.teamName || 'Individual'} ({currentCompetition.teamSize})
                       </span>
                     </div>
@@ -472,16 +472,16 @@ const Dashboard = () => {
 
                   {!currentCompetition.hasSubmitted && (
                     <div className="mt-4 flex gap-3">
-                      <button 
+                      <button
                         onClick={() => navigate(`/competition/${currentCompetition.id}/submit`)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#a68a2d] hover:bg-[#c9a94d] text-[#0a0a0a] font-body font-medium rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-kath-gold hover:bg-kath-gold-dark text-white font-body font-medium rounded-xl transition-all"
                       >
                         <Upload className="w-5 h-5" />
                         Submit Now
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate(`/competition/${currentCompetition.id}`)}
-                        className="flex items-center justify-center gap-2 px-4 py-3 border border-white/10 text-white/70 hover:bg-white/5 rounded-xl transition-all"
+                        className="flex items-center justify-center gap-2 px-4 py-3 border border-kath-bg-section text-kath-text-secondary hover:bg-kath-bg-section rounded-xl transition-all"
                       >
                         <FileSearch className="w-5 h-5" />
                         Details
@@ -492,17 +492,17 @@ const Dashboard = () => {
               )}
 
               {/* Documents Section */}
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-                      <FolderOpen className="w-5 h-5 text-[#a68a2d]" />
+                    <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                      <FolderOpen className="w-5 h-5 text-kath-primary" />
                     </div>
-                    <h3 className="font-display text-lg text-white">Dokumen Persyaratan</h3>
+                    <h3 className="font-display text-lg text-kath-text-primary">Dokumen Persyaratan</h3>
                   </div>
-                  <button 
+                  <button
                     onClick={() => alert('Upload document feature coming soon!')}
-                    className="flex items-center gap-2 px-4 py-2 border border-[#a68a2d]/30 text-[#a68a2d] hover:bg-[#a68a2d]/10 rounded-full font-body text-sm transition-all"
+                    className="flex items-center gap-2 px-4 py-2 border border-kath-primary/30 text-kath-primary hover:bg-kath-primary/10 rounded-full font-body text-sm transition-all"
                   >
                     <Upload className="w-4 h-4" />
                     Upload
@@ -513,14 +513,14 @@ const Dashboard = () => {
                   {documents.map((doc, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:border-[#a68a2d]/20 transition-all"
+                      className="flex items-center justify-between p-4 bg-kath-bg-main border border-kath-bg-section rounded-xl hover:border-kath-primary/20 transition-all"
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                             doc.status === 'uploaded'
-                              ? 'bg-emerald-500/10 text-emerald-400'
-                              : 'bg-amber-500/10 text-amber-400'
+                              ? 'bg-kath-success/10 text-kath-success'
+                              : 'bg-kath-gold/10 text-kath-gold'
                           }`}
                         >
                           {doc.status === 'uploaded' ? (
@@ -530,8 +530,8 @@ const Dashboard = () => {
                           )}
                         </div>
                         <div>
-                          <p className="font-body text-white text-sm">{doc.name}</p>
-                          <p className="font-body text-white/40 text-xs">
+                          <p className="font-body text-kath-text-primary text-sm">{doc.name}</p>
+                          <p className="font-body text-kath-text-muted text-xs">
                             {doc.status === 'uploaded'
                               ? `${doc.date} • ${doc.size}`
                               : 'Belum diupload'}
@@ -541,23 +541,23 @@ const Dashboard = () => {
                       <div className="flex items-center gap-2">
                         {doc.status === 'uploaded' ? (
                           <>
-                            <button 
+                            <button
                               onClick={() => alert(`View ${doc.name}`)}
-                              className="p-2 text-white/40 hover:text-[#a68a2d] hover:bg-[#a68a2d]/10 rounded-lg transition-all"
+                              className="p-2 text-kath-text-muted hover:text-kath-primary hover:bg-kath-primary/10 rounded-lg transition-all"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button 
+                            <button
                               onClick={() => alert(`Download ${doc.name}`)}
-                              className="p-2 text-white/40 hover:text-[#a68a2d] hover:bg-[#a68a2d]/10 rounded-lg transition-all"
+                              className="p-2 text-kath-text-muted hover:text-kath-primary hover:bg-kath-primary/10 rounded-lg transition-all"
                             >
                               <Download className="w-4 h-4" />
                             </button>
                           </>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => alert(`Upload ${doc.name}`)}
-                            className="px-3 py-1.5 bg-amber-500/10 text-amber-400 rounded-full font-body text-xs hover:bg-amber-500/20 transition-all"
+                            className="px-3 py-1.5 bg-kath-gold/10 text-kath-gold rounded-full font-body text-xs hover:bg-kath-gold/20 transition-all"
                           >
                             Upload
                           </button>
@@ -569,44 +569,44 @@ const Dashboard = () => {
               </div>
 
               {/* Timeline */}
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-[#a68a2d]" />
+                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-kath-primary" />
                   </div>
-                  <h3 className="font-display text-lg text-white">Timeline Kompetisi</h3>
+                  <h3 className="font-display text-lg text-kath-text-primary">Timeline Kompetisi</h3>
                 </div>
 
                 <div className="relative">
-                  <div className="absolute left-5 top-0 bottom-0 w-px bg-white/10" />
+                  <div className="absolute left-5 top-0 bottom-0 w-px bg-kath-bg-section" />
                   <div className="space-y-6">
                     {timelineEvents.map((event) => (
                       <div key={event.id} className="relative flex gap-4">
                         <div
                           className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                             event.status === 'completed'
-                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                              ? 'bg-kath-success/10 border-kath-success text-kath-success'
                               : event.status === 'current'
-                              ? 'bg-[#a68a2d]/20 border-[#a68a2d] text-[#a68a2d]'
-                              : 'bg-white/5 border-white/20 text-white/40'
+                              ? 'bg-kath-primary/10 border-kath-primary text-kath-primary'
+                              : 'bg-kath-bg-section border-kath-bg-section text-kath-text-muted'
                           }`}
                         >
                           {event.icon}
                         </div>
                         <div className="flex-1 pt-1">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
-                            <h4 className={`font-body font-medium ${event.status === 'upcoming' ? 'text-white/40' : 'text-white'}`}>
+                            <h4 className={`font-body font-medium ${event.status === 'upcoming' ? 'text-kath-text-muted' : 'text-kath-text-primary'}`}>
                               {event.title}
                             </h4>
-                            <span className={`font-body text-xs ${event.status === 'current' ? 'text-[#a68a2d]' : 'text-white/40'}`}>
+                            <span className={`font-body text-xs ${event.status === 'current' ? 'text-kath-primary' : 'text-kath-text-muted'}`}>
                               {event.date}
                             </span>
                           </div>
-                          <p className={`font-body text-sm ${event.status === 'upcoming' ? 'text-white/30' : 'text-white/50'}`}>
+                          <p className={`font-body text-sm ${event.status === 'upcoming' ? 'text-kath-bg-section' : 'text-kath-text-secondary'}`}>
                             {event.description}
                           </p>
                           {event.status === 'current' && (
-                            <span className="inline-block mt-2 px-3 py-1 bg-[#a68a2d]/10 text-[#a68a2d] rounded-full font-body text-xs">
+                            <span className="inline-block mt-2 px-3 py-1 bg-kath-primary/10 text-kath-primary rounded-full font-body text-xs">
                               Sedang Berlangsung
                             </span>
                           )}
@@ -621,50 +621,50 @@ const Dashboard = () => {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Profile Card */}
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
                 <div className="flex items-center gap-4 mb-6">
-                  <div 
+                  <div
                     onClick={() => navigate('/edit-profile')}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-[#a68a2d] to-[#8e7526] flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#a68a2d]/50 transition-all"
+                    className="w-16 h-16 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
                   >
-                    <span className="font-display text-[#0a0a0a] text-2xl">
+                    <span className="font-display text-white text-2xl">
                       {user.fullName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-display text-lg text-white">{user.fullName}</h3>
-                    <p className="font-body text-[#a68a2d] text-sm">{user.competitionCategory}</p>
+                    <h3 className="font-display text-lg text-kath-text-primary">{user.fullName}</h3>
+                    <p className="font-body text-kath-primary text-sm">{user.competitionCategory}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-sm">
-                    <Mail className="w-4 h-4 text-white/40" />
-                    <span className="font-body text-white/70">{user.email}</span>
+                    <Mail className="w-4 h-4 text-kath-text-muted" />
+                    <span className="font-body text-kath-text-secondary">{user.email}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Phone className="w-4 h-4 text-white/40" />
-                    <span className="font-body text-white/70">{user.phone}</span>
+                    <Phone className="w-4 h-4 text-kath-text-muted" />
+                    <span className="font-body text-kath-text-secondary">{user.phone}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <MapPin className="w-4 h-4 text-white/40" />
-                    <span className="font-body text-white/70">{user.city}</span>
+                    <MapPin className="w-4 h-4 text-kath-text-muted" />
+                    <span className="font-body text-kath-text-secondary">{user.city}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Building2 className="w-4 h-4 text-white/40" />
-                    <span className="font-body text-white/70">{user.institution}</span>
+                    <Building2 className="w-4 h-4 text-kath-text-muted" />
+                    <span className="font-body text-kath-text-secondary">{user.institution}</span>
                   </div>
                   {user.major && (
                     <div className="flex items-center gap-3 text-sm">
-                      <GraduationCap className="w-4 h-4 text-white/40" />
-                      <span className="font-body text-white/70">{user.major}</span>
+                      <GraduationCap className="w-4 h-4 text-kath-text-muted" />
+                      <span className="font-body text-kath-text-secondary">{user.major}</span>
                     </div>
                   )}
                 </div>
 
-                <button 
+                <button
                   onClick={() => navigate('/edit-profile')}
-                  className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 border border-white/10 hover:border-[#a68a2d]/50 text-white/70 hover:text-[#a68a2d] rounded-xl font-body text-sm transition-all"
+                  className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 border border-kath-bg-section hover:border-kath-primary/50 text-kath-text-secondary hover:text-kath-primary rounded-xl font-body text-sm transition-all"
                 >
                   <Edit3 className="w-4 h-4" />
                   Edit Profil
@@ -672,18 +672,18 @@ const Dashboard = () => {
               </div>
 
               {/* Notifications */}
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#a68a2d]/10 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-[#a68a2d]" />
+                    <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
+                      <Bell className="w-5 h-5 text-kath-primary" />
                     </div>
-                    <h3 className="font-display text-lg text-white">Notifikasi</h3>
+                    <h3 className="font-display text-lg text-kath-text-primary">Notifikasi</h3>
                   </div>
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllAsRead}
-                      className="text-xs text-[#a68a2d] hover:text-[#c9a94d] font-body"
+                      className="text-xs text-kath-primary hover:text-kath-primary-dark font-body"
                     >
                       Mark all read
                     </button>
@@ -699,19 +699,19 @@ const Dashboard = () => {
                         if (notif.actionUrl) navigate(notif.actionUrl);
                       }}
                       className={`p-3 rounded-xl cursor-pointer transition-all ${
-                        notif.read ? 'bg-white/[0.02]' : 'bg-[#a68a2d]/5 border border-[#a68a2d]/20'
+                        notif.read ? 'bg-kath-bg-main' : 'bg-kath-primary/5 border border-kath-primary/20'
                       }`}
                     >
                       <div className="flex items-start gap-3">
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             notif.type === 'success'
-                              ? 'bg-emerald-500/10 text-emerald-400'
+                              ? 'bg-kath-success/10 text-kath-success'
                               : notif.type === 'warning'
-                              ? 'bg-amber-500/10 text-amber-400'
+                              ? 'bg-kath-gold/10 text-kath-gold'
                               : notif.type === 'urgent'
-                              ? 'bg-red-500/10 text-red-400'
-                              : 'bg-blue-500/10 text-blue-400'
+                              ? 'bg-kath-error/10 text-kath-error'
+                              : 'bg-kath-primary/10 text-kath-primary'
                           }`}
                         >
                           {notif.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> :
@@ -720,9 +720,9 @@ const Dashboard = () => {
                            <Bell className="w-4 h-4" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-body text-white text-sm font-medium truncate">{notif.title}</p>
-                          <p className="font-body text-white/50 text-xs line-clamp-2">{notif.message}</p>
-                          <p className="font-body text-white/30 text-xs mt-1">{notif.time}</p>
+                          <p className="font-body text-kath-text-primary text-sm font-medium truncate">{notif.title}</p>
+                          <p className="font-body text-kath-text-secondary text-xs line-clamp-2">{notif.message}</p>
+                          <p className="font-body text-kath-text-muted text-xs mt-1">{notif.time}</p>
                         </div>
                       </div>
                     </div>
@@ -732,7 +732,7 @@ const Dashboard = () => {
                 {notifications.length > 3 && (
                   <button
                     onClick={() => setShowAllNotifications(!showAllNotifications)}
-                    className="w-full mt-4 flex items-center justify-center gap-2 text-[#a68a2d] hover:text-[#c9a94d] font-body text-sm transition-all"
+                    className="w-full mt-4 flex items-center justify-center gap-2 text-kath-primary hover:text-kath-primary-dark font-body text-sm transition-all"
                   >
                     {showAllNotifications ? 'Show Less' : 'View All Notifications'}
                     <ChevronRight className={`w-4 h-4 transition-transform ${showAllNotifications ? 'rotate-90' : ''}`} />
@@ -741,8 +741,8 @@ const Dashboard = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                <h3 className="font-display text-lg text-white mb-4">Aksi Cepat</h3>
+              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
+                <h3 className="font-display text-lg text-kath-text-primary mb-4">Aksi Cepat</h3>
                 <div className="space-y-2">
                   {[
                     { icon: Trophy, label: 'My Competitions', desc: 'Lihat semua kompetisi', action: () => navigate('/my-competitions') },
@@ -753,43 +753,43 @@ const Dashboard = () => {
                     <button
                       key={action.label}
                       onClick={action.action}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.03] transition-all group"
+                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-kath-bg-section transition-all group"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-[#a68a2d]/10 flex items-center justify-center text-[#a68a2d] group-hover:bg-[#a68a2d]/20 transition-all">
+                      <div className="w-10 h-10 rounded-lg bg-kath-primary/10 flex items-center justify-center text-kath-primary group-hover:bg-kath-primary/20 transition-all">
                         <action.icon className="w-5 h-5" />
                       </div>
                       <div className="text-left flex-1">
-                        <p className="font-body text-white text-sm">{action.label}</p>
-                        <p className="font-body text-white/40 text-xs">{action.desc}</p>
+                        <p className="font-body text-kath-text-primary text-sm">{action.label}</p>
+                        <p className="font-body text-kath-text-muted text-xs">{action.desc}</p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-[#a68a2d] transition-all" />
+                      <ChevronRight className="w-4 h-4 text-kath-bg-section group-hover:text-kath-primary transition-all" />
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Prize Info */}
-              <div className="bg-gradient-to-br from-[#a68a2d]/10 to-transparent border border-[#a68a2d]/20 rounded-2xl p-6">
+              <div className="bg-gradient-to-br from-kath-gold/10 to-transparent border border-kath-gold/20 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Medal className="w-6 h-6 text-[#a68a2d]" />
-                  <h3 className="font-display text-lg text-white">Total Hadiah</h3>
+                  <Medal className="w-6 h-6 text-kath-gold" />
+                  <h3 className="font-display text-lg text-kath-text-primary">Total Hadiah</h3>
                 </div>
-                <p className="font-display text-3xl text-[#a68a2d] mb-2">Rp 500.000.000</p>
-                <p className="font-body text-white/50 text-sm mb-4">
+                <p className="font-display text-3xl text-kath-gold mb-2">Rp 500.000.000</p>
+                <p className="font-body text-kath-text-secondary text-sm mb-4">
                   Hadiah uang tunai dan merchandise eksklusif
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="font-body text-white/60">Juara 1</span>
-                    <span className="font-body text-[#a68a2d]">Rp 200jt</span>
+                    <span className="font-body text-kath-text-secondary">Juara 1</span>
+                    <span className="font-body text-kath-gold">Rp 200jt</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-body text-white/60">Juara 2</span>
-                    <span className="font-body text-white/70">Rp 100jt</span>
+                    <span className="font-body text-kath-text-secondary">Juara 2</span>
+                    <span className="font-body text-kath-text-primary">Rp 100jt</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-body text-white/60">Juara 3</span>
-                    <span className="font-body text-white/70">Rp 50jt</span>
+                    <span className="font-body text-kath-text-secondary">Juara 3</span>
+                    <span className="font-body text-kath-text-primary">Rp 50jt</span>
                   </div>
                 </div>
               </div>

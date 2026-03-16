@@ -26,7 +26,7 @@ export interface HeroConfig {
 }
 
 export const heroConfig: HeroConfig = {
-  backgroundImage: "/hero-bg.webp",
+  backgroundImage: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1920&q=80",
   backgroundAlt: "Luxury Event Venue by KATH Event Organizer",
   title: t(
     "We Create\nUnforgettable\nMoments",
@@ -91,7 +91,7 @@ export const cardStackConfig: CardStackConfig = {
   cards: [
     {
       id: 1,
-      image: "/card-1.webp",
+      image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
       title: t("Eternal Love Wedding", "Eternal Love Wedding"),
       description: t(
         "Perayaan cinta yang magis dengan rangkaian bunga elegan dan keanggunan timeless di Grand Ballroom.",
@@ -102,7 +102,7 @@ export const cardStackConfig: CardStackConfig = {
     },
     {
       id: 2,
-      image: "/card-2.webp",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
       title: t("Global Innovation Summit", "Global Innovation Summit"),
       description: t(
         "Keunggulan korporat yang didefinisikan ulang - pertemuan bergengsi para pemimpin industri dengan produksi mutakhir.",
@@ -113,7 +113,7 @@ export const cardStackConfig: CardStackConfig = {
     },
     {
       id: 3,
-      image: "/card-3.webp",
+      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
       title: t("Garden of Lights Gala", "Garden of Lights Gala"),
       description: t(
         "Malam yang mempesona di bawah bintang, menampilkan kanopi lampu peri yang memukau dan makan malam gourmet.",
@@ -135,7 +135,7 @@ export interface BreathSectionConfig {
 }
 
 export const breathSectionConfig: BreathSectionConfig = {
-  backgroundImage: "/breath-bg.webp",
+  backgroundImage: "https://images.unsplash.com/photo-1478146896981-b80c463ab1d7?w=1920&q=80",
   backgroundAlt: "Luxury Event Venue Interior",
   title: t("Keunggulan dalam Setiap Detail", "Excellence in Every Detail"),
   subtitle: t("PENGALAMAN EVENT PREMIUM", "PREMIUM EVENT EXPERIENCE"),
@@ -174,7 +174,7 @@ export const zigZagGridConfig: ZigZagGridConfig = {
         "Dari upacara intim hingga resepsi megah, kami menciptakan pengalaman pernikahan yang mencerminkan kisah cinta unik Anda. Perencanaan pernikahan komprehensif kami mencakup pemilihan venue, desain dekor, koordinasi vendor, dan manajemen hari-H untuk memastikan hari istimewa Anda tidak kurang dari magis.",
         "From intimate ceremonies to grand receptions, we create wedding experiences that reflect your unique love story. Our comprehensive wedding planning includes venue selection, décor design, vendor coordination, and day-of management to ensure your special day is nothing short of magical."
       ),
-      image: "/wedding-event.webp",
+      image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
       imageAlt: "Elegant Wedding Ceremony",
       reverse: false,
     },
@@ -186,7 +186,7 @@ export const zigZagGridConfig: ZigZagGridConfig = {
         "Tingkatkan merek Anda dengan event korporat yang dijalankan dengan sempurna. Dari peluncuran produk dan rapat tahunan hingga gala dinner dan aktivitas team building, kami menghadirkan event profesional yang meninggalkan kesan mendalam pada para pemangku kepentingan Anda.",
         "Elevate your brand with impeccably executed corporate events. From product launches and annual meetings to gala dinners and team building activities, we deliver professional events that leave lasting impressions on your stakeholders."
       ),
-      image: "/corporate-event.webp",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
       imageAlt: "Corporate Gala Dinner",
       reverse: true,
     },
@@ -198,7 +198,7 @@ export const zigZagGridConfig: ZigZagGridConfig = {
         "Menonjol dari keramaian dengan desain pameran yang memukau yang memikat audiens Anda. Kami menciptakan pengalaman merek imersif yang mendorong engagement dan memberikan hasil yang terukur untuk bisnis Anda.",
         "Stand out from the crowd with stunning exhibition designs that captivate your audience. We create immersive brand experiences that drive engagement and deliver measurable results for your business."
       ),
-      image: "/exhibition-event.webp",
+      image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80",
       imageAlt: "Modern Exhibition Booth",
       reverse: false,
     },
@@ -207,10 +207,10 @@ export const zigZagGridConfig: ZigZagGridConfig = {
       title: t("Pesta Pribadi", "Private Parties"),
       subtitle: t("PERAYAKAN EKSKLUSIF", "EXCLUSIVE CELEBRATIONS"),
       description: t(
-        "Rayakan momen spesial dalam hidup dengan gaya dan keanggunan. Dari ulang tahun milestone hingga perayaan anniversary, kami merancang pesta pribadi yang melebihi ekspektasi dan menciptakan kenangan berharga.",
+        "Rayakan momen spesial dalam hidup dengan gaya dan keanggunan. Dari ulang tahun milestone hingga peryaan anniversary, kami merancang pesta pribadi yang melebihi ekspektasi dan menciptakan kenangan berharga.",
         "Celebrate life's special moments with style and sophistication. From milestone birthdays to anniversary celebrations, we design private parties that exceed expectations and create cherished memories."
       ),
-      image: "/private-party.webp",
+      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
       imageAlt: "Luxury Private Party",
       reverse: true,
     },
@@ -351,7 +351,7 @@ export const portfolioConfig: PortfolioConfig = {
   items: [
     {
       id: "1",
-      image: "/wedding-event.webp",
+      image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
       title: t("Garden Romance Wedding", "Garden Romance Wedding"),
       category: t("Pernikahan", "Wedding"),
       location: "Jakarta",
@@ -359,7 +359,7 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       id: "2",
-      image: "/corporate-event.webp",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
       title: t("Executive Summit 2025", "Executive Summit 2025"),
       category: t("Korporat", "Corporate"),
       location: "Jakarta",
@@ -367,7 +367,7 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       id: "3",
-      image: "/exhibition-event.webp",
+      image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80",
       title: t("Tech Innovation Expo", "Tech Innovation Expo"),
       category: t("Pameran", "Exhibition"),
       location: "Jakarta",
@@ -375,7 +375,7 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       id: "4",
-      image: "/private-party.webp",
+      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
       title: t("Golden Anniversary Gala", "Golden Anniversary Gala"),
       category: t("Pribadi", "Private"),
       location: "Bali",
@@ -383,7 +383,7 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       id: "5",
-      image: "/card-1.webp",
+      image: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80",
       title: t("Crystal Ballroom Wedding", "Crystal Ballroom Wedding"),
       category: t("Pernikahan", "Wedding"),
       location: "Jakarta",
@@ -391,7 +391,7 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       id: "6",
-      image: "/card-2.webp",
+      image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80",
       title: t("Annual Awards Night", "Annual Awards Night"),
       category: t("Korporat", "Corporate"),
       location: "Jakarta",
@@ -504,7 +504,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       name: "Sarah & Michael",
       role: t("Klien Pernikahan", "Wedding Clients"),
       event: t("Garden Wedding 2024", "Garden Wedding 2024"),
-      image: "/client-1.webp",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
     },
     {
       id: "2",
@@ -515,7 +515,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       name: "David Chen",
       role: t("CEO", "CEO"),
       event: t("Corporate Gala 2025", "Corporate Gala 2025"),
-      image: "/client-2.webp",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
     },
     {
       id: "3",
@@ -526,7 +526,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       name: "Lisa Wong",
       role: t("Marketing Director", "Marketing Director"),
       event: t("Product Launch 2024", "Product Launch 2024"),
-      image: "/client-3.webp",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
     },
   ],
 };
@@ -842,7 +842,7 @@ export const newsConfig: NewsConfig = {
         "KATH Event Organizer dengan bangga mempersembahkan BMC International Competition 2026, platform bergengsi bagi entrepreneur dan inovator untuk menampilkan model bisnis terbaik mereka. Kompetisi tahun ini menampilkan berbagai kategori termasuk Startup Challenge, Social Enterprise, Student Innovation, dan Corporate Innovation.",
         "KATH Event Organizer proudly presents BMC International Competition 2026, a prestigious platform for entrepreneurs and innovators to showcase their best business models. This year's competition features various categories including Startup Challenge, Social Enterprise, Student Innovation, and Corporate Innovation."
       ),
-      image: "/wedding-event.webp",
+      image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80",
       category: t("Kompetisi", "Competition"),
       date: "2025-03-01",
       author: "KATH Team",
@@ -862,7 +862,7 @@ export const newsConfig: NewsConfig = {
         "Karena permintaan yang luar biasa, kami telah menambahkan kategori BMC Green Business ke dalam lineup kompetisi kami. Kategori ini berfokus pada inovasi bisnis berkelanjutan dan solusi ramah lingkungan.",
         "Due to overwhelming demand, we have added the BMC Green Business category to our competition lineup. This category focuses on sustainable business innovation and eco-friendly solutions."
       ),
-      image: "/card-2.webp",
+      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
       category: t("Pengumuman", "Announcement"),
       date: "2025-02-28",
       author: "KATH Team",
@@ -882,7 +882,7 @@ export const newsConfig: NewsConfig = {
         "Kami dengan hormat memperkenalkan panel juri kami untuk BMC International Competition 2026. Panel kami mencakup investor terkemuka, pengusaha sukses, dan veteran industri.",
         "We are honored to introduce our judges panel for BMC International Competition 2026. Our panel includes leading investors, successful entrepreneurs, and industry veterans."
       ),
-      image: "/about-team.webp",
+      image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
       category: t("Berita", "News"),
       date: "2025-02-25",
       author: "KATH Team",
@@ -902,7 +902,7 @@ export const newsConfig: NewsConfig = {
         "Merencanakan pernikahan bisa menjadi tugas yang menakutkan, tetapi dengan pendekatan yang tepat, ini bisa menjadi pengalaman yang menyenangkan. Berikut adalah tips dari para ahli KATH untuk membantu Anda merencanakan hari istimewa Anda.",
         "Planning a wedding can be a daunting task, but with the right approach, it can be an enjoyable experience. Here are tips from KATH experts to help you plan your special day."
       ),
-      image: "/grid-1.webp",
+      image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
       category: t("Berita", "News"),
       date: "2025-02-20",
       author: "KATH Team",
@@ -922,7 +922,7 @@ export const newsConfig: NewsConfig = {
         "Dari teknologi imersif hingga keberlanjutan, temukan tren event korporat yang akan membentuk industri di tahun 2025 dan seterusnya.",
         "From immersive technology to sustainability, discover the corporate event trends that will shape the industry in 2025 and beyond."
       ),
-      image: "/grid-2.webp",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
       category: t("Berita", "News"),
       date: "2025-02-15",
       author: "KATH Team",
@@ -942,7 +942,7 @@ export const newsConfig: NewsConfig = {
         "KATH Event Organizer dihormati menerima Industry Excellence Award 2025 dari Indonesian Event Professionals Association. Pengakuan ini adalah bukti komitmen kami dalam menyelenggarakan event berkualitas.",
         "KATH Event Organizer is honored to receive the Industry Excellence Award 2025 from the Indonesian Event Professionals Association. This recognition is a testament to our commitment to hosting quality events."
       ),
-      image: "/corporate-event.webp",
+      image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80",
       category: t("Berita", "News"),
       date: "2025-02-10",
       author: "KATH Team",

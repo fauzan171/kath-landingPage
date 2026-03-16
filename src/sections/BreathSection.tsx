@@ -73,12 +73,12 @@ const BreathSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-16 md:py-24 bg-kath-black"
+      className="relative w-full py-16 md:py-24 bg-kath-bg-main"
     >
       <div className="px-4 md:px-8">
         <div
           ref={containerRef}
-          className="relative w-full max-w-7xl mx-auto overflow-hidden border border-kath-charcoal/50"
+          className="relative w-full max-w-7xl mx-auto overflow-hidden border border-kath-bg-section shadow-lg shadow-kath-primary/5"
           style={{ willChange: 'transform, border-radius' }}
         >
           {/* Background Image */}
@@ -90,16 +90,16 @@ const BreathSection = () => {
             />
 
             {/* Dark overlay for text contrast */}
-            <div className="absolute inset-0 bg-kath-black/50" />
+            <div className="absolute inset-0 bg-kath-text-primary/40" />
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h2
                 ref={textRef}
-                className="font-display text-display text-kath-white tracking-tight text-center"
+                className="font-display text-display text-white tracking-tight text-center"
                 style={{
                   willChange: 'transform, opacity',
-                  textShadow: '0 4px 40px rgba(0,0,0,0.5)'
+                  textShadow: '0 4px 40px rgba(0,0,0,0.3)'
                 }}
               >
                 {breathSectionConfig.title[language]}
@@ -114,8 +114,8 @@ const BreathSection = () => {
             </div>
 
             {/* Subtle gradient edges */}
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-kath-black/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-kath-black/40 to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-kath-text-primary/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-kath-text-primary/30 to-transparent" />
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ const BreathSection = () => {
       {/* Decorative elements */}
       {breathSectionConfig.description && (
         <div className="max-w-4xl mx-auto px-6 md:px-8 mt-16 md:mt-24 text-center">
-          <p className="font-body text-sm text-kath-off-white/60 max-w-lg mx-auto leading-relaxed">
+          <p className="font-body text-sm text-kath-text-secondary max-w-lg mx-auto leading-relaxed">
             {breathSectionConfig.description[language]}
           </p>
         </div>

@@ -106,23 +106,23 @@ const News = () => {
       <section
         ref={sectionRef}
         id="news"
-        className="relative w-full bg-kath-black py-24 md:py-32 overflow-hidden"
+        className="relative w-full bg-kath-bg-main py-24 md:py-32 overflow-hidden"
       >
         {/* Background decoration */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-gold rounded-full blur-[200px]" />
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-primary rounded-full blur-[200px]" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12 md:mb-16">
-            <span className="font-body text-kath-gold text-xs uppercase tracking-[0.3em]">
+            <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
               {newsConfig.sectionLabel[language]}
             </span>
-            <h2 className="font-display text-headline text-kath-white mt-4">
+            <h2 className="font-display text-headline text-kath-text-primary mt-4">
               {newsConfig.sectionTitle[language]}
             </h2>
-            <p className="font-body text-kath-off-white/60 mt-4 max-w-2xl mx-auto">
+            <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto">
               {newsConfig.sectionDescription[language]}
             </p>
 
@@ -134,8 +134,8 @@ const News = () => {
                   onClick={() => setActiveCategory(category.label)}
                   className={`px-5 py-2 font-body text-sm rounded-full transition-all duration-300 ${
                     activeCategory === category.label
-                      ? 'bg-kath-gold text-kath-black'
-                      : 'bg-kath-charcoal/50 text-kath-off-white/70 hover:bg-kath-gold/20 hover:text-kath-gold'
+                      ? 'bg-kath-primary text-white'
+                      : 'bg-white text-kath-text-secondary hover:bg-kath-primary/10 hover:text-kath-primary border border-kath-bg-section'
                   }`}
                 >
                   {category.label}
@@ -149,7 +149,7 @@ const News = () => {
             {filteredNews.map((item) => (
               <article
                 key={item.id}
-                className="news-card group bg-kath-dark-gray border border-kath-charcoal/50 rounded-2xl overflow-hidden hover:border-kath-gold/30 transition-all duration-300 hover:-translate-y-1"
+                className="news-card group bg-white border border-kath-bg-section rounded-2xl overflow-hidden hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
@@ -158,15 +158,15 @@ const News = () => {
                     alt={item.title[language]}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-kath-black/80 to-transparent" />
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-kath-gold/90 text-kath-black text-xs font-body uppercase tracking-wider rounded-full">
+                  <div className="absolute inset-0 bg-gradient-to-t from-kath-text-primary/60 to-transparent" />
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-kath-primary/90 text-white text-xs font-body uppercase tracking-wider rounded-full">
                     {item.category[language]}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="p-6">
-                  <div className="flex items-center gap-4 text-kath-off-white/50 text-xs mb-3">
+                  <div className="flex items-center gap-4 text-kath-text-muted text-xs mb-3">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {formatDate(item.date)}
@@ -177,17 +177,17 @@ const News = () => {
                     </span>
                   </div>
 
-                  <h3 className="font-display text-lg text-kath-white mb-3 line-clamp-2 group-hover:text-kath-gold transition-colors">
+                  <h3 className="font-display text-lg text-kath-text-primary mb-3 line-clamp-2 group-hover:text-kath-primary transition-colors">
                     {item.title[language]}
                   </h3>
 
-                  <p className="font-body text-sm text-kath-off-white/60 mb-4 line-clamp-2">
+                  <p className="font-body text-sm text-kath-text-secondary mb-4 line-clamp-2">
                     {item.excerpt[language]}
                   </p>
 
                   <button
                     onClick={() => setSelectedNews(item)}
-                    className="group/btn flex items-center gap-2 text-kath-gold font-body text-sm hover:gap-3 transition-all"
+                    className="group/btn flex items-center gap-2 text-kath-primary font-body text-sm hover:gap-3 transition-all"
                   >
                     {labels.readMore}
                     <ArrowRight className="w-4 h-4" />
