@@ -5,7 +5,7 @@
  * Color Theme: Cream (#E6DDC5) & Black
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -279,9 +279,11 @@ const CIBCLanding = () => {
   const prizesRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to top on mount
-  useEffect(() => {
+  // Scroll to top on mount - useLayoutEffect ensures it runs before paint
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, []);
 
   // GSAP Animations
