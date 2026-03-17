@@ -158,12 +158,12 @@ const Hero = () => {
         {/* Main Title - Responsive sizing */}
         <h1
           ref={titleRef}
-          className="font-display text-kath-text-primary text-center whitespace-pre-line"
+          className="font-display text-white text-center whitespace-pre-line"
           style={{
             fontSize: 'clamp(2rem, 10vw, 8rem)',
             lineHeight: '0.95',
             letterSpacing: '-0.02em',
-            textShadow: '0 4px 40px rgba(255,255,255,0.3)',
+            textShadow: '0 4px 40px rgba(0,0,0,0.5)',
             willChange: 'transform, opacity'
           }}
         >
@@ -173,19 +173,22 @@ const Hero = () => {
         {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className="font-body text-kath-text-secondary text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
-          style={{ willChange: 'transform, opacity' }}
+          className="font-body text-white/90 text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
+          style={{
+            willChange: 'transform, opacity',
+            textShadow: '0 2px 20px rgba(0,0,0,0.5)'
+          }}
         >
           {heroConfig.subtitle[language]}
         </p>
 
         {/* CTA Buttons - Mobile optimized */}
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto px-4 sm:px-0">
-          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-primary to-kath-primary-dark hover:from-kath-primary-light hover:to-kath-primary text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-kath-primary/25 touch-feedback">
+          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-primary to-kath-primary-dark hover:from-kath-primary-light hover:to-kath-primary text-kath-bg-dark font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-kath-primary/25 touch-feedback">
             {heroConfig.ctaPrimary[language]}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-kath-text-muted/30 hover:border-kath-primary hover:bg-kath-primary/10 text-kath-text-primary font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
+          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-white/30 hover:border-white hover:bg-white/10 text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
             {heroConfig.ctaSecondary[language]}
           </button>
         </div>
