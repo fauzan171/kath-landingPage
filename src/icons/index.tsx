@@ -1,0 +1,67 @@
+/**
+ * Icon Exports - Using Lucide React
+ *
+ * All icons are now using Lucide React for better React 19 compatibility
+ */
+
+// Export all icons directly from lucide-react
+export * from 'lucide-react';
+
+// Re-export specific icons with aliases for backward compatibility
+export {
+  Crown as Crown,
+  Building2 as Building2,
+  MapPin as MapPin,
+  Calendar as Calendar,
+  Clock as Clock,
+  Users as Users,
+  Trophy as Trophy,
+  Target as Target,
+  Eye as Eye,
+  EyeOff as EyeOff,
+  Globe as Globe,
+  Heart as Heart,
+  Building as Building,
+  Briefcase as Briefcase,
+  GraduationCap as GraduationCap,
+  BookOpen as BookOpen,
+  Video as Video,
+  Music as Music,
+  Volume2 as Volume2,
+  VolumeX as VolumeX,
+  Loader2 as Loader2,
+  CheckCircle2 as CheckCircle2,
+  AlertCircle as AlertCircle,
+  ChevronLeft as ChevronLeft,
+  ChevronRight as ChevronRight,
+  ChevronDown as ChevronDown,
+  ChevronUp as ChevronUp,
+  ArrowRight as ArrowRight,
+  ArrowLeft as ArrowLeft,
+  Upload as Upload,
+  Download as Download,
+  FileText as FileText,
+  File as File,
+  Trash2 as Trash2,
+  Edit as Edit,
+  Copy as Copy,
+  Tag as Tag,
+  CheckCircle as CheckCircle,
+  XCircle as XCircle,
+  LogOut as LogOut,
+  Send as Send,
+  ExternalLink as ExternalLink,
+  Sparkles as Sparkles,
+  Shield as Shield,
+  Sun as Sun,
+  Leaf as Leaf,
+  Award as Award,
+  Activity as Activity,
+  TrendingUp as TrendingUp,
+  Quote as Quote,
+  Play as Play,
+  Monitor as Monitor,
+  LayoutGrid as LayoutGrid,
+  Cake as Cake,
+  PanelLeft as PanelLeft,
+} from 'lucide-react';

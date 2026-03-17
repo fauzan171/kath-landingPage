@@ -17,7 +17,7 @@ import {
   Download,
   Upload,
   Edit3
-} from 'lucide-react';
+} from '../icons';
 import {
   getCompetitionById,
   getTeamsByCompetition,
@@ -45,6 +45,7 @@ const CompetitionDetail = () => {
         setSubmission(existingSub || null);
       }
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [id]);
 
   if (!competition) {

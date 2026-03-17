@@ -35,7 +35,7 @@ import {
   FileSearch,
   Target,
   Zap
-} from 'lucide-react';
+} from '../icons';
 import {
   getNotifications,
   markNotificationAsRead,
@@ -75,6 +75,7 @@ const Dashboard = () => {
     setNotifications(getNotifications());
     setCompetitions(getCompetitions());
     setStats(getDashboardStats());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, []);
 
   // Redirect if not authenticated

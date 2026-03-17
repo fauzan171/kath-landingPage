@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { faqConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,12 +12,16 @@ const FAQ = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [openItems, setOpenItems] = useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('');
   const { language } = useLanguage();
 
-  // Set initial category based on language
+  // Default category based on language
+  const defaultCategory = language === 'id' ? 'Umum' : 'General';
+  const [activeCategory, setActiveCategory] = useState<string>(defaultCategory);
+
+  // Sync category with language changes
   useEffect(() => {
     setActiveCategory(language === 'id' ? 'Umum' : 'General');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [language]);
 
   const toggleItem = (id: string) => {

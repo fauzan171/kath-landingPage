@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { heroConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 

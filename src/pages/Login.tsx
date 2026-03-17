@@ -10,7 +10,7 @@ import {
   AlertCircle,
   CheckCircle,
   ChevronLeft
-} from 'lucide-react';
+} from '../icons';
 
 interface FormData {
   email: string;
@@ -50,7 +50,10 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
+    console.log('🔍 Checking auth status:', { isAuthenticated });
+    
     if (isAuthenticated) {
+      console.log('✅ User authenticated, redirecting to dashboard...');
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
@@ -102,15 +105,22 @@ const Login = () => {
 
     setIsSubmitting(true);
 
+    console.log('🔐 Login attempt:', { email: formData.email });
+
     try {
       const result = await login(formData.email, formData.password);
 
+      console.log('🔐 Login result:', result);
+
       if (result.success) {
+        console.log('✅ Login success! Navigating to dashboard...');
         navigate('/dashboard');
       } else {
+        console.log('❌ Login failed:', result.message);
         setSubmitError(result.message);
       }
     } catch (error) {
+      console.error('❌ Login error:', error);
       setSubmitError('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
@@ -253,7 +263,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-white font-body font-medium rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-kath-primary/25 hover:shadow-xl hover:shadow-kath-primary/30"
+              className="w-full py-4 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-kath-primary/25 hover:shadow-xl hover:shadow-kath-primary/30"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

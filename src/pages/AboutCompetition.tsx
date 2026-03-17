@@ -19,7 +19,7 @@ import {
   ArrowUpRight,
   Camera,
   CheckCircle2
-} from 'lucide-react';
+} from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 

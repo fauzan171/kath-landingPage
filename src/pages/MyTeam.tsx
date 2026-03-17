@@ -14,7 +14,7 @@ import {
   X,
   ChevronRight,
   Search
-} from 'lucide-react';
+} from '../icons';
 import {
   getTeams,
   getCompetitions,

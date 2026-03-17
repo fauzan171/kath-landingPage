@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { hashPassword, verifyPassword, generateSecureId } from '../utils/security';
 
 export interface User {
   id: string;
@@ -36,37 +37,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USERS_STORAGE_KEY = 'kath_users';
 const CURRENT_USER_STORAGE_KEY = 'kath_current_user';
 
-// Simple hash function using base64
-const hashPassword = (password: string): string => {
-  return btoa(password + 'kath_salt_2026');
-};
-
-const verifyPassword = (password: string, hashed: string): boolean => {
-  return hashPassword(password) === hashed;
-};
-
+// Generate unique ID
 const generateId = (): string => {
-  return 'usr_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  return 'usr_' + generateSecureId();
+};
+
+// Helper function to get stored user (used for lazy initialization)
+const getStoredUser = (): User | null => {
+  try {
+    const storedUser = localStorage.getItem(CURRENT_USER_STORAGE_KEY);
+    if (storedUser) {
+      return JSON.parse(storedUser);
+    }
+  } catch (error) {
+    console.error('Error parsing stored user:', error);
+    localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+  }
+  return null;
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Check for existing session on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem(CURRENT_USER_STORAGE_KEY);
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
-      }
-    }
-    setIsLoading(false);
-  }, []);
+  // Use lazy initialization for user state to avoid setState in effect
+  const [user, setUser] = useState<User | null>(getStoredUser);
+  const isLoading = false; // No async loading needed with lazy initialization
 
   const getAllUsers = useCallback((): User[] => {
     const stored = localStorage.getItem(USERS_STORAGE_KEY);
@@ -82,28 +75,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
+    console.log('🔑 AuthContext.login called:', { email });
+    
     try {
       const users = getAllUsers();
+      console.log('📋 Found users:', users.length);
+      
       const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
+      
       if (!foundUser) {
+        console.log('❌ User not found');
         return { success: false, message: 'Email tidak terdaftar' };
       }
 
-      if (!verifyPassword(password, foundUser.password)) {
+      console.log('✅ User found, verifying password...');
+
+      const isValid = await verifyPassword(password, foundUser.password);
+      console.log('🔐 Password valid:', isValid);
+
+      if (!isValid) {
         return { success: false, message: 'Password salah' };
       }
 
       // Store current user (without password for security)
       const userWithoutPassword = { ...foundUser };
       delete (userWithoutPassword as Partial<User>).password;
-      
+
+      console.log('✅ Setting user:', userWithoutPassword.email);
       setUser(foundUser);
       localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(foundUser));
 
+      console.log('✅ Login successful!');
       return { success: true, message: 'Login berhasil' };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       return { success: false, message: 'Terjadi kesalahan saat login' };
     }
   }, [getAllUsers]);
@@ -119,13 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: 'Email sudah terdaftar' };
       }
 
-      // Create new user
+      // Create new user with secure password hashing
+      const hashedPassword = await hashPassword(userData.password);
       const newUser: User = {
         ...userData,
         id: generateId(),
         registrationDate: new Date().toISOString(),
         status: 'pending',
-        password: hashPassword(userData.password),
+        password: hashedPassword,
       };
 
       // Save to localStorage

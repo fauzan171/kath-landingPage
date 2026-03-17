@@ -1,15 +1,13 @@
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { inspectAttr } from 'kimi-plugin-inspect-react'
-
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
   // Use '/' for Cloudflare Pages (not './')
   base: '/',
-  plugins: [inspectAttr(), react(), cloudflare()],
+  plugins: [react(), cloudflare()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -27,7 +25,6 @@ export default defineConfig({
           // Split vendor chunks for better caching
           vendor: ['react', 'react-dom'],
           gsap: ['gsap'],
-          lucide: ['lucide-react'],
           radix: ['@radix-ui/react-dialog', '@radix-ui/react-tabs'],
         },
         // Add content hash for cache busting
@@ -58,6 +55,6 @@ export default defineConfig({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'gsap', 'lucide-react'],
+    include: ['react', 'react-dom', 'gsap'],
   },
 });

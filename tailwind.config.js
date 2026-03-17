@@ -53,16 +53,17 @@ module.exports = {
           goldDark: '#8B7316',
           goldLight: '#C9A82F',
           goldMuted: '#E8D89A',
-          // Backgrounds
-          bgMain: '#FAFAFA',
+          // Backgrounds (Cream Theme)
+          bgMain: '#E6DDC5',
           bgCard: '#FFFFFF',
-          bgSection: '#F5F5F5',
+          bgSection: '#F5F0E0',
           bgDark: '#1A1A1A',
           bgDarker: '#0D0D0D',
-          // Text
+          // Text (Dark for cream background)
           textPrimary: '#1A1A1A',
           textSecondary: '#4A4A4A',
-          textMuted: '#8A8A8A',
+          textMuted: '#6A6A6A',
+          textLight: '#FFFFFF',
           // Semantic
           success: '#10B981',
           warning: '#F59E0B',
@@ -76,6 +77,36 @@ module.exports = {
           lightGray: '#E5E5E5',
           offWhite: '#FAFAFA',
           white: '#FFFFFF',
+        },
+        // CIBC Competition Theme (Dark)
+        cibc: {
+          // Primary Gold
+          primary: '#AE8E1C',
+          primaryDark: '#8B7316',
+          primaryLight: '#C9A82F',
+          primaryMuted: '#D4B84A',
+          // Accent variations
+          accent: '#AE8E1C',
+          accentDark: '#8B7316',
+          accentLight: '#C9A82F',
+          // Backgrounds (Dark Theme)
+          bgMain: '#0D0D0D',
+          bgCard: '#1A1A1A',
+          bgSection: '#2A2A2A',
+          bgLight: '#1A1A1A',
+          // Text (Light for dark background)
+          textPrimary: '#FFFFFF',
+          textSecondary: '#A0A0A0',
+          textMuted: '#6A6A6A',
+          textDark: '#1A1A1A',
+          // Borders
+          border: '#3A3A3A',
+          borderLight: '#2A2A2A',
+          // Semantic
+          success: '#10B981',
+          warning: '#F59E0B',
+          error: '#EF4444',
+          info: '#3B82F6',
         },
       },
       fontFamily: {

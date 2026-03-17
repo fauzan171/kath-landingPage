@@ -48,8 +48,9 @@ export function useAuth(): UseAuthReturn {
     try {
       await logoutService();
       setUser(null);
-    } catch (err) {
+    } catch (error) {
       // Still logout locally even if API fails
+      console.error('Logout error:', error instanceof Error ? error.message : error);
       setUser(null);
     } finally {
       setLoading(false);

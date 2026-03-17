@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Send, CheckCircle, User, Mail, Phone, Building, Upload, Award, FileText, CreditCard, GraduationCap, Users, Calendar, MapPin } from 'lucide-react';
+import { X, Send, CheckCircle, User, Mail, Phone, Building, Upload, Award, FileText, CreditCard, GraduationCap, Users, Calendar, MapPin } from '../icons';
 
 interface CompetitionFormProps {
   isOpen: boolean;

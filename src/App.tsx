@@ -4,8 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
-import { createTestAccount } from './utils/testData';
-import { initializeMockData } from './services/mockData';
+import { initializeCIBCData } from './services/cibcMockData';
 
 // Sections
 import Navigation from './sections/Navigation';
@@ -35,6 +34,12 @@ import MyTeam from './pages/MyTeam';
 import CompetitionDetail from './pages/CompetitionDetail';
 import SubmissionForm from './pages/SubmissionForm';
 import BMCCompetition from './pages/BMCCompetition';
+
+// CIBC Competition Pages
+import CIBCLanding from './pages/cibc/CIBCLanding';
+import CIBCRegister from './pages/cibc/CIBCRegister';
+import CIBCLogin from './pages/cibc/CIBCLogin';
+import CIBCDashboard from './pages/cibc/CIBCDashboard';
 
 // Components
 import BackgroundMusic from './components/BackgroundMusic';
@@ -127,11 +132,8 @@ function App() {
       document.documentElement.lang = siteConfig.language;
     }
 
-    // Create test account for development
-    createTestAccount();
-    
-    // Initialize mock data
-    initializeMockData();
+    // Initialize CIBC mock data (creates test user)
+    initializeCIBCData();
   }, []);
 
   // Check if current route is auth route (no background music)
@@ -143,7 +145,7 @@ function App() {
     '/edit-profile',
     '/settings',
     '/my-teams',
-  ].includes(location.pathname);
+  ].includes(location.pathname) || location.pathname.startsWith('/cibc/');
 
   return (
     <>
@@ -161,6 +163,12 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/my-teams" element={<MyTeam />} />
         <Route path="/bmc-competition" element={<BMCCompetition />} />
+
+        {/* CIBC Competition Routes */}
+        <Route path="/cibc" element={<CIBCLanding />} />
+        <Route path="/cibc/login" element={<CIBCLogin />} />
+        <Route path="/cibc/register" element={<CIBCRegister />} />
+        <Route path="/cibc/dashboard" element={<CIBCDashboard />} />
       </Routes>
     </>
   );

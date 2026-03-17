@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { navigationConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
-import { Menu, X } from 'lucide-react';
+import { Menu, X } from '../icons';
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,7 +23,7 @@ const Navigation = () => {
   useEffect(() => {
     if (navRef.current) {
       gsap.to(navRef.current, {
-        backgroundColor: isScrolled ? 'rgba(250, 250, 250, 0.95)' : 'transparent',
+        backgroundColor: isScrolled ? 'rgba(230, 221, 197, 0.95)' : 'transparent',
         backdropFilter: isScrolled ? 'blur(10px)' : 'blur(0px)',
         duration: 0.3,
         ease: 'power2.out',
@@ -85,7 +85,7 @@ const Navigation = () => {
               <LanguageSwitcher />
               <button
                 onClick={() => scrollToSection('#contact')}
-                className="px-6 py-3 bg-kath-primary hover:bg-kath-primary-dark text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
+                className="px-6 py-3 bg-kath-primary hover:bg-kath-primary-dark text-kath-bg-dark font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300"
               >
                 {navigationConfig.ctaText[language]}
               </button>
@@ -130,7 +130,7 @@ const Navigation = () => {
           ))}
           <button
             onClick={() => scrollToSection('#contact')}
-            className="mt-4 px-8 py-4 bg-kath-primary text-white font-body text-sm uppercase tracking-wider rounded-full"
+            className="mt-4 px-8 py-4 bg-kath-primary text-kath-bg-dark font-body text-sm uppercase tracking-wider rounded-full"
             style={{
               transitionDelay: isMobileMenuOpen ? `${navigationConfig.items.length * 50}ms` : '0ms',
               opacity: isMobileMenuOpen ? 1 : 0,

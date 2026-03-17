@@ -20,7 +20,7 @@ import {
   ArrowRight,
   ChevronLeft,
   Check
-} from 'lucide-react';
+} from '../icons';
 
 interface FormData {
   fullName: string;
@@ -839,7 +839,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark text-white font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
+                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark text-kath-bg-dark font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
                 >
                   Lanjut
                   <ArrowRight className="w-4 h-4" />
@@ -848,7 +848,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-white font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
+                  className="px-8 py-3 bg-kath-primary hover:bg-kath-primary-dark disabled:bg-kath-primary/50 text-kath-bg-dark font-body font-medium rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-kath-primary/25"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

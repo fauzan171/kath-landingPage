@@ -4,10 +4,10 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { 
-  Trophy, Users, Award, Clock, ArrowRight, Rocket, 
+import {
+  Trophy, Users, Award, Clock, ArrowRight, Rocket,
   ChevronRight, Star, Target, TrendingUp, Medal, Sparkles
-} from 'lucide-react';
+} from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -201,9 +201,9 @@ const Competition = () => {
             </span>
           </div>
           <h2 className="font-display text-headline text-kath-text-primary mt-4">
-            <span className="text-gold-gradient">{language === 'id' ? 'Kompetisi' : 'Business'}</span>
+            <span className="text-gold-gradient">{language === 'id' ? 'Kompetisi' : 'Competition'}</span>
             {' '}
-            {language === 'id' ? 'BMC' : 'Model Canvas'}
+            {language === 'id' ? 'Sustainability' : 'Sustainability'}
           </h2>
           <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
             {competitionConfig.sectionDescription[language]}
@@ -260,13 +260,16 @@ const Competition = () => {
                         {language === 'id' ? 'Total Hadiah' : 'Total Prize'}
                       </p>
                       <p className="font-display text-2xl text-kath-primary">
-                        {competitionConfig.mainCompetition.totalPrize}
+                        {competitionConfig.mainCompetition.totalPrize[language as keyof typeof competitionConfig.mainCompetition.totalPrize]}
                       </p>
                     </div>
                   </div>
 
                   <button
-                    onClick={() => navigate('/bmc-competition')}
+                    onClick={() => {
+                      window.scrollTo(0, 0);
+                      navigate('/cibc');
+                    }}
                     className="group btn-gold px-8 py-4 text-white font-body text-sm uppercase tracking-wider rounded-full flex items-center gap-3"
                   >
                     {language === 'id' ? 'Lihat Detail Kompetisi' : 'View Competition Details'}
@@ -393,7 +396,10 @@ const Competition = () => {
               {language === 'id' ? 'Kategori Kompetisi' : 'Competition Categories'}
             </h3>
             <button
-              onClick={() => navigate('/bmc-competition')}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                navigate('/cibc');
+              }}
               className="group flex items-center gap-2 font-body text-sm text-kath-primary hover:text-kath-primary-dark transition-colors"
             >
               {language === 'id' ? 'Lihat Semua' : 'View All'}
@@ -402,10 +408,13 @@ const Competition = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {competitionConfig.categories.map((category, index) => (
+            {competitionConfig.categories.map((category) => (
               <div
                 key={category.id}
-                onClick={() => navigate('/bmc-competition')}
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  navigate('/cibc');
+                }}
                 className="category-card group relative p-6 bg-white border border-kath-primary/10 rounded-2xl hover:border-kath-primary/40 transition-all duration-400 cursor-pointer card-hover-gold overflow-hidden"
               >
                 {/* Hover background effect */}

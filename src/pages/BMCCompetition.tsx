@@ -20,7 +20,7 @@ import {
   Phone,
   Heart,
   Building2
-} from 'lucide-react';
+} from '../icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -433,7 +433,7 @@ const BMCCompetition = () => {
                 <div className="relative">
                   <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-kath-bg-section shadow-lg">
                     <img
-                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80"
+                      src="/cibc/competition-event.webp"
                       alt="BMC Competition"
                       className="w-full h-full object-cover"
                     />

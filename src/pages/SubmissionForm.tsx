@@ -10,7 +10,7 @@ import {
   Send,
   File,
   Trash2
-} from 'lucide-react';
+} from '../icons';
 import {
   getCompetitionById,
   getSubmissionByCompetition,
@@ -63,6 +63,7 @@ const SubmissionForm = () => {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [id]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

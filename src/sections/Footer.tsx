@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook, Linkedin, Twitter } from '../icons';
 import { footerConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
 

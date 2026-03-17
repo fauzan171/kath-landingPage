@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { contactConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight, Twitter, Sparkles } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight, Twitter, Sparkles } from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 

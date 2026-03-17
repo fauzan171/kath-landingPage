@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { servicesConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Heart, Building2, Cake, LayoutGrid, Sparkles, Monitor } from 'lucide-react';
+import { Heart, Building2, Cake, LayoutGrid, Sparkles, Monitor } from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 

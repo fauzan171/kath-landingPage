@@ -24,7 +24,43 @@ export function useApi<T>(
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  const reset = useCallback(() => {
+    setState({ data: null, loading: false, error: null });
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+
+      try {
+        const response = await fetchFunction();
+
+        if (!cancelled) {
+          if (response.success) {
+            setState({ data: response.data, loading: false, error: null });
+          } else {
+            setState({ data: null, loading: false, error: 'Failed to fetch data' });
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+          setState({ data: null, loading: false, error: errorMessage });
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refetch = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
@@ -41,15 +77,7 @@ export function useApi<T>(
     }
   }, [fetchFunction]);
 
-  const reset = useCallback(() => {
-    setState({ data: null, loading: false, error: null });
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { ...state, refetch: fetchData, reset };
+  return { ...state, refetch, reset };
 }
 
 // Hook with params
@@ -63,7 +91,43 @@ export function useApiWithParams<T, P>(
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  const reset = useCallback(() => {
+    setState({ data: null, loading: false, error: null });
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+
+      try {
+        const response = await fetchFunction(params);
+
+        if (!cancelled) {
+          if (response.success) {
+            setState({ data: response.data, loading: false, error: null });
+          } else {
+            setState({ data: null, loading: false, error: 'Failed to fetch data' });
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+          setState({ data: null, loading: false, error: errorMessage });
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
+
+  const refetch = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
@@ -80,15 +144,7 @@ export function useApiWithParams<T, P>(
     }
   }, [fetchFunction, params]);
 
-  const reset = useCallback(() => {
-    setState({ data: null, loading: false, error: null });
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { ...state, refetch: fetchData, reset };
+  return { ...state, refetch, reset };
 }
 
 // Mutation hook for create/update/delete operations

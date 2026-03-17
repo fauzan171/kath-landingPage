@@ -17,7 +17,7 @@ import {
   Loader2,
   CheckCircle2,
   Upload
-} from 'lucide-react';
+} from '../icons';
 
 interface FormData {
   fullName: string;
@@ -167,7 +167,7 @@ const EditProfile = () => {
   };
 
   const inputClasses = (fieldName: string) => `
-    w-full px-4 py-3 bg-white/[0.02] border rounded-xl font-body text-white 
+    w-full px-4 py-3 bg-white/[0.02] border rounded-xl font-body text-white
     placeholder-white/30 focus:outline-none focus:border-kath-gold/50 transition-all
     ${errors[fieldName] ? 'border-red-500/50' : 'border-white/5'}
   `;

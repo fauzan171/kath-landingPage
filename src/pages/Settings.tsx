@@ -19,7 +19,7 @@ import {
   LogOut,
   ToggleLeft,
   ToggleRight
-} from 'lucide-react';
+} from '../icons';
 
 interface PasswordForm {
   currentPassword: string;

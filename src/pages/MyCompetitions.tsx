@@ -26,7 +26,7 @@ import {
   X,
   Trash2,
   AlertCircle
-} from 'lucide-react';
+} from '../icons';
 import {
   getCompetitions,
   getTeams,

@@ -594,7 +594,7 @@ export const getSettings = () => {
   };
 };
 
-export const updateSettings = (settings: any) => {
+export const updateSettings = (settings: Record<string, boolean>) => {
   localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
 };
 
@@ -607,4 +607,114 @@ export const getDashboardStats = () => {
     wins: competitions.filter(c => c.result === 'winner').length,
     certificates: competitions.filter(c => c.status === 'finished').length,
   };
+};
+
+// Service Objects (for Service Factory pattern)
+// These match the interface of api.services.ts
+
+export const competitionService = {
+  getAll: async (filters?: { status?: string; category?: string }): Promise<Competition[]> => {
+    const competitions = getCompetitions();
+    if (filters?.status) {
+      return competitions.filter(c => c.status === filters.status);
+    }
+    if (filters?.category) {
+      return competitions.filter(c => c.category === filters.category);
+    }
+    return competitions;
+  },
+  getById: async (id: string): Promise<Competition | undefined> => {
+    return getCompetitionById(id);
+  },
+  register: async (competitionId: string, _userData: Record<string, unknown>): Promise<{ success: boolean; message: string }> => {
+    const competition = getCompetitionById(competitionId);
+    if (!competition) {
+      return { success: false, message: 'Competition not found' };
+    }
+    updateCompetition(competitionId, { status: 'registered' });
+    return { success: true, message: 'Registration successful' };
+  },
+  update: async (id: string, updates: Partial<Competition>): Promise<Competition | null> => {
+    updateCompetition(id, updates);
+    return getCompetitionById(id) || null;
+  },
+};
+
+export const teamService = {
+  getAll: async (): Promise<Team[]> => {
+    return getTeams();
+  },
+  getById: async (id: string): Promise<Team | undefined> => {
+    return getTeamById(id);
+  },
+  getByCompetition: async (competitionId: string): Promise<Team[]> => {
+    return getTeamsByCompetition(competitionId);
+  },
+  create: async (data: Omit<Team, 'id' | 'createdAt'>): Promise<Team> => {
+    return createTeam(data);
+  },
+  update: async (id: string, updates: Partial<Team>): Promise<Team | null> => {
+    updateTeam(id, updates);
+    return getTeamById(id) || null;
+  },
+  delete: async (id: string): Promise<void> => {
+    deleteTeam(id);
+  },
+  inviteMember: async (teamId: string, email: string): Promise<TeamMember | null> => {
+    return inviteMember(teamId, email);
+  },
+  removeMember: async (teamId: string, memberId: string): Promise<void> => {
+    removeMember(teamId, memberId);
+  },
+};
+
+export const submissionService = {
+  getAll: async (): Promise<Submission[]> => {
+    return getSubmissions();
+  },
+  getByCompetition: async (competitionId: string): Promise<Submission | undefined> => {
+    return getSubmissionByCompetition(competitionId);
+  },
+  create: async (data: Omit<Submission, 'id' | 'submittedAt'>): Promise<Submission> => {
+    return createSubmission(data);
+  },
+  update: async (id: string, updates: Partial<Submission>): Promise<Submission | null> => {
+    return updateSubmission(id, updates);
+  },
+};
+
+export const notificationService = {
+  getAll: async (): Promise<Notification[]> => {
+    return getNotifications();
+  },
+  markAsRead: async (id: string): Promise<void> => {
+    markNotificationAsRead(id);
+  },
+  markAllAsRead: async (): Promise<void> => {
+    markAllNotificationsAsRead();
+  },
+  add: async (notification: Omit<Notification, 'id' | 'time'>): Promise<Notification> => {
+    return addNotification(notification);
+  },
+  delete: async (id: string): Promise<void> => {
+    deleteNotification(id);
+  },
+};
+
+export const profileService = {
+  get: async (): Promise<UserProfile> => {
+    return getProfile();
+  },
+  update: async (profile: UserProfile): Promise<void> => {
+    updateProfile(profile);
+  },
+};
+
+export const settingsService = {
+  get: async (): Promise<Record<string, boolean>> => {
+    return getSettings();
+  },
+  update: async (settings: Record<string, boolean>): Promise<void> => {
+    updateSettings(settings);
+  },
 };
