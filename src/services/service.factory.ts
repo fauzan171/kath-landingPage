@@ -2,10 +2,12 @@
  * Service Factory
  *
  * Provides unified interface for switching between
- * mock and real API implementations
+ * mock, API, and Supabase implementations
+ *
+ * Architecture: Supabase + Google Drive + n8n (100% FREE)
  */
 
-import { env } from '../config/environment';
+import { env, isSupabaseConfigured } from '../config/environment';
 
 export type ServiceType =
   | 'competition'
@@ -16,12 +18,16 @@ export type ServiceType =
   | 'submission'
   | 'notification'
   | 'profile'
-  | 'settings';
+  | 'settings'
+  | 'stage'
+  | 'task'
+  | 'announcement';
 
 /**
  * Service Factory Class
  *
  * Singleton pattern for service instances
+ * Priority: Supabase > Mock > API
  */
 export class ServiceFactory {
   private static instance: ServiceFactory;
@@ -37,10 +43,40 @@ export class ServiceFactory {
 
   /**
    * Get service implementation based on environment
+   *
+   * Priority:
+   * 1. Supabase (if configured)
+   * 2. Mock data (if useMockData or fallback)
+   * 3. API (legacy)
    */
   async getService(type: ServiceType) {
     const useMock = env.useMockData;
+    const useSupabase = isSupabaseConfigured();
 
+    // Supabase services (CIBC Dashboard)
+    if (useSupabase && !useMock) {
+      const supabase = await import('./supabase.service');
+      const { supabaseServices } = supabase;
+
+      switch (type) {
+        case 'auth':
+          return supabaseServices.auth;
+        case 'competition':
+          return supabaseServices.competition;
+        case 'stage':
+          return supabaseServices.stage;
+        case 'task':
+          return supabaseServices.task;
+        case 'team':
+          return supabaseServices.team;
+        case 'submission':
+          return supabaseServices.submission;
+        case 'announcement':
+          return supabaseServices.announcement;
+      }
+    }
+
+    // Legacy services (KATH Landing Page)
     switch (type) {
       case 'competition':
         if (useMock) {
@@ -59,11 +95,21 @@ export class ServiceFactory {
           const m = await import('./mockData');
           return m.teamService;
         }
+        // Fallback to Supabase if available
+        if (useSupabase) {
+          const supabase = await import('./supabase.service');
+          return supabase.supabaseServices.team;
+        }
         throw new Error('Team API service not implemented');
       case 'submission':
         if (useMock) {
           const m = await import('./mockData');
           return m.submissionService;
+        }
+        // Fallback to Supabase if available
+        if (useSupabase) {
+          const supabase = await import('./supabase.service');
+          return supabase.supabaseServices.submission;
         }
         throw new Error('Submission API service not implemented');
       case 'notification':
@@ -84,6 +130,27 @@ export class ServiceFactory {
           return m.settingsService;
         }
         throw new Error('Settings API service not implemented');
+      case 'stage':
+        // Only available via Supabase
+        if (useSupabase) {
+          const supabase = await import('./supabase.service');
+          return supabase.supabaseServices.stage;
+        }
+        throw new Error('Stage service requires Supabase configuration');
+      case 'task':
+        // Only available via Supabase
+        if (useSupabase) {
+          const supabase = await import('./supabase.service');
+          return supabase.supabaseServices.task;
+        }
+        throw new Error('Task service requires Supabase configuration');
+      case 'announcement':
+        // Only available via Supabase
+        if (useSupabase) {
+          const supabase = await import('./supabase.service');
+          return supabase.supabaseServices.announcement;
+        }
+        throw new Error('Announcement service requires Supabase configuration');
       default:
         throw new Error(`Unknown service type: ${type}`);
     }
@@ -95,4 +162,11 @@ export class ServiceFactory {
  */
 export function getService<T extends ServiceType>(type: T) {
   return ServiceFactory.getInstance().getService(type);
+}
+
+/**
+ * Check if CIBC Dashboard services are available
+ */
+export function isCIBCDashboardAvailable(): boolean {
+  return isSupabaseConfigured();
 }

@@ -1,109 +1,174 @@
-# Kaleo Template
+# KATH Event Organizer - CIBC Dashboard
 
-An editorial, earth-toned single-page website template with premium scroll-driven animations. Built with React, TypeScript, Tailwind CSS, GSAP, and Lenis smooth scrolling. Features a warm organic color palette (sand, cream, terracotta, charcoal) with serif/sans-serif typography pairing.
+Landing page dan platform kompetisi BMC untuk **CIBC Power by KATH 2026**.
 
-## Features
+## 🏗️ Arsitektur
 
-- **Hero Section** - Full-viewport hero with Ken Burns background, parallax scrolling, and fade-out text
-- **Narrative Text** - Scroll-triggered text reveal with spinning star decorations
-- **Card Stack** - Pinned scroll-driven card gallery with stacking/parallax effect
-- **Breath Section** - Cinematic image banner with scale-up scroll animation and rounded corners
-- **ZigZag Grid** - Alternating image/text layout with internal parallax on images
-- **Footer** - Dark footer with magnetic button effect, parallax background, and contact grid
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FRONTEND (React + Vite)                  │
+│                    Deploy: Cloudflare Pages                     │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                ┌───────────────┼───────────────┐
+                ▼               ▼               ▼
+        ┌───────────────┐ ┌──────────┐ ┌─────────────────┐
+        │   SUPABASE    │ │   n8n    │ │  GOOGLE DRIVE   │
+        │  PostgreSQL   │ │ Workflow │ │    Storage      │
+        │   (500MB)     │ │ (FREE)   │ │    (15GB)       │
+        │   $0/month    │ │ $0/month │ │   $0/month      │
+        └───────────────┘ └──────────┘ └─────────────────┘
+```
 
-## Tech Stack
+**Total Cost: $0/bulan** ✨
 
-- React 19 + TypeScript
-- Vite
-- Tailwind CSS 3 with custom theme
-- GSAP (ScrollTrigger) for scroll-driven animations
-- Lenis for smooth scrolling
-- Lucide React for icons
-- Cormorant Garamond (display) + Inter (body) fonts
+## 🚀 Deploy ke Cloudflare
 
-## Quick Start
+### Prerequisites
+
+- Node.js 20+
+- Cloudflare account
+- Supabase project (sudah di-setup)
+- n8n instance (opsional, untuk file upload)
+
+### Step 1: Install Dependencies
 
 ```bash
 npm install
-npm run dev
 ```
 
-## Configuration
+### Step 2: Set Environment Variables
 
-All content is managed through `src/config.ts`. Edit the exported config objects to populate the template.
+```bash
+# Copy template
+cp .env.example .env
 
-### siteConfig
-- `language` - HTML lang attribute (e.g., `"en"`, `"zh"`)
-- `siteName` - Site name
-- `siteDescription` - Site meta description
+# Edit dengan credentials Anda
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_N8N_WEBHOOK_URL=https://your-n8n.com/webhook
+```
 
-### heroConfig
-- `backgroundImage` - Hero background image path
-- `backgroundAlt` - Alt text for background image
-- `title` - Large display title text
-- `subtitle` - Smaller subtitle below title
+### Step 3: Build & Preview
 
-### narrativeTextConfig
-- `line1` - Main headline text (large serif)
-- `line2` - Subheadline text (italic serif)
-- `line3` - Body paragraph text (sans-serif)
+```bash
+# Build
+npm run build
 
-### breathSectionConfig
-- `backgroundImage` - Section background image path
-- `backgroundAlt` - Alt text for background image
-- `title` - Large display overlay text
-- `subtitle` - Smaller subtitle below title
-- `description` - Paragraph text below the image section
+# Preview lokal
+npm run preview
+```
 
-### cardStackConfig
-- `sectionTitle` - Section heading
-- `sectionSubtitle` - Section subheading
-- `cards[]` - Array of card objects:
-  - `id` - Unique number identifier
-  - `image` - Card image path
-  - `title` - Card title
-  - `description` - Card description
-  - `rotation` - Card tilt angle in degrees (e.g., `-2`, `1.5`)
+### Step 4: Deploy ke Cloudflare
 
-### zigZagGridConfig
-- `sectionLabel` - Small uppercase label above title
-- `sectionTitle` - Section heading
-- `items[]` - Array of grid items:
-  - `id` - Unique string identifier
-  - `title` - Item title
-  - `subtitle` - Small uppercase label
-  - `description` - Item description paragraph
-  - `image` - Item image path
-  - `imageAlt` - Alt text for image
-  - `reverse` - Boolean, if true the image appears on the right
+**Option A: Via Wrangler CLI**
 
-### footerConfig
-- `heading` - Footer CTA heading
-- `description` - Footer CTA description
-- `ctaText` - CTA button label
-- `contact[]` - Array of contact items (`type`, `label`, `value`, `href`)
-- `locationLabel` - Address section label
-- `address[]` - Array of address lines
-- `socialLabel` - Social section label
-- `socials[]` - Array of social links (`platform`, `href`)
-- `logoText` - Large footer logo text
-- `copyright` - Copyright line
-- `links[]` - Array of footer links (`label`, `href`)
+```bash
+# Login ke Cloudflare
+npx wrangler login
 
-## Required Images
+# Deploy
+npm run deploy
+```
 
-Place images in the `public/` directory:
+**Option B: Via Cloudflare Dashboard**
 
-- **Hero**: 1 full-screen background image (landscape, high-res)
-- **Breath Section**: 1 wide cinematic image (16:9 or 21:9 aspect)
-- **Card Stack**: 1 image per card (4:3 aspect recommended)
-- **ZigZag Grid**: 1 image per grid item (4:3 aspect recommended)
-- **Footer**: 1 atmospheric background image (optional, displayed at 30% opacity)
+1. Buka [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Pilih **Pages** → **Create a project**
+3. Connect GitHub repository
+4. Configure build:
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+   - Root directory: `/`
+5. Set environment variables di Settings → Environment variables
 
-## Design
+### Step 5: Set Environment Variables di Cloudflare
 
-- **Color palette**: Warm sand (#EAE4D9), cream (#F3F0EB), terracotta (#8C7B6B), charcoal (#1C1C1C), earth (#2A2A2A)
-- **Typography**: Cormorant Garamond (headings) + Inter (body)
-- **Layout**: Single-page editorial flow, max-width 7xl container
-- **Animations**: GSAP-powered scroll-triggered reveals, parallax, Ken Burns, magnetic buttons, card stacking
-- **Smooth scrolling**: Lenis with GSAP ticker integration
+Di Cloudflare Pages Dashboard → Settings → Environment variables:
+
+```
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJxxx...
+VITE_N8N_WEBHOOK_URL=https://your-n8n.com/webhook
+VITE_APP_NAME=KATH Event Organizer
+VITE_APP_URL=https://your-site.pages.dev
+```
+
+## 📁 Struktur Project
+
+```
+kath-laddingpage/
+├── src/
+│   ├── components/        # React components
+│   ├── sections/          # Page sections
+│   ├── services/          # API services
+│   │   ├── supabase.service.ts    # CIBC services
+│   │   └── supabaseNews.service.ts # News service
+│   ├── lib/
+│   │   └── supabase.ts    # Supabase client
+│   └── config/
+│       └── environment.ts # Env configuration
+├── public/
+│   ├── _headers           # Cloudflare security headers
+│   └── _redirects         # SPA routing
+├── supabase/
+│   ├── schema.sql         # Database schema
+│   ├── seed.sql           # Seed data
+│   └── migrations/        # Migration files
+├── n8n/
+│   └── cibc-upload-workflow.json  # File upload workflow
+├── docs/                  # Documentation
+├── dist/                  # Build output
+├── wrangler.jsonc         # Cloudflare config
+└── vite.config.ts         # Vite config
+```
+
+## 🛠️ Scripts
+
+```bash
+npm run dev      # Development server
+npm run build    # Build for production
+npm run preview  # Preview build locally
+npm run deploy   # Deploy to Cloudflare
+npm run lint     # Run ESLint
+```
+
+## 📊 Services
+
+| Service | Methods | Description |
+|---------|---------|-------------|
+| Auth | 8 | Authentication |
+| Competition | 10 | Single competition + timeline |
+| Stage | 4 | Stage management |
+| Task | 5 | Task management |
+| Team | 6 | Team management |
+| Submission | 8 | Submission + file upload |
+| Announcement | 4 | Announcements |
+| News | 14 | News CRUD |
+
+## 🔐 Security
+
+- Row Level Security (RLS) di Supabase
+- Content Security Policy (CSP) headers
+- X-Frame-Options: DENY
+- HTTPS enforced by Cloudflare
+
+## 📚 Dokumentasi
+
+Lihat folder `docs/` untuk dokumentasi lengkap:
+- `docs/guides/SETUP.md` - Setup guide
+- `docs/specs/` - Technical specifications
+- `docs/prompts/` - Development prompts
+
+## 🎨 Tech Stack
+
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Animation**: GSAP, Lenis
+- **Database**: Supabase PostgreSQL
+- **Storage**: Google Drive (via n8n)
+- **Deployment**: Cloudflare Pages
+
+## 📝 License
+
+MIT License - KATH Event Organizer

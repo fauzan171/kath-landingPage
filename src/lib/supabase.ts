@@ -1,0 +1,546 @@
+// ============================================
+// Supabase Client Configuration
+// ============================================
+//
+// Architecture:
+// - Database: Supabase PostgreSQL (FREE 500MB)
+// - Storage: Google Drive via n8n (FREE 15GB)
+// - Total Cost: $0/month
+//
+// ============================================
+
+import { createClient } from '@supabase/supabase-js';
+
+// Environment variables (set in .env)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+// Create Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
+
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+
+export type UserRole = 'super_admin' | 'admin' | 'judge' | 'observer';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  avatar_url?: string;
+  is_active: boolean;
+  last_login_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserRoleAssignment {
+  id: string;
+  user_id: string;
+  competition_id?: string;
+  role: UserRole;
+  permissions: string[];
+}
+
+export interface Competition {
+  id: string;
+  code: string;
+  name: string;
+  subtitle?: string;
+  description?: string;
+  status: 'draft' | 'upcoming' | 'active' | 'completed' | 'archived';
+  registration_start?: string;
+  registration_end?: string;
+  event_start?: string;
+  event_end?: string;
+  config: {
+    totalPrize?: string;
+    maxTeamSize?: number;
+    minTeamSize?: number;
+    categories?: Array<{
+      id: string;
+      name: string;
+      nameId?: string;
+      prize?: string;
+      description?: string;
+    }>;
+  };
+  theme: {
+    primaryColor?: string;
+    secondaryColor?: string;
+    heroImage?: string;
+    logo?: string;
+  };
+  settings: {
+    autoProgressStages?: boolean;
+    publicLeaderboard?: boolean;
+    blindGrading?: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Stage {
+  id: string;
+  competition_id: string;
+  name: string;
+  name_id?: string;
+  description?: string;
+  order_index: number;
+  start_date: string;
+  end_date: string;
+  status: 'draft' | 'upcoming' | 'active' | 'completed';
+  is_active: boolean;
+  is_visible: boolean;
+  auto_progress: boolean;
+  requires_all_tasks: boolean;
+}
+
+export interface Task {
+  id: string;
+  stage_id: string;
+  competition_id: string;
+  name: string;
+  name_id?: string;
+  description?: string;
+  instructions?: string;
+  type: 'file_upload' | 'text_input' | 'link_submit' | 'quiz' | 'attendance';
+  max_file_size_mb?: number;
+  allowed_extensions?: string[];
+  deadline?: string;
+  is_required: boolean;
+  is_published: boolean;
+  rubric?: Array<{
+    id: string;
+    name: string;
+    nameId?: string;
+    maxScore: number;
+    weight: number;
+  }>;
+  custom_fields?: Array<{
+    id: string;
+    label: string;
+    labelId?: string;
+    type: string;
+    required?: boolean;
+    placeholder?: string;
+    options?: string[];
+  }>;
+  order_index: number;
+}
+
+export interface Team {
+  id: string;
+  competition_id: string;
+  name: string;
+  code?: string;
+  category?: 'startup' | 'student' | 'corporate';
+  status: 'draft' | 'pending_review' | 'registered' | 'active' | 'disqualified' | 'withdrawn';
+  institution?: string;
+  country?: string;
+  total_score?: number;
+  rank?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TeamMember {
+  id: string;
+  team_id: string;
+  user_id?: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  student_id?: string;
+  institution?: string;
+  major?: string;
+  position?: string;
+  role: 'leader' | 'member' | 'mentor';
+  is_active: boolean;
+  joined_at: string;
+}
+
+export interface Submission {
+  id: string;
+  task_id: string;
+  team_id: string;
+  competition_id: string;
+  submitted_by?: string;
+  submitted_at?: string;
+
+  // File metadata (Google Drive URL - string only!)
+  file_url?: string;        // https://drive.google.com/file/d/xxx/view
+  file_name?: string;
+  file_size?: number;       // bytes
+  file_type?: string;       // MIME type
+  drive_file_id?: string;   // Google Drive file ID
+
+  // Content
+  content?: string;
+  field_values?: Record<string, unknown>;
+
+  // Status
+  status: 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final';
+
+  // Grading
+  total_score?: number;
+  graded_by?: string;
+  graded_at?: string;
+  feedback?: string;
+  criteria_scores?: Record<string, number>;
+
+  // Late submission
+  is_late: boolean;
+  penalty_applied?: number;
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Announcement {
+  id: string;
+  competition_id: string;
+  title: string;
+  title_id?: string;
+  content: string;
+  content_id?: string;
+  type: 'general' | 'urgent' | 'result' | 'reminder' | 'system';
+  is_published: boolean;
+  published_at?: string;
+  views_count: number;
+  created_at: string;
+}
+
+// ============================================
+// AUTH HELPERS
+// ============================================
+
+export async function signUp(email: string, password: string, metadata?: Record<string, unknown>) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: metadata
+    }
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function signIn(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+export async function getCurrentUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+
+export async function getSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
+}
+
+// ============================================
+// FILE UPLOAD HELPER (via n8n → Google Drive)
+// ============================================
+
+export async function uploadFileToDrive(
+  file: File,
+  taskId: string,
+  teamId: string
+): Promise<{
+  fileUrl: string;
+  driveFileId: string;
+  fileName: string;
+  fileSize: number;
+}> {
+  if (!n8nWebhookUrl) {
+    throw new Error('N8N_WEBHOOK_URL is not configured');
+  }
+
+  // Create form data
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('taskId', taskId);
+  formData.append('teamId', teamId);
+  formData.append('fileName', file.name);
+  formData.append('fileSize', file.size.toString());
+
+  // Upload via n8n webhook
+  const response = await fetch(`${n8nWebhookUrl}/upload-pdf`, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+    throw new Error(error.message || 'Failed to upload file');
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || 'Upload failed');
+  }
+
+  return {
+    fileUrl: result.fileUrl,
+    driveFileId: result.driveFileId,
+    fileName: result.fileName,
+    fileSize: parseInt(result.fileSize, 10)
+  };
+}
+
+// ============================================
+// SUBMISSION HELPERS
+// ============================================
+
+export async function createSubmission(
+  taskId: string,
+  teamId: string,
+  competitionId: string,
+  file: File
+): Promise<Submission> {
+  // 1. Upload file to Google Drive via n8n
+  const uploadResult = await uploadFileToDrive(file, taskId, teamId);
+
+  // 2. Save metadata to Supabase (URL string only!)
+  const { data, error } = await supabase
+    .from('submissions')
+    .insert({
+      task_id: taskId,
+      team_id: teamId,
+      competition_id: competitionId,
+      file_url: uploadResult.fileUrl,        // Google Drive URL
+      file_name: uploadResult.fileName,
+      file_size: uploadResult.fileSize,
+      file_type: file.type,
+      drive_file_id: uploadResult.driveFileId,
+      status: 'submitted',
+      submitted_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getTeamSubmissions(teamId: string): Promise<Submission[]> {
+  const { data, error } = await supabase
+    .from('submissions')
+    .select(`
+      *,
+      tasks (
+        id,
+        name,
+        stage_id
+      )
+    `)
+    .eq('team_id', teamId)
+    .order('submitted_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getSubmissionById(submissionId: string): Promise<Submission | null> {
+  const { data, error } = await supabase
+    .from('submissions')
+    .select(`
+      *,
+      tasks (
+        id,
+        name,
+        rubric
+      ),
+      teams (
+        id,
+        name,
+        institution
+      )
+    `)
+    .eq('id', submissionId)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
+// ============================================
+// COMPETITION HELPERS
+// ============================================
+
+export async function getCompetitionByCode(code: string): Promise<Competition | null> {
+  const { data, error } = await supabase
+    .from('competitions')
+    .select('*')
+    .eq('code', code)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
+export async function getActiveCompetitions(): Promise<Competition[]> {
+  const { data, error } = await supabase
+    .from('competitions')
+    .select('*')
+    .in('status', ['active', 'upcoming'])
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// ============================================
+// STAGE & TASK HELPERS
+// ============================================
+
+export async function getCompetitionStages(competitionId: string): Promise<Stage[]> {
+  const { data, error } = await supabase
+    .from('stages')
+    .select('*')
+    .eq('competition_id', competitionId)
+    .order('order_index', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getStageTasks(stageId: string): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('stage_id', stageId)
+    .eq('is_published', true)
+    .order('order_index', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// ============================================
+// TEAM HELPERS
+// ============================================
+
+export async function createTeam(
+  competitionId: string,
+  name: string,
+  category: string,
+  institution?: string
+): Promise<Team> {
+  const { data, error } = await supabase
+    .from('teams')
+    .insert({
+      competition_id: competitionId,
+      name,
+      category,
+      institution,
+      status: 'draft'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function addTeamMember(
+  teamId: string,
+  member: {
+    full_name: string;
+    email: string;
+    phone?: string;
+    student_id?: string;
+    institution?: string;
+    major?: string;
+    position?: string;
+    role?: 'leader' | 'member' | 'mentor';
+  }
+): Promise<TeamMember> {
+  const { data, error } = await supabase
+    .from('team_members')
+    .insert({
+      team_id: teamId,
+      ...member,
+      role: member.role || 'member'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getTeamById(teamId: string): Promise<(Team & { members: TeamMember[] }) | null> {
+  const { data: team, error: teamError } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('id', teamId)
+    .single();
+
+  if (teamError) return null;
+
+  const { data: members, error: membersError } = await supabase
+    .from('team_members')
+    .select('*')
+    .eq('team_id', teamId)
+    .eq('is_active', true);
+
+  if (membersError) throw membersError;
+
+  return {
+    ...team,
+    members: members || []
+  };
+}
+
+// ============================================
+// ANNOUNCEMENT HELPERS
+// ============================================
+
+export async function getPublishedAnnouncements(competitionId: string): Promise<Announcement[]> {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .eq('competition_id', competitionId)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// ============================================
+// EXPORTS
+// ============================================
+
+export { n8nWebhookUrl };
+export default supabase;

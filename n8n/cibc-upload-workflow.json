@@ -1,0 +1,214 @@
+{
+  "name": "CIBC PDF to Google Drive",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "upload-pdf",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b3e4f5a6-7890-1234-5678-90abcdef1234",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "cibc-upload-pdf"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.file.mimetype }}",
+              "operation": "equals",
+              "value2": "application/pdf"
+            }
+          ],
+          "number": [
+            {
+              "value1": "={{ $json.file.fileSize }}",
+              "operation": "smallerThan",
+              "value2": 10485760
+            }
+          ]
+        }
+      },
+      "id": "c4d5e6f7-8901-2345-6789-01abcdef2345",
+      "name": "Validate File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.file.fileName }}",
+        "binaryData": true,
+        "binaryPropertyName": "file",
+        "options": {
+          "folderId": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+          "useFileName": true
+        }
+      },
+      "id": "d5e6f7a8-9012-3456-7890-12abcdef3456",
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [650, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": "={{ $json.id }}",
+        "permissions": [
+          {
+            "role": "reader",
+            "type": "anyone"
+          }
+        ]
+      },
+      "id": "e6f7a8b9-0123-4567-8901-23abcdef4567",
+      "name": "Set Public Permission",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [850, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "success",
+              "value": "true"
+            },
+            {
+              "name": "fileUrl",
+              "value": "={{ 'https://drive.google.com/file/d/' + $json.id + '/view' }}"
+            },
+            {
+              "name": "driveFileId",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "fileName",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "fileSize",
+              "value": "={{ $json.size }}"
+            },
+            {
+              "name": "mimeType",
+              "value": "={{ $json.mimeType }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f7a8b9c0-1234-5678-9012-34abcdef5678",
+      "name": "Format Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "success",
+              "value": "false"
+            },
+            {
+              "name": "error",
+              "value": "Invalid file. Only PDF files under 10MB are allowed."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8b9c0d1-2345-6789-0123-45abcdef6789",
+      "name": "Format Error Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [650, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Set Public Permission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Public Permission": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "meta": {
+    "instanceId": "cibc-n8n-instance"
+  },
+  "active": true
+}
