@@ -42,7 +42,7 @@ import CIBCLogin from './pages/cibc/CIBCLogin';
 import CIBCDashboard from './pages/cibc/CIBCDashboard';
 
 // Components
-import BackgroundMusic from './components/BackgroundMusic';
+// import BackgroundMusic from './components/BackgroundMusic';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,7 +68,7 @@ const LandingPage = () => {
   return (
     <div className="relative bg-kath-bg-main min-h-screen">
       {/* Background Music - Premium Classical */}
-      <BackgroundMusic />
+      {/* <BackgroundMusic /> */}
 
       {/* Navigation */}
       <Navigation />
@@ -143,20 +143,20 @@ function App() {
     initializeCIBCData();
   }, []);
 
-  // Check if current route is auth route (no background music)
-  const isAuthRoute = [
-    '/register',
-    '/login',
-    '/dashboard',
-    '/my-competitions',
-    '/edit-profile',
-    '/settings',
-    '/my-teams',
-  ].includes(location.pathname) || location.pathname.startsWith('/cibc/');
+  // // Check if current route is auth route (no background music)
+  // const isAuthRoute = [
+  //   '/register',
+  //   '/login',
+  //   '/dashboard',
+  //   '/my-competitions',
+  //   '/edit-profile',
+  //   '/settings',
+  //   '/my-teams',
+  // ].includes(location.pathname) || location.pathname.startsWith('/cibc/');
 
   return (
     <>
-      {!isAuthRoute && <BackgroundMusic />}
+      {/* {!isAuthRoute && <BackgroundMusic />} */}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />

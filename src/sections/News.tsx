@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { newsConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, ArrowRight, User, X, Clock, Tag } from '../icons';
+import { Calendar, ArrowRight, User, X, Clock, Tag } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,15 +14,11 @@ const News = () => {
   const { language } = useLanguage();
 
   const [selectedNews, setSelectedNews] = useState<typeof newsConfig.items[0] | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>('');
 
-  // Default category based on language
-  const defaultCategory = language === 'id' ? 'Semua' : 'All';
-  const [activeCategory, setActiveCategory] = useState<string>(defaultCategory);
-
-  // Sync category with language changes
+  // Set initial category based on language
   useEffect(() => {
     setActiveCategory(language === 'id' ? 'Semua' : 'All');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [language]);
 
   const categories = [

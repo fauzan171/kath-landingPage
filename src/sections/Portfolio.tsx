@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { portfolioConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { MapPin, Calendar, ArrowUpRight } from '../icons';
+import { MapPin, Calendar, ArrowUpRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 

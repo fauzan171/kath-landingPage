@@ -101,7 +101,7 @@ const Statistics = () => {
           {statItems.map((stat, index) => (
             <div
               key={stat.key}
-              className="text-center group p-6 bg-white rounded-2xl border border-kath-bg-section hover:border-kath-primary/20 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300"
+              className="text-center group"
               style={{
                 animationDelay: `${index * 100}ms`,
               }}

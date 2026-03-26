@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { testimonialsConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Quote, ChevronLeft, ChevronRight, Star } from '../icons';
+import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 

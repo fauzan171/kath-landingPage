@@ -140,21 +140,23 @@ const NarrativeText = () => {
             {narrativeTextConfig.line2[language]}
           </p>
 
-          <p ref={line3Ref} className="font-body text-sm md:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          {/* Diubah dari text-gray-600 menjadi text-[#0F0F0F]/70 */}
+          <p ref={line3Ref} className="font-body text-sm md:text-base text-[#0F0F0F]/70 max-w-2xl mx-auto leading-relaxed">
             {narrativeTextConfig.line3[language]}
           </p>
         </div>
 
-        {/* Stats Grid - Border Atas diganti ke Emas #FFB22C/20 */}
+        {/* Stats Grid */}
         <div
           ref={statsRef}
           className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-16 border-t border-[#FFB22C]/20"
         >
+          {/* Diubah teks label dari text-gray-500 menjadi text-[#0F0F0F]/60 */}
           <div className="text-center">
             <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.years}
             </span>
-            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Tahun' : 'Years'}
             </p>
           </div>
@@ -162,7 +164,7 @@ const NarrativeText = () => {
             <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.events}
             </span>
-            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Event' : 'Events'}
             </p>
           </div>
@@ -170,7 +172,7 @@ const NarrativeText = () => {
             <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.clients}
             </span>
-            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Klien' : 'Clients'}
             </p>
           </div>
@@ -178,7 +180,7 @@ const NarrativeText = () => {
             <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.awards}
             </span>
-            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Penghargaan' : 'Awards'}
             </p>
           </div>
