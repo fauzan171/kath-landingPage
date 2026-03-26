@@ -26,11 +26,11 @@ export interface HeroConfig {
 }
 
 export const heroConfig: HeroConfig = {
-  backgroundImage: "/hero-bg.webp",
+  backgroundImage: "/hero-pic2.webp",
   backgroundAlt: "Luxury Event Venue by KATH Event Organizer",
   title: t(
-    "We Create\nUnforgettable\nMoments",
-    "We Create\nUnforgettable\nMoments"
+    "We Create,Unforgettable\nMoments",
+    "We Create,Unforgettable\nMoments"
   ),
   subtitle: t(
     "Mengubah visi Anda menjadi pengalaman luar biasa sejak 2019.",

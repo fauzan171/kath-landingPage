@@ -3,17 +3,17 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { servicesConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Heart, Building2, Cake, LayoutGrid, Sparkles, Monitor } from '../icons';
+import { ArrowUpRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const iconMap: Record<string, React.ElementType> = {
-  Heart,
-  Building2,
-  Cake,
-  LayoutGrid,
-  Sparkles,
-  Monitor,
+const customIconMap: Record<string, string> = {
+  Heart: '/assets/hearth.png', 
+  Building2: '/assets/workplace1.png', 
+  Cake: '/assets/cake.png', 
+  LayoutGrid: '/assets/exhibition.png', 
+  Sparkles: '/assets/party.png', 
+  Monitor: '/assets/virtual-party.png', 
 };
 
 const Services = () => {
@@ -49,9 +49,9 @@ const Services = () => {
     });
     triggers.push(headerTrigger);
 
-    // Cards animation
-    const cardElements = cards.querySelectorAll('.service-card');
-    gsap.set(cardElements, { opacity: 0, y: 50 });
+    // Grid Items animation
+    const cardElements = cards.querySelectorAll('.service-item');
+    gsap.set(cardElements, { opacity: 0, y: 30 });
     const cardsTrigger = ScrollTrigger.create({
       trigger: cards,
       start: 'top 75%',
@@ -69,7 +69,7 @@ const Services = () => {
     triggers.push(cardsTrigger);
 
     return () => {
-      triggers.forEach(trigger => trigger.kill());
+      triggers.forEach((trigger) => trigger.kill());
     };
   }, []);
 
@@ -79,67 +79,118 @@ const Services = () => {
     <section
       ref={sectionRef}
       id="services"
-      className="relative w-full bg-kath-bg-main py-24 md:py-32"
+      className="relative w-full bg-[#F9F8F6] py-24 md:py-32"
     >
+      {/* Header */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
-        {/* Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16 lg:mb-20">
-          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {servicesConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-text-primary mt-4">
+          <h2 className="font-display text-4xl md:text-5xl text-[#0F0F0F] mt-4 font-medium">
             {servicesConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto px-4">
+          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto px-4">
             {servicesConfig.sectionDescription[language]}
           </p>
         </div>
+      </div>
 
-        {/* Services Grid */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+      {/* Services Grid Layout */}
+      <div className="w-full border-t border-[#0F0F0F]/10">
+        <div
+          ref={cardsRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full"
+        >
           {servicesConfig.services.map((service) => {
-            const Icon = iconMap[service.icon] || Sparkles;
+            const iconUrl = customIconMap[service.icon] || customIconMap.Sparkles;
+
             return (
               <div
                 key={service.id}
-                className="service-card group relative p-6 sm:p-8 bg-white border border-kath-bg-section rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-500 card-hover"
+                className="service-item group relative h-[260px] md:h-[280px] border-b border-[#0F0F0F]/10 md:border-r overflow-hidden bg-[#F9F8F6] transition-colors duration-500 hover:bg-white cursor-pointer"
               >
-                {/* Icon */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-kath-primary/10 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-kath-primary/20 transition-colors duration-300">
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-kath-primary" />
+                
+                {/* --- DEKORASI PANAH (ARROW) YANG SEJAJAR --- */}
+                {/* 1. `top-8 md:top-10` menyamakan padding p-8 md:p-10 dari konten di bawahnya.
+                  2. `h-12 md:h-14` menyamakan tinggi persis kotak ikon utama agar center sejajar.
+                */}
+                <div className="absolute top-8 right-8 md:top-10 md:right-10 h-12 md:h-14 flex items-center z-20 pointer-events-none">
+                  <ArrowUpRight 
+                    className="w-5 h-5 md:w-6 md:h-6 transition-all duration-300 text-[#0F0F0F]/20 group-hover:text-[#FFB22C] group-hover:-translate-y-1 group-hover:translate-x-1" 
+                    strokeWidth={1.5} 
+                  />
                 </div>
 
-                {/* Content */}
-                <h3 className="font-display text-xl sm:text-2xl text-kath-text-primary mb-2 sm:mb-3">
-                  {service.title[language]}
-                </h3>
-                <p className="font-body text-sm text-kath-text-secondary mb-4 sm:mb-6 leading-relaxed">
-                  {service.description[language]}
-                </p>
+                {/* --- STATE NORMAL --- */}
+                {/* Diubah dari justify-center menjadi justify-start agar menempel di atas (p-8 md:p-10) */}
+                <div className="absolute inset-0 flex flex-col items-start justify-start p-8 md:p-10 transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:-translate-y-4">
+                  
+                  {/* Kotak Ikon Utama - Tingginya persis dengan wadah panah di atas (h-12 md:h-14) */}
+                  <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-[#0F0F0F]/10 rounded-2xl bg-white shadow-sm mb-5 flex-shrink-0">
+                    <img 
+                      src={iconUrl} 
+                      alt={service.title[language]}
+                      className="w-6 h-6 md:w-7 md:h-7 object-contain"
+                      style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-display text-xl md:text-2xl text-[#0F0F0F] font-semibold mb-2 pr-8">
+                      {service.title[language]}
+                    </h3>
+                    <p className="font-body text-sm text-[#0F0F0F]/60 line-clamp-2 pr-4">
+                      {service.description[language]}
+                    </p>
+                  </div>
 
-                {/* Features */}
-                <ul className="space-y-2">
-                  {service.features.map((feature, index) => (
-                    <li
-                      key={index}
-                      className="font-body text-xs text-kath-text-muted flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-kath-primary" />
-                      {feature[language]}
-                    </li>
-                  ))}
-                </ul>
+                </div>
 
-                {/* Hover glow effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-kath-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                {/* --- STATE HOVER --- */}
+                {/* Diubah dari justify-center menjadi justify-start agar transisi konsisten di atas */}
+                <div className="absolute inset-0 flex flex-col items-start justify-start p-8 md:p-10 opacity-0 translate-y-8 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:translate-y-0 bg-white">
+                  
+                  {/* Memberikan h-12 md:h-14 di header hover ini agar teks judulnya juga ikut sejajar dengan panah */}
+                  <div className="flex items-center gap-4 mb-5 h-12 md:h-14 w-full">
+                    <div className="w-10 h-10 flex items-center justify-center border border-[#0F0F0F]/10 rounded-xl bg-[#F9F8F6] flex-shrink-0">
+                       <img 
+                        src={iconUrl} 
+                        alt="" 
+                        className="w-5 h-5 object-contain" 
+                        style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }}
+                      />
+                    </div>
+                    <h3 className="font-display text-xl md:text-xl text-[#0F0F0F] font-semibold pr-8 line-clamp-2">
+                      {service.title[language]}
+                    </h3>
+                  </div>
+                  
+                  <ul className="space-y-2.5 mt-1 w-full">
+                    {service.features.map((feature, index) => (
+                      <li
+                        key={index}
+                        className="font-body text-sm text-[#0F0F0F]/70 flex items-start gap-3"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FFB22C] flex-shrink-0 mt-1.5" />
+                        <span className="pr-4">{feature[language]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Garis Emas Tipis di bawah saat hover */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#FFB22C] scale-x-0 origin-left transition-transform duration-500 ease-out group-hover:scale-x-100" />
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Section divider */}
-      <div className="section-divider mt-20 md:mt-24 lg:mt-32" />
+      {/* Garis Emas Tipis Bawah */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 mt-20 md:mt-24 lg:mt-32">
+        <div className="h-[1px] w-full bg-[#FFB22C]/30" />
+      </div>
     </section>
   );
 };

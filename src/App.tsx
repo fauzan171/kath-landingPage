@@ -15,7 +15,7 @@ import Portfolio from './sections/Portfolio';
 import CardStack from './sections/CardStack';
 import Competition from './sections/Competition';
 import News from './sections/News';
-import BreathSection from './sections/BreathSection';
+// import BreathSection from './sections/BreathSection';
 import Testimonials from './sections/Testimonials';
 import Statistics from './sections/Statistics';
 import ZigZagGrid from './sections/ZigZagGrid';
@@ -100,7 +100,7 @@ const LandingPage = () => {
       <News />
 
       {/* BREATH Video Mask Section */}
-      <BreathSection />
+      {/* <BreathSection /> */}
 
       {/* Testimonials Section */}
       <Testimonials />

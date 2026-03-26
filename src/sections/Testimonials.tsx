@@ -11,7 +11,9 @@ const Testimonials = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false); // State baru untuk mendeteksi hover
   const { language } = useLanguage();
 
   const nextSlide = () => {
@@ -22,6 +24,7 @@ const Testimonials = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonialsConfig.testimonials.length) % testimonialsConfig.testimonials.length);
   };
 
+  // GSAP Animations (Muncul saat di-scroll)
   useEffect(() => {
     const section = sectionRef.current;
     const header = headerRef.current;
@@ -29,168 +32,189 @@ const Testimonials = () => {
 
     if (!section || !header || !carousel) return;
 
-    const triggers: ScrollTrigger[] = [];
-
-    // Header animation
-    gsap.set(header.children, { opacity: 0, y: 30 });
-    const headerTrigger = ScrollTrigger.create({
-      trigger: header,
-      start: 'top 80%',
-      once: true,
-      onEnter: () => {
-        gsap.to(header.children, {
+    const ctx = gsap.context(() => {
+      // Header animation
+      gsap.fromTo(
+        header.children,
+        { opacity: 0, y: 40 },
+        {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 1,
           stagger: 0.15,
           ease: 'power3.out',
-        });
-      },
-    });
-    triggers.push(headerTrigger);
+          scrollTrigger: {
+            trigger: header,
+            start: 'top 85%',
+            once: true,
+          },
+        }
+      );
 
-    // Carousel animation
-    gsap.set(carousel, { opacity: 0, y: 40 });
-    const carouselTrigger = ScrollTrigger.create({
-      trigger: carousel,
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        gsap.to(carousel, {
+      // Carousel animation
+      gsap.fromTo(
+        carousel,
+        { opacity: 0, y: 60 },
+        {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 1.2,
           ease: 'power3.out',
-        });
-      },
-    });
-    triggers.push(carouselTrigger);
+          scrollTrigger: {
+            trigger: carousel,
+            start: 'top 80%',
+            once: true,
+          },
+        }
+      );
+    }, sectionRef);
 
-    return () => {
-      triggers.forEach(trigger => trigger.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
-  // Auto-play carousel
+  // Auto-play carousel dengan logika Pause/Resume
   useEffect(() => {
-    const interval = setInterval(nextSlide, 6000);
+    // Jika sedang di-hover (isPaused = true), jangan jalankan interval
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000); // Ganti slide setiap 5 detik
+
+    // Bersihkan interval saat komponen dibongkar atau saat status isPaused berubah
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]); // Dependency array memastikan efek di-restart saat status isPaused berubah
 
   if (!testimonialsConfig.testimonials.length) return null;
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-bg-section py-24 md:py-32 overflow-hidden"
+      className="relative w-full bg-[#F9F8F6] py-24 md:py-32 overflow-hidden"
     >
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-primary/5 rounded-full blur-[150px]" />
-
       <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+        
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-12 md:mb-16">
-          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
+        <div ref={headerRef} className="text-center mb-16 md:mb-20">
+          <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {testimonialsConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-text-primary mt-4">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {testimonialsConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto">
+          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
             {testimonialsConfig.sectionDescription[language]}
           </p>
         </div>
 
-        {/* Carousel */}
-        <div ref={carouselRef} className="relative max-w-4xl mx-auto">
-          {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-kath-primary/10 rounded-full flex items-center justify-center">
-            <Quote className="w-6 h-6 text-kath-primary" />
-          </div>
-
-          {/* Testimonial Cards */}
-          <div className="relative overflow-hidden">
+        {/* Carousel Container */}
+        <div 
+          ref={carouselRef} 
+          className="relative max-w-5xl mx-auto"
+          onMouseEnter={() => setIsPaused(true)}   // Hentikan autoplay saat mouse masuk
+          onMouseLeave={() => setIsPaused(false)}  // Lanjutkan autoplay saat mouse keluar
+        >
+          
+          {/* Slider Window */}
+          <div className="relative overflow-hidden pb-8 px-4">
             <div
-              className="flex transition-transform duration-500 ease-out"
+              // Durasi ditambah ke 1000ms dan kurva diubah agar gesekannya sangaaat halus
+              className="flex transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {testimonialsConfig.testimonials.map((testimonial) => (
                 <div
                   key={testimonial.id}
-                  className="w-full flex-shrink-0 px-4"
+                  className="w-full flex-shrink-0 px-2 md:px-4"
                 >
-                  <div className="text-center">
+                  {/* Testimonial Card - Menghapus shadow, hanya menggunakan border tipis */}
+                  <div className="relative bg-white rounded-[32px] p-8 md:p-12 border border-[#0F0F0F]/10 flex flex-col items-center text-center">
+                    
+                    {/* Decorative Quote Icon */}
+                    <div className="absolute top-6 right-8 opacity-10 pointer-events-none">
+                      <Quote className="w-16 h-16 text-[#FFB22C]" fill="currentColor" />
+                    </div>
+
                     {/* Stars */}
                     <div className="flex justify-center gap-1 mb-6">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-kath-gold text-kath-gold" />
+                        <Star key={i} className="w-5 h-5 fill-[#FFB22C] text-[#FFB22C]" />
                       ))}
                     </div>
 
-                    {/* Quote */}
-                    <blockquote className="font-display text-xl md:text-2xl text-kath-text-primary leading-relaxed mb-8">
+                    {/* Quote Text */}
+                    <blockquote className="font-display text-xl md:text-2xl text-[#0F0F0F] leading-relaxed mb-8 max-w-3xl">
                       "{testimonial.quote[language]}"
                     </blockquote>
 
-                    {/* Author */}
-                    <div className="flex flex-col items-center">
+                    {/* Author Info */}
+                    <div className="flex items-center gap-4">
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-kath-primary/30 mb-4"
+                        className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-[#FFB22C]"
                       />
-                      <h4 className="font-display text-lg text-kath-text-primary">
-                        {testimonial.name}
-                      </h4>
-                      <p className="font-body text-sm text-kath-primary">
-                        {testimonial.role[language]}
-                      </p>
-                      <p className="font-body text-xs text-kath-text-muted mt-1">
-                        {testimonial.event[language]}
-                      </p>
+                      <div className="text-left">
+                        <h4 className="font-display text-lg font-semibold text-[#0F0F0F]">
+                          {testimonial.name}
+                        </h4>
+                        <p className="font-body text-sm font-medium text-[#FFB22C]">
+                          {testimonial.role[language]}
+                        </p>
+                        <p className="font-body text-xs text-[#0F0F0F]/40 mt-0.5">
+                          {testimonial.event[language]}
+                        </p>
+                      </div>
                     </div>
+
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-10">
+          {/* Navigation Controls */}
+          <div className="flex items-center justify-center gap-6 mt-8">
+            {/* Prev Button */}
             <button
               onClick={prevSlide}
-              className="w-12 h-12 rounded-full border border-kath-bg-section hover:border-kath-primary flex items-center justify-center transition-colors duration-300"
+              className="w-12 h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
             >
-              <ChevronLeft className="w-5 h-5 text-kath-text-primary" />
+              <ChevronLeft className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
             </button>
 
-            {/* Dots */}
+            {/* Pagination Dots */}
             <div className="flex gap-2">
               {testimonialsConfig.testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className={`h-2 rounded-full transition-all duration-500 ease-out ${
                     index === currentIndex
-                      ? 'w-8 bg-kath-primary'
-                      : 'bg-kath-bg-section hover:bg-kath-primary/50'
+                      ? 'w-8 bg-[#FFB22C]'
+                      : 'w-2 bg-[#0F0F0F]/15 hover:bg-[#0F0F0F]/30'
                   }`}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
 
+            {/* Next Button */}
             <button
               onClick={nextSlide}
-              className="w-12 h-12 rounded-full border border-kath-bg-section hover:border-kath-primary flex items-center justify-center transition-colors duration-300"
+              className="w-12 h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
             >
-              <ChevronRight className="w-5 h-5 text-kath-text-primary" />
+              <ChevronRight className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
             </button>
           </div>
+
         </div>
       </div>
 
-      {/* Section divider */}
-      <div className="section-divider mt-24 md:mt-32" />
+      {/* Garis Pembatas Bawah */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 mt-24">
+        <div className="h-[1px] w-full bg-[#0F0F0F]/10" />
+      </div>
     </section>
   );
 };

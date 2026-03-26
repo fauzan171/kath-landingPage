@@ -36,7 +36,6 @@ const NarrativeText = () => {
 
     if (!section || !line1 || !line2 || !line3 || !star) return;
 
-    // Set initial states
     gsap.set([line1, line2, line3], { opacity: 0, y: 30 });
     gsap.set(star, { opacity: 0, scale: 0.5 });
     if (stats) {
@@ -45,7 +44,6 @@ const NarrativeText = () => {
 
     const triggers: ScrollTrigger[] = [];
 
-    // Star animation
     const starTrigger = ScrollTrigger.create({
       trigger: star,
       start: 'top 85%',
@@ -61,18 +59,12 @@ const NarrativeText = () => {
     });
     triggers.push(starTrigger);
 
-    // Line animations with stagger
     const line1Trigger = ScrollTrigger.create({
       trigger: line1,
       start: 'top 80%',
       once: true,
       onEnter: () => {
-        gsap.to(line1, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-        });
+        gsap.to(line1, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
       },
     });
     triggers.push(line1Trigger);
@@ -82,13 +74,7 @@ const NarrativeText = () => {
       start: 'top 80%',
       once: true,
       onEnter: () => {
-        gsap.to(line2, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          delay: 0.15,
-          ease: 'power3.out',
-        });
+        gsap.to(line2, { opacity: 1, y: 0, duration: 1, delay: 0.15, ease: 'power3.out' });
       },
     });
     triggers.push(line2Trigger);
@@ -98,18 +84,11 @@ const NarrativeText = () => {
       start: 'top 80%',
       once: true,
       onEnter: () => {
-        gsap.to(line3, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          delay: 0.3,
-          ease: 'power3.out',
-        });
+        gsap.to(line3, { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: 'power3.out' });
       },
     });
     triggers.push(line3Trigger);
 
-    // Stats animation
     if (stats) {
       const statsTrigger = ScrollTrigger.create({
         trigger: stats,
@@ -139,7 +118,7 @@ const NarrativeText = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative w-full py-24 md:py-32 lg:py-40 bg-kath-bg-main"
+      className="relative w-full py-24 md:py-32 lg:py-40 bg-[#F9F8F6]"
     >
       <div className="max-w-4xl mx-auto px-6 md:px-8 text-center">
         {/* Spinning Star */}
@@ -148,80 +127,74 @@ const NarrativeText = () => {
           className="flex justify-center mb-12"
           style={{ willChange: 'transform, opacity' }}
         >
-          <StarIcon className="w-6 h-6 md:w-8 md:h-8 text-kath-primary spin-slow" />
+          <StarIcon className="w-6 h-6 md:w-8 md:h-8 text-[#FFB22C] spin-slow" />
         </div>
 
         {/* Narrative Text */}
         <div className="space-y-6 md:space-y-8">
-          <p
-            ref={line1Ref}
-            className="font-display text-headline text-kath-text-primary"
-            style={{ willChange: 'transform, opacity' }}
-          >
+          <p ref={line1Ref} className="font-display text-headline text-[#0F0F0F]">
             {narrativeTextConfig.line1[language]}
           </p>
 
-          <p
-            ref={line2Ref}
-            className="font-display text-subheadline text-kath-primary italic max-w-2xl mx-auto"
-            style={{ willChange: 'transform, opacity' }}
-          >
+          <p ref={line2Ref} className="font-display text-subheadline text-[#FFB22C] italic max-w-2xl mx-auto">
             {narrativeTextConfig.line2[language]}
           </p>
 
-          <p
-            ref={line3Ref}
-            className="font-body text-sm md:text-base text-kath-text-secondary max-w-2xl mx-auto leading-relaxed"
-            style={{ willChange: 'transform, opacity' }}
-          >
+          <p ref={line3Ref} className="font-body text-sm md:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
             {narrativeTextConfig.line3[language]}
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Stats Grid - Border Atas diganti ke Emas #FFB22C/20 */}
         <div
           ref={statsRef}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-16 border-t border-kath-bg-section"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-16 border-t border-[#FFB22C]/20"
         >
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-kath-primary">
+            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.years}
             </span>
-            <p className="font-body text-xs text-kath-text-muted mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Tahun' : 'Years'}
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-kath-primary">
+            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.events}
             </span>
-            <p className="font-body text-xs text-kath-text-muted mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Event' : 'Events'}
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-kath-primary">
+            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.clients}
             </span>
-            <p className="font-body text-xs text-kath-text-muted mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Klien' : 'Clients'}
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-kath-primary">
+            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.awards}
             </span>
-            <p className="font-body text-xs text-kath-text-muted mt-2 uppercase tracking-wider">
+            <p className="font-body text-xs text-gray-500 mt-2 uppercase tracking-wider">
               {language === 'id' ? 'Penghargaan' : 'Awards'}
             </p>
           </div>
         </div>
 
         {/* Bottom Star */}
-        <div className="flex justify-center mt-12">
-          <StarIcon className="w-4 h-4 text-kath-primary/50" />
+        <div className="flex justify-center mt-12 mb-16">
+          <StarIcon className="w-4 h-4 text-[#FFB22C]/50" />
         </div>
       </div>
+
+      {/* Garis Emas Tipis Bawah */}
+      <div className="max-w-4xl mx-auto px-6 md:px-8">
+        <div className="h-[1px] w-full bg-[#FFB22C]/30" />
+      </div>
+      
     </section>
   );
 };

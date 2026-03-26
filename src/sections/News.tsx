@@ -110,23 +110,18 @@ const News = () => {
       <section
         ref={sectionRef}
         id="news"
-        className="relative w-full bg-kath-bg-main py-24 md:py-32 overflow-hidden"
+        className="relative w-full bg-[#F9F8F6] py-24 md:py-32 overflow-hidden"
       >
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-kath-primary rounded-full blur-[200px]" />
-        </div>
-
         <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12 md:mb-16">
-            <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
+            <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
               {newsConfig.sectionLabel[language]}
             </span>
-            <h2 className="font-display text-headline text-kath-text-primary mt-4">
+            <h2 className="font-display text-4xl md:text-5xl font-medium text-[#0F0F0F] mt-4">
               {newsConfig.sectionTitle[language]}
             </h2>
-            <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto">
+            <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-lg">
               {newsConfig.sectionDescription[language]}
             </p>
 
@@ -136,10 +131,10 @@ const News = () => {
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.label)}
-                  className={`px-5 py-2 font-body text-sm rounded-full transition-all duration-300 ${
+                  className={`px-6 py-2.5 font-body text-sm rounded-full transition-all duration-300 font-medium ${
                     activeCategory === category.label
-                      ? 'bg-kath-primary text-white'
-                      : 'bg-white text-kath-text-secondary hover:bg-kath-primary/10 hover:text-kath-primary border border-kath-bg-section'
+                      ? 'bg-[#FFB22C] text-[#0F0F0F] shadow-md shadow-[#FFB22C]/20'
+                      : 'bg-white border border-[#0F0F0F]/10 text-[#0F0F0F]/60 hover:border-[#0F0F0F]/30 hover:text-[#0F0F0F]'
                   }`}
                 >
                   {category.label}
@@ -153,49 +148,49 @@ const News = () => {
             {filteredNews.map((item) => (
               <article
                 key={item.id}
-                className="news-card group bg-white border border-kath-bg-section rounded-2xl overflow-hidden hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1"
+                className="news-card group bg-white border border-[#0F0F0F]/10 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#FFB22C]/10 hover:-translate-y-2 cursor-pointer flex flex-col"
+                onClick={() => setSelectedNews(item)}
               >
-                {/* Image */}
-                <div className="relative h-48 overflow-hidden">
+                {/* Image Container */}
+                <div className="relative h-56 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title[language]}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-kath-text-primary/60 to-transparent" />
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-kath-primary/90 text-white text-xs font-body uppercase tracking-wider rounded-full">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F]/60 to-transparent opacity-80" />
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-[#FFB22C] text-[#0F0F0F] text-xs font-bold uppercase tracking-wider rounded-full shadow-sm">
                     {item.category[language]}
                   </span>
                 </div>
 
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center gap-4 text-kath-text-muted text-xs mb-3">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                {/* Content Container (Latar tetap putih, hanya teks yang bereaksi) */}
+                <div className="flex flex-col flex-grow p-6 bg-white">
+                  <div className="flex items-center gap-4 text-[#0F0F0F]/50 text-xs mb-3 font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
                       {formatDate(item.date)}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
+                    <span className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5" />
                       {item.author}
                     </span>
                   </div>
 
-                  <h3 className="font-display text-lg text-kath-text-primary mb-3 line-clamp-2 group-hover:text-kath-primary transition-colors">
+                  {/* Judul berubah warna menjadi emas saat di-hover */}
+                  <h3 className="font-display text-xl font-semibold text-[#0F0F0F] mb-3 line-clamp-2 leading-snug transition-colors duration-300 group-hover:text-[#FFB22C]">
                     {item.title[language]}
                   </h3>
 
-                  <p className="font-body text-sm text-kath-text-secondary mb-4 line-clamp-2">
+                  <p className="font-body text-sm text-[#0F0F0F]/60 mb-6 line-clamp-2 flex-grow">
                     {item.excerpt[language]}
                   </p>
 
-                  <button
-                    onClick={() => setSelectedNews(item)}
-                    className="group/btn flex items-center gap-2 text-kath-primary font-body text-sm hover:gap-3 transition-all"
-                  >
+                  <div className="mt-auto flex items-center gap-2 text-[#FFB22C] font-body text-sm font-bold">
                     {labels.readMore}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                    {/* Tanda panah bergeser ke kanan saat di-hover */}
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </div>
                 </div>
               </article>
             ))}
@@ -203,7 +198,9 @@ const News = () => {
         </div>
 
         {/* Section divider */}
-        <div className="section-divider mt-24 md:mt-32" />
+        <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 mt-20 md:mt-28">
+          <div className="h-[1px] w-full bg-[#FFB22C]/30" />
+        </div>
       </section>
 
       {/* News Detail Modal */}
@@ -213,80 +210,82 @@ const News = () => {
           onClick={() => setSelectedNews(null)}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-kath-black/95 backdrop-blur-lg" />
+          <div className="absolute inset-0 bg-[#0F0F0F]/80 backdrop-blur-sm" />
 
           {/* Modal Content */}
           <div
-            className="relative w-full max-w-4xl max-h-[90vh] bg-kath-dark-gray border border-kath-charcoal/50 rounded-3xl overflow-hidden"
+            className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={() => setSelectedNews(null)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-kath-black/50 hover:bg-kath-gold/20 rounded-full flex items-center justify-center text-kath-white transition-colors"
+              className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 hover:bg-[#FFB22C] shadow-sm rounded-full flex items-center justify-center text-[#0F0F0F] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Scrollable Content */}
-            <div className="overflow-y-auto max-h-[90vh]">
+            <div className="overflow-y-auto w-full h-full">
               {/* Hero Image */}
-              <div className="relative h-64 md:h-80">
+              <div className="relative h-64 md:h-80 w-full">
                 <img
                   src={selectedNews.image}
                   alt={selectedNews.title[language]}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-kath-dark-gray via-kath-dark-gray/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
               </div>
 
               {/* Content */}
-              <div className="relative -mt-20 px-6 md:px-12 pb-12">
+              <div className="relative -mt-16 px-6 md:px-12 pb-12 bg-white rounded-t-3xl pt-8">
                 {/* Category Badge */}
-                <span className="inline-flex items-center gap-1 px-4 py-1.5 bg-kath-gold text-kath-black text-xs font-body uppercase tracking-wider rounded-full mb-4">
-                  <Tag className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#FFB22C] text-[#0F0F0F] text-xs font-bold uppercase tracking-wider rounded-full mb-5">
+                  <Tag className="w-3.5 h-3.5" />
                   {selectedNews.category[language]}
                 </span>
 
                 {/* Title */}
-                <h2 className="font-display text-2xl md:text-4xl text-kath-white mb-6">
+                <h2 className="font-display text-3xl md:text-4xl font-semibold text-[#0F0F0F] mb-6 leading-tight">
                   {selectedNews.title[language]}
                 </h2>
 
                 {/* Meta */}
-                <div className="flex flex-wrap items-center gap-6 text-kath-off-white/60 text-sm mb-8 pb-8 border-b border-kath-charcoal/50">
+                <div className="flex flex-wrap items-center gap-6 text-[#0F0F0F]/60 font-medium text-sm mb-8 pb-8 border-b border-[#0F0F0F]/10">
                   <span className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-kath-gold" />
+                    <Calendar className="w-4 h-4 text-[#FFB22C]" />
                     {formatDate(selectedNews.date)}
                   </span>
                   <span className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-kath-gold" />
+                    <User className="w-4 h-4 text-[#FFB22C]" />
                     {selectedNews.author}
                   </span>
                   <span className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-kath-gold" />
+                    <Clock className="w-4 h-4 text-[#FFB22C]" />
                     5 {labels.minRead}
                   </span>
                 </div>
 
                 {/* Article Content */}
-                <div className="prose prose-invert max-w-none">
-                  <p className="font-body text-lg text-kath-off-white/80 leading-relaxed mb-6">
+                <div className="prose max-w-none">
+                  <p className="font-body text-lg text-[#0F0F0F]/80 font-medium leading-relaxed mb-6">
                     {selectedNews.excerpt[language]}
                   </p>
-                  <p className="font-body text-kath-off-white/70 leading-relaxed">
+                  <p className="font-body text-[#0F0F0F]/70 leading-relaxed">
                     {selectedNews.content[language]}
                   </p>
                 </div>
 
                 {/* Share Section */}
-                <div className="mt-12 pt-8 border-t border-kath-charcoal/50">
-                  <p className="font-body text-sm text-kath-off-white/50 mb-4">{labels.share}</p>
-                  <div className="flex gap-3">
+                <div className="mt-12 pt-8 border-t border-[#0F0F0F]/10">
+                  <p className="font-body text-sm font-bold text-[#0F0F0F]/50 uppercase tracking-wider mb-4">
+                    {labels.share}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
                     {['Twitter', 'Facebook', 'LinkedIn', 'WhatsApp'].map((platform) => (
                       <button
                         key={platform}
-                        className="px-4 py-2 bg-kath-charcoal/50 hover:bg-kath-gold/20 text-kath-off-white text-sm font-body rounded-full transition-colors"
+                        className="px-5 py-2.5 bg-[#F9F8F6] border border-[#0F0F0F]/10 hover:bg-[#FFB22C] hover:border-[#FFB22C] text-[#0F0F0F] text-sm font-medium font-body rounded-full transition-all duration-300"
                       >
                         {platform}
                       </button>
