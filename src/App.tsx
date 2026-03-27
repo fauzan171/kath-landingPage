@@ -41,6 +41,28 @@ import CIBCRegister from './pages/cibc/CIBCRegister';
 import CIBCLogin from './pages/cibc/CIBCLogin';
 import CIBCDashboard from './pages/cibc/CIBCDashboard';
 
+// Admin Pages
+import {
+  AdminLayout,
+  AdminDashboard,
+  // Landing Page Content
+  AdminHero,
+  AdminServices,
+  AdminPortfolio,
+  AdminNews,
+  AdminTestimonials,
+  AdminFAQ,
+  AdminStatistics,
+  AdminContact,
+  AdminSettings,
+  // Competition Management
+  AdminRegistrations,
+  AdminStages,
+  AdminSubmissions,
+  AdminAnnouncements,
+  AdminUsers,
+} from './pages/admin';
+
 // Components
 import BackgroundMusic from './components/BackgroundMusic';
 
@@ -152,7 +174,7 @@ function App() {
     '/edit-profile',
     '/settings',
     '/my-teams',
-  ].includes(location.pathname) || location.pathname.startsWith('/cibc/');
+  ].includes(location.pathname) || location.pathname.startsWith('/cibc/') || location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -176,6 +198,27 @@ function App() {
         <Route path="/cibc/login" element={<CIBCLogin />} />
         <Route path="/cibc/register" element={<CIBCRegister />} />
         <Route path="/cibc/dashboard" element={<CIBCDashboard />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          {/* Landing Page Content */}
+          <Route path="hero" element={<AdminHero />} />
+          <Route path="services" element={<AdminServices />} />
+          <Route path="portfolio" element={<AdminPortfolio />} />
+          <Route path="news" element={<AdminNews />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="faq" element={<AdminFAQ />} />
+          <Route path="statistics" element={<AdminStatistics />} />
+          <Route path="contact" element={<AdminContact />} />
+          <Route path="settings" element={<AdminSettings />} />
+          {/* Competition Management */}
+          <Route path="registrations" element={<AdminRegistrations />} />
+          <Route path="stages" element={<AdminStages />} />
+          <Route path="submissions" element={<AdminSubmissions />} />
+          <Route path="announcements" element={<AdminAnnouncements />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
       </Routes>
     </>
   );

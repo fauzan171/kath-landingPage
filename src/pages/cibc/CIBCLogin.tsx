@@ -14,7 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { initializeCIBCData } from '../../services/cibcMockData';
+import { supabaseAuthService } from '@/services/supabase.service';
+import { isSupabaseConfigured } from '@/config/environment';
 
 const CIBCLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -30,9 +31,25 @@ const CIBCLogin: React.FC = () => {
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Initialize CIBC data (creates test user if not exists)
-    initializeCIBCData();
   }, []);
+
+  // Check if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      if (!isSupabaseConfigured()) return;
+
+      try {
+        const user = await supabaseAuthService.getCurrentUser();
+        if (user) {
+          // Already logged in, redirect to dashboard
+          navigate('/cibc/dashboard');
+        }
+      } catch (error) {
+        console.log('No active session');
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   // GSAP Animations
   useEffect(() => {
@@ -60,8 +77,8 @@ const CIBCLogin: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -75,38 +92,64 @@ const CIBCLogin: React.FC = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      if (!isSupabaseConfigured()) {
+        toast.error('Supabase is not configured. Please check your .env file.');
+        setIsLoading(false);
+        return;
+      }
 
-    // Check mock credentials
-    const storedUsers = JSON.parse(localStorage.getItem('cibc_users') || '[]');
-    const user = storedUsers.find(
-      (u: { email: string; password: string }) =>
-        u.email === formData.email && u.password === formData.password
-    );
+      // Sign in with Supabase Auth
+      const { user } = await supabaseAuthService.signIn(formData.email, formData.password);
 
-    if (user) {
-      // Store session
-      localStorage.setItem('cibc_current_user', JSON.stringify({
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        category: user.category,
-        teamId: user.teamId,
-      }));
+      if (user) {
+        // Get user details from users table
+        const { supabase } = await import('@/lib/supabase');
+        if (supabase) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-      toast.success('Welcome back!', {
-        description: 'Login successful. Redirecting to dashboard...',
-      });
+          // Get user role
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
 
-      navigate('/cibc/dashboard');
-    } else {
+          // Store session info
+          localStorage.setItem('cibc_current_user', JSON.stringify({
+            id: user.id,
+            email: user.email,
+            fullName: userData?.name || user.email?.split('@')[0],
+            category: userData?.category || 'student',
+            role: roleData?.role || 'participant',
+          }));
+        }
+
+        toast.success('Welcome back!', {
+          description: 'Login successful. Redirecting to dashboard...',
+        });
+
+        // Redirect based on role
+        const storedUser = JSON.parse(localStorage.getItem('cibc_current_user') || '{}');
+        if (storedUser.role === 'admin' || storedUser.role === 'super_admin') {
+          navigate('/admin');
+        } else {
+          navigate('/cibc/dashboard');
+        }
+      }
+    } catch (error: unknown) {
+      console.error('Login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
       toast.error('Login failed', {
-        description: 'Invalid email or password. Please try again.',
+        description: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const stats = [
