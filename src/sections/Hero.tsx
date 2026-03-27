@@ -1,209 +1,159 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight } from 'lucide-react';
 import { heroConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ArrowRight, ChevronDown } from '../icons';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgImageRef = useRef<HTMLImageElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null); 
+  
+  const labelRef = useRef<HTMLSpanElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const labelRef = useRef<HTMLSpanElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  
   const { language } = useLanguage();
 
   useEffect(() => {
     const section = sectionRef.current;
-    const title = titleRef.current;
-    const subtitle = subtitleRef.current;
-    const label = labelRef.current;
-    const cta = ctaRef.current;
-    const image = imageRef.current;
-    const overlay = overlayRef.current;
+    const bgImage = bgImageRef.current;
+    const content = contentRef.current;
 
-    if (!section || !title || !subtitle || !image || !overlay || !label || !cta) return;
+    if (!section || !bgImage || !content) return;
 
-    // Initial animation on load
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-    tl.fromTo(
-      image,
-      { scale: 1.2, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 2 }
-    )
-    .fromTo(
-      label,
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8 },
-      '-=1.2'
-    )
-    .fromTo(
-      title,
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.2 },
-      '-=0.6'
-    )
-    .fromTo(
-      subtitle,
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8 },
-      '-=0.6'
-    )
-    .fromTo(
-      cta.children,
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
-      '-=0.4'
+    // 1. ANIMASI MASUK (INITIAL LOAD)
+    gsap.fromTo(
+      [labelRef.current, titleRef.current, subtitleRef.current, ctaRef.current],
+      { y: 40, opacity: 0 },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 1.2, 
+        stagger: 0.2, 
+        ease: 'power3.out', 
+        delay: 0.3 
+      }
     );
 
-    // Scroll-driven parallax
-    const parallaxTriggers: ScrollTrigger[] = [];
-
-    const imageTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: 'bottom top',
-      scrub: true,
-      onUpdate: (self) => {
-        gsap.set(image, { y: self.progress * 150 });
+    // 2. ANIMASI PARALLAX PREMIUM (SAAT DI-SCROLL)
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.2,
       },
     });
-    parallaxTriggers.push(imageTrigger);
 
-    const contentTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: '50% top',
-      scrub: true,
-      onUpdate: (self) => {
-        gsap.set(title, {
-          opacity: 1 - self.progress * 1.5,
-          y: self.progress * -50
-        });
-        gsap.set(subtitle, {
-          opacity: 1 - self.progress * 2,
-          y: self.progress * -30
-        });
-        gsap.set(label, {
-          opacity: 1 - self.progress * 2,
-        });
-        gsap.set(cta, {
-          opacity: 1 - self.progress * 2,
-        });
-      },
-    });
-    parallaxTriggers.push(contentTrigger);
+    // Background: Turun, Zoom in, dan BLUR perlahan
+    tl.to(bgImage, {
+      yPercent: 30,
+      scale: 1.15,
+      filter: 'blur(12px)', // <-- Efek blur ditambahkan kembali di sini
+      ease: 'none',
+    }, 0); 
 
-    const overlayTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: 'bottom top',
-      scrub: true,
-      onUpdate: (self) => {
-        gsap.set(overlay, { opacity: 0.3 + self.progress * 0.4 });
-      },
-    });
-    parallaxTriggers.push(overlayTrigger);
+    // Konten (Teks & Tombol): Turun lebih cepat dan memudar
+    tl.to(content, {
+      yPercent: 50,
+      opacity: 0,
+      ease: 'none',
+    }, 0);
 
     return () => {
-      parallaxTriggers.forEach(trigger => trigger.kill());
-      tl.kill();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
-
-  if (!heroConfig.title && !heroConfig.backgroundImage) return null;
 
   return (
     <section
       ref={sectionRef}
       id="home"
-      className="relative h-[100svh] w-full overflow-hidden bg-kath-bg-main"
+      className="relative h-[100vh] w-full overflow-hidden bg-[#F9F8F6] flex items-center justify-center"
     >
-      {/* Background Image with Ken Burns */}
-      <div
-        ref={imageRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ willChange: 'transform' }}
-      >
+      {/* BACKGROUND LAYER */}
+      <div className="absolute top-[-5%] left-[-5%] w-[110%] h-[110%] pointer-events-none">
         <img
+          ref={bgImageRef}
           src={heroConfig.backgroundImage}
           alt={heroConfig.backgroundAlt}
-          className="w-full h-full object-cover ken-burns"
+          className="w-full h-full object-cover"
+          // Pastikan 'filter' ada di willChange agar animasinya mulus
+          style={{ willChange: 'transform, filter' }} 
         />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Light overlay for readability */}
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 bg-gradient-to-b from-kath-bg-main/60 via-kath-bg-main/40 to-kath-bg-main/90"
-        style={{ willChange: 'opacity' }}
-      />
-
-      {/* Content - Mobile Optimized */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6">
-        {/* Label */}
+      {/* CONTENT LAYER */}
+      <div 
+        ref={contentRef}
+        className="relative z-10 flex flex-col items-center justify-center px-6 max-w-4xl mx-auto pt-[35px] mb-2 md:mb-6"
+        style={{ willChange: 'transform, opacity' }}
+      >
         <span
           ref={labelRef}
-          className="font-body text-kath-primary text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6"
-          style={{ willChange: 'transform, opacity' }}
+          className="font-body text-[#FFB22C] text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] mb-4 md:mb-5 font-bold"
         >
           {heroConfig.label[language]}
         </span>
 
-        {/* Main Title - Responsive sizing */}
         <h1
           ref={titleRef}
-          className="font-display text-white text-center whitespace-pre-line"
+          className="font-display text-white text-center whitespace-pre-line leading-[1.05]"
           style={{
-            fontSize: 'clamp(2rem, 10vw, 8rem)',
-            lineHeight: '0.95',
-            letterSpacing: '-0.02em',
-            textShadow: '0 4px 40px rgba(0,0,0,0.5)',
-            willChange: 'transform, opacity'
+            fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+            letterSpacing: '-0.01em',
+            textShadow: '0 4px 30px rgba(0,0,0,0.5)', 
           }}
         >
           {heroConfig.title[language]}
         </h1>
 
-        {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className="font-body text-white/90 text-sm sm:text-base mt-6 sm:mt-8 max-w-md sm:max-w-xl text-center leading-relaxed px-4"
-          style={{
-            willChange: 'transform, opacity',
-            textShadow: '0 2px 20px rgba(0,0,0,0.5)'
-          }}
+          className="font-body text-white/80 text-xs md:text-sm mt-5 md:mt-6 max-w-md md:max-w-2xl text-center leading-relaxed"
         >
           {heroConfig.subtitle[language]}
         </p>
 
-        {/* CTA Buttons - Mobile optimized */}
-        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto px-4 sm:px-0">
-          <button className="group w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-kath-primary to-kath-primary-dark hover:from-kath-primary-light hover:to-kath-primary text-kath-bg-dark font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-kath-primary/25 touch-feedback">
-            {heroConfig.ctaPrimary[language]}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        {/* CTA Buttons */}
+        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-10 w-full sm:w-auto">
+          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-[#FFB22C] text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-[1.03]">
+            <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none">
+              <div className="absolute inset-0 bg-[#FFB22C]/70 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
+              <div className="absolute inset-0 bg-[#FFB22C] rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
+            </div>
+            <span className="relative z-10 flex items-center gap-2 group-hover:text-[#0F0F0F] transition-colors duration-500 font-bold">
+              {heroConfig.ctaPrimary[language]}
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </span>
           </button>
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-white/30 hover:border-white hover:bg-white/10 text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 touch-feedback">
-            {heroConfig.ctaSecondary[language]}
+
+          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-white/25 text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full transition-transform duration-300 flex items-center justify-center hover:scale-[1.03]">
+              <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none">
+                <div className="absolute inset-0 bg-white/60 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
+                <div className="absolute inset-0 bg-white rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
+              </div>
+              <span className="relative z-10 group-hover:text-[#0F0F0F] transition-colors duration-500 font-medium">
+                {heroConfig.ctaSecondary[language]}
+              </span>
           </button>
         </div>
       </div>
 
-      {/* Scroll Indicator - Mobile optimized */}
-      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="font-body text-kath-text-muted text-xs uppercase tracking-wider">
+      {/* SCROLL INDICATOR */}
+      {/* <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce pointer-events-none z-20">
+        <span className="font-body text-white/50 text-[10px] uppercase tracking-widest">
           {language === 'id' ? 'Gulir' : 'Scroll'}
         </span>
-        <ChevronDown className="w-5 h-5 text-kath-primary" />
-      </div>
-
-      {/* Bottom gradient for seamless transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-kath-bg-main to-transparent" />
+        <ChevronDown className="w-4 h-4 text-[#FFB22C]" />
+      </div> */}
+      
     </section>
   );
 };

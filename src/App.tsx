@@ -15,7 +15,7 @@ import Portfolio from './sections/Portfolio';
 import CardStack from './sections/CardStack';
 import Competition from './sections/Competition';
 import News from './sections/News';
-import BreathSection from './sections/BreathSection';
+// import BreathSection from './sections/BreathSection';
 import Testimonials from './sections/Testimonials';
 import Statistics from './sections/Statistics';
 import ZigZagGrid from './sections/ZigZagGrid';
@@ -64,7 +64,7 @@ import {
 } from './pages/admin';
 
 // Components
-import BackgroundMusic from './components/BackgroundMusic';
+// import BackgroundMusic from './components/BackgroundMusic';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -90,7 +90,7 @@ const LandingPage = () => {
   return (
     <div className="relative bg-kath-bg-main min-h-screen">
       {/* Background Music - Premium Classical */}
-      <BackgroundMusic />
+      {/* <BackgroundMusic /> */}
 
       {/* Navigation */}
       <Navigation />
@@ -122,7 +122,7 @@ const LandingPage = () => {
       <News />
 
       {/* BREATH Video Mask Section */}
-      <BreathSection />
+      {/* <BreathSection /> */}
 
       {/* Testimonials Section */}
       <Testimonials />
@@ -165,7 +165,7 @@ function App() {
     initializeCIBCData();
   }, []);
 
-  // Check if current route is auth route (no background music)
+// Check if current route is auth route (no background music)
   const isAuthRoute = [
     '/register',
     '/login',
@@ -178,7 +178,7 @@ function App() {
 
   return (
     <>
-      {!isAuthRoute && <BackgroundMusic />}
+      {/* {!isAuthRoute && <BackgroundMusic />} */}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
