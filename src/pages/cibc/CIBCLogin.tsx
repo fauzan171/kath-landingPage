@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabaseAuthService } from '@/services/supabase.service';
-import { isSupabaseConfigured } from '@/config/environment';
+import { isSupabaseConfigured, env } from '@/config/environment';
 
 const CIBCLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -93,6 +93,20 @@ const CIBCLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Try mock login first if useMockData is true
+      if (env.useMockData) {
+        const mockUser = mockLogin(formData.email, formData.password);
+        if (mockUser) {
+          toast.success('Welcome back!', {
+            description: 'Login successful. Redirecting to dashboard...',
+          });
+          navigate('/cibc/dashboard');
+          return;
+        }
+        throw new Error('Invalid email or password');
+      }
+
+      // Try Supabase Auth
       if (!isSupabaseConfigured()) {
         toast.error('Supabase is not configured. Please check your .env file.');
         setIsLoading(false);
@@ -150,6 +164,31 @@ const CIBCLogin: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Mock login for testing
+  const mockLogin = (email: string, password: string) => {
+    const USERS_KEY = 'cibc_users';
+    const stored = localStorage.getItem(USERS_KEY);
+    const users = stored ? JSON.parse(stored) : [];
+
+    const user = users.find((u: { email: string; password: string }) =>
+      u.email === email && u.password === password
+    );
+
+    if (user) {
+      localStorage.setItem('cibc_current_user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        category: user.category,
+        role: 'participant',
+        teamId: user.teamId,
+        teamName: user.teamName,
+      }));
+      return user;
+    }
+    return null;
   };
 
   const stats = [

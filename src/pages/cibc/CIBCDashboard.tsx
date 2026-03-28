@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { isSupabaseConfigured } from '@/config/environment';
+import { isSupabaseConfigured, env } from '@/config/environment';
 import { supabase } from '@/lib/supabase';
 import {
   competitionService,
@@ -25,6 +25,7 @@ import {
   announcementsService,
   notificationsService,
 } from '@/services/cibc.service';
+import { teamService, notificationService } from '@/services/cibcMockData';
 
 // Types
 interface TeamMember {
@@ -156,12 +157,22 @@ const CIBCDashboard = () => {
   }, [currentUser]);
 
   const loadData = async () => {
-    if (!isSupabaseConfigured() || !supabase) {
-      setIsLoading(false);
-      return;
-    }
+    setIsLoading(true);
 
     try {
+      // Use mock data if in mock mode
+      if (env.useMockData) {
+        await loadMockData();
+        setIsLoading(false);
+        return;
+      }
+
+      // Use Supabase if configured
+      if (!isSupabaseConfigured() || !supabase) {
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
 
       // Get competition
@@ -218,6 +229,59 @@ const CIBCDashboard = () => {
       toast.error(language === 'id' ? 'Gagal memuat data' : 'Failed to load data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Load mock data for testing
+  const loadMockData = async () => {
+    try {
+      // Get team if user has one
+      if (currentUser?.teamId) {
+        const teamData = await teamService.getById(currentUser.teamId);
+        if (teamData) {
+          setTeam({
+            id: teamData.id,
+            name: teamData.name,
+            team_code: teamData.code,
+            category: teamData.category as 'student' | 'open',
+            status: teamData.status === 'complete' ? 'verified' : 'pending',
+            payment_status: 'verified',
+            institution: teamData.members?.[0]?.institution,
+          });
+          setTeamMembers((teamData.members || []).map(m => ({
+            id: m.id,
+            user_id: m.id,
+            role: m.role as 'leader' | 'member',
+            user: {
+              id: m.id,
+              name: m.name,
+              email: m.email,
+              institution: m.institution,
+            },
+          })));
+        }
+      }
+
+      // Get notifications
+      const notifs = await notificationService.getAll();
+      setNotifications(notifs.map(n => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        is_read: n.read,
+        created_at: new Date().toISOString(),
+      })));
+
+      // Mock stages
+      setStages([
+        { id: '1', name: 'Registration', is_active: true, start_date: '2026-01-01', end_date: '2026-02-28' },
+        { id: '2', name: 'Submission', is_active: false, start_date: '2026-03-01', end_date: '2026-03-31' },
+        { id: '3', name: 'Screening', is_active: false, start_date: '2026-04-01', end_date: '2026-04-30' },
+        { id: '4', name: 'Final', is_active: false, start_date: '2026-05-15', end_date: '2026-05-17' },
+      ]);
+
+    } catch (error) {
+      console.error('Failed to load mock data:', error);
     }
   };
 

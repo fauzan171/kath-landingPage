@@ -165,17 +165,6 @@ function App() {
     initializeCIBCData();
   }, []);
 
-// Check if current route is auth route (no background music)
-  const isAuthRoute = [
-    '/register',
-    '/login',
-    '/dashboard',
-    '/my-competitions',
-    '/edit-profile',
-    '/settings',
-    '/my-teams',
-  ].includes(location.pathname) || location.pathname.startsWith('/cibc/') || location.pathname.startsWith('/admin');
-
   return (
     <>
       {/* {!isAuthRoute && <BackgroundMusic />} */}

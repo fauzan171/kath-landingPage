@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Trophy, Users, Award, Clock, ArrowRight, Rocket } from 'lucide-react';
-import AboutCompetition from '../pages/AboutCompetition';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,12 +14,10 @@ const Competition = () => {
   const mainCardRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
+  const navigate = useNavigate();
 
   // Countdown timer
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  // Show about competition page
-  const [showAboutPage, setShowAboutPage] = useState(false);
 
   useEffect(() => {
     const deadline = new Date(competitionConfig.mainCompetition.deadline);
@@ -143,10 +141,6 @@ const Competition = () => {
     );
   };
 
-  if (showAboutPage) {
-    return <AboutCompetition onBack={() => setShowAboutPage(false)} />;
-  }
-
   return (
     <section
       ref={sectionRef}
@@ -193,7 +187,7 @@ const Competition = () => {
                 {competitionConfig.mainCompetition.description[language]}
               </p>
               <button
-                onClick={() => setShowAboutPage(true)}
+                onClick={() => navigate('/cibc')}
                 className="group px-8 py-4 bg-[#FFB22C] text-[#0F0F0F] font-body text-sm font-bold uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-3 hover:bg-[#0F0F0F] hover:text-[#FFB22C] hover:shadow-lg hover:-translate-y-1"
               >
                 {language === 'id' ? 'Lihat Detail Kompetisi' : 'View Competition Details'}
@@ -236,7 +230,7 @@ const Competition = () => {
           {competitionConfig.categories.map((category) => (
             <div
               key={category.id}
-              onClick={() => setShowAboutPage(true)}
+              onClick={() => navigate('/cibc')}
               className="category-card group relative bg-white border border-[#0F0F0F]/10 p-8 rounded-2xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/10 hover:-translate-y-2 flex flex-col"
             >
               {/* Header Card: Ikon & Badge Status */}
