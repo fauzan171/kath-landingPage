@@ -34,12 +34,13 @@ import MyTeam from './pages/MyTeam';
 import CompetitionDetail from './pages/CompetitionDetail';
 import SubmissionForm from './pages/SubmissionForm';
 import BMCCompetition from './pages/BMCCompetition';
+// import AboutCompetition from './pages/AboutCompetition'; // 👈 [DITAMBAHKAN] Import halaman AboutCompetition
 
 // CIBC Competition Pages
 import CIBCLanding from './pages/cibc/CIBCLanding';
 import CIBCRegister from './pages/cibc/CIBCRegister';
 import CIBCLogin from './pages/cibc/CIBCLogin';
-import CIBCDashboard from './pages/cibc/CIBCDashboard';
+import CIBCDashboard from './pages/dashboard/CIBCDashboard';
 
 // Admin Pages
 import {
@@ -182,7 +183,9 @@ function App() {
         <Route path="/my-teams" element={<MyTeam />} />
         <Route path="/bmc-competition" element={<BMCCompetition />} />
 
-        {/* CIBC Competition Routes */}
+        {/* 
+        <Route path="/about-competition" element={<AboutCompetition />} /> */}
+
         <Route path="/cibc" element={<CIBCLanding />} />
         <Route path="/cibc/login" element={<CIBCLogin />} />
         <Route path="/cibc/register" element={<CIBCRegister />} />

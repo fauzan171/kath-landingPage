@@ -3,7 +3,7 @@
  *
  * Multi-step registration for Team Leaders only
  * Steps: Account -> Personal -> Category -> Team -> Project
- * Color Theme: Cream (#E6DDC5) & Black
+ * Color Theme: Light Cream (#F9F8F6) & Dark Text (#0F0F0F) & Gold (#FFB22C)
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  ChevronLeft, ChevronRight, Check, Mail, User,
+  ChevronLeft, Check, Mail, User,
   Building2, GraduationCap, Briefcase,
   Users, Leaf, Target
 } from 'lucide-react';
@@ -93,6 +93,9 @@ const COUNTRIES = [
   'China', 'India', 'Australia', 'Netherlands', 'Canada', 'Brazil',
 ];
 
+// Base Input Class to keep code clean
+// const inputClass = "w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-[#0F0F0F] focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/20 outline-none font-body transition-all duration-300";
+
 const CIBCRegister = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -157,21 +160,11 @@ const CIBCRegister = () => {
     let isValid = false;
 
     switch (currentStep) {
-      case 1:
-        isValid = await step1Form.trigger();
-        break;
-      case 2:
-        isValid = await step2Form.trigger();
-        break;
-      case 3:
-        isValid = await step3Form.trigger();
-        break;
-      case 4:
-        isValid = await step4Form.trigger();
-        break;
-      case 5:
-        isValid = await step5Form.trigger();
-        break;
+      case 1: isValid = await step1Form.trigger(); break;
+      case 2: isValid = await step2Form.trigger(); break;
+      case 3: isValid = await step3Form.trigger(); break;
+      case 4: isValid = await step4Form.trigger(); break;
+      case 5: isValid = await step5Form.trigger(); break;
     }
 
     if (isValid && currentStep < 5) {
@@ -197,7 +190,6 @@ const CIBCRegister = () => {
   // Final submission
   const onSubmit = async () => {
     setIsSubmitting(true);
-
     try {
       const step1Data = step1Form.getValues();
       const step2Data = step2Form.getValues();
@@ -205,171 +197,80 @@ const CIBCRegister = () => {
       const step4Data = step4Form.getValues();
       const step5Data = step5Form.getValues();
 
-      // Check if Supabase is configured
       if (isSupabaseConfigured() && supabase) {
-        // 1. Create auth user with Supabase
+        // ... (Logika Supabase tetap sama seperti original)
         const { user } = await supabaseAuthService.signUp(
-          step1Data.email,
-          step1Data.password,
-          {
-            name: step2Data.fullName,
-            category: step3Data.category,
-          }
+          step1Data.email, step1Data.password, { name: step2Data.fullName, category: step3Data.category }
         );
+        if (!user) throw new Error('Failed to create user account');
 
-        if (!user) {
-          throw new Error('Failed to create user account');
-        }
-
-        // 2. Get the active competition
         const competition = await competitionService.getActive();
-        if (!competition) {
-          throw new Error('Competition not found');
-        }
+        if (!competition) throw new Error('Competition not found');
 
-        // 3. Create user record in users table
-        const { error: userError } = await supabase
-          .from('users')
-          .insert({
-            id: user.id,
-            email: step1Data.email,
-            name: step2Data.fullName,
-            phone: step2Data.phone,
-            institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
-            category: step3Data.category,
-            is_verified: false,
-          });
+        const { error: userError } = await supabase.from('users').insert({
+          id: user.id, email: step1Data.email, name: step2Data.fullName, phone: step2Data.phone,
+          institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
+          category: step3Data.category, is_verified: false,
+        });
+        if (userError) console.error('Error creating user record:', userError);
 
-        if (userError) {
-          console.error('Error creating user record:', userError);
-          // Continue anyway - auth user is created
-        }
-
-        // 4. Create team
         const teamName = step4Data.teamName || `${step2Data.fullName}'s Team`;
         const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;
-
-        // Map category: student -> 'student', startup/corporate -> 'open'
         const teamCategory: 'student' | 'open' = step3Data.category === 'student' ? 'student' : 'open';
 
         const team = await teamsService.create({
-          competition_id: competition.id,
-          name: teamName,
-          category: teamCategory,
-          institution,
+          competition_id: competition.id, name: teamName, category: teamCategory, institution,
         }, user.id);
 
-        // 5. Store session info
         localStorage.setItem('cibc_current_user', JSON.stringify({
-          id: user.id,
-          email: step1Data.email,
-          fullName: step2Data.fullName,
-          category: step3Data.category,
-          teamId: team.id,
+          id: user.id, email: step1Data.email, fullName: step2Data.fullName, category: step3Data.category, teamId: team.id,
         }));
 
         toast.success(
-          language === 'id'
-            ? 'Registrasi berhasil! Mengarahkan ke dashboard...'
-            : 'Registration successful! Redirecting to dashboard...',
-          {
-            description: language === 'id'
-              ? 'Tim Anda sedang menunggu verifikasi.'
-              : 'Your team is pending verification.',
-          }
+          language === 'id' ? 'Registrasi berhasil! Mengarahkan ke dashboard...' : 'Registration successful! Redirecting to dashboard...',
+          { description: language === 'id' ? 'Tim Anda sedang menunggu verifikasi.' : 'Your team is pending verification.' }
         );
-
         navigate('/cibc/dashboard');
       } else {
-        // Fallback to localStorage (mock mode)
+        // Fallback to localStorage (mock mode) ... (Logika sama)
         const userId = `user_${Date.now()}`;
         const teamId = `team_${Date.now()}`;
         const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
 
         const newUser = {
-          id: userId,
-          email: step1Data.email,
-          password: step1Data.password,
-          fullName: step2Data.fullName,
-          category: step3Data.category,
-          teamId: teamId,
-          createdAt: new Date().toISOString(),
+          id: userId, email: step1Data.email, password: step1Data.password, fullName: step2Data.fullName,
+          category: step3Data.category, teamId: teamId, createdAt: new Date().toISOString(),
         };
 
         const newTeam = {
-          id: teamId,
-          name: step4Data.teamName || `${step2Data.fullName}'s Team`,
-          code: teamCode,
-          category: step3Data.category,
-          leaderId: userId,
-          members: [
-            {
-              id: `mem_${Date.now()}`,
-              name: step2Data.fullName,
-              email: step1Data.email,
-              role: 'leader' as const,
-              status: 'active' as const,
-              institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
-              joinedAt: new Date().toISOString(),
-            },
-          ],
-          maxMembers: step3Data.category === 'corporate' ? 10 : 5,
-          createdAt: new Date().toISOString(),
-          status: 'forming' as const,
+          id: teamId, name: step4Data.teamName || `${step2Data.fullName}'s Team`, code: teamCode,
+          category: step3Data.category, leaderId: userId,
+          members: [{ id: `mem_${Date.now()}`, name: step2Data.fullName, email: step1Data.email, role: 'leader' as const, status: 'active' as const, institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName, joinedAt: new Date().toISOString() }],
+          maxMembers: step3Data.category === 'corporate' ? 10 : 5, createdAt: new Date().toISOString(), status: 'forming' as const,
         };
 
         const newSubmission = {
-          id: `sub_${Date.now()}`,
-          teamId: teamId,
-          projectName: step5Data.projectName,
-          oneLineDescription: step5Data.oneLineDescription,
-          problemStatement: step5Data.problemStatement,
-          solutionOverview: step5Data.solutionOverview,
-          sdgAlignment: step5Data.sdgAlignment,
-          documents: [],
-          status: 'draft' as const,
-          currentPhase: 'registration' as const,
+          id: `sub_${Date.now()}`, teamId: teamId, projectName: step5Data.projectName, oneLineDescription: step5Data.oneLineDescription, problemStatement: step5Data.problemStatement, solutionOverview: step5Data.solutionOverview, sdgAlignment: step5Data.sdgAlignment, documents: [], status: 'draft' as const, currentPhase: 'registration' as const,
         };
 
         const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
-        users.push(newUser);
-        localStorage.setItem('cibc_users', JSON.stringify(users));
+        users.push(newUser); localStorage.setItem('cibc_users', JSON.stringify(users));
 
         const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
-        teams.push(newTeam);
-        localStorage.setItem('cibc_teams', JSON.stringify(teams));
+        teams.push(newTeam); localStorage.setItem('cibc_teams', JSON.stringify(teams));
 
         const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
-        submissions.push(newSubmission);
-        localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
+        submissions.push(newSubmission); localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
 
-        localStorage.setItem('cibc_current_user', JSON.stringify({
-          id: userId,
-          email: newUser.email,
-          fullName: newUser.fullName,
-          category: newUser.category,
-          teamId: teamId,
-        }));
+        localStorage.setItem('cibc_current_user', JSON.stringify({ id: userId, email: newUser.email, fullName: newUser.fullName, category: newUser.category, teamId: teamId }));
 
-        toast.success(
-          language === 'id'
-            ? 'Registrasi berhasil! Mengarahkan ke dashboard...'
-            : 'Registration successful! Redirecting to dashboard...'
-        );
-
+        toast.success(language === 'id' ? 'Registrasi berhasil! Mengarahkan ke dashboard...' : 'Registration successful! Redirecting to dashboard...');
         navigate('/cibc/dashboard');
       }
     } catch (error) {
       console.error('Registration error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(
-        language === 'id'
-          ? 'Registrasi gagal. Silakan coba lagi.'
-          : 'Registration failed. Please try again.',
-        {
-          description: errorMessage,
-        }
-      );
+      toast.error(language === 'id' ? 'Registrasi gagal. Silakan coba lagi.' : 'Registration failed. Please try again.', { description: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -385,124 +286,134 @@ const CIBCRegister = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-cibc-bgMain py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="font-display text-3xl text-white mb-2">
-            CIBC Power Registration
-          </h1>
-          <p className="font-body text-cibc-textSecondary">
-            {language === 'id'
-              ? 'Daftarkan tim Anda untuk kompetisi BMC internasional'
-              : 'Register your team for the international BMC competition'}
-          </p>
-        </div>
+    <div className="min-h-screen bg-white relative py-10 px-4 sm:px-6 lg:px-8 font-body flex flex-col justify-center overflow-hidden">
 
-        {/* Progress Steps */}
-        <div className="flex items-center justify-between mb-8 px-4">
-          {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-body text-sm transition-colors ${
-                  currentStep >= step.number
-                    ? 'bg-cibc-primary text-cibc-textDark'
-                    : 'bg-cibc-bgCard text-cibc-textMuted border border-cibc-border'
-                }`}
+      {/* Main Card Container */}
+      <div className="w-full max-w-5xl mx-auto bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-6 sm:p-10 lg:p-12 relative z-10 border border-gray-100">
+
+        {/* Header Grid: Back | Title | Sign In */}
+        <div className="grid grid-cols-3 items-start mb-10">
+          <div className="flex justify-start">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#0F0F0F] transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="hidden sm:inline">{language === 'id' ? 'Kembali' : 'Back'}</span>
+            </button>
+          </div>
+          <div className="flex justify-center text-center">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#0F0F0F]">
+              {language === 'id' ? 'Pendaftaran' : 'Sign up'}
+            </h1>
+          </div>
+          <div className="flex justify-end text-right">
+            <p className="text-sm font-medium text-gray-500">
+              <span className="hidden sm:inline">{language === 'id' ? 'Sudah punya akun? ' : 'Already a Member? '}</span>
+              <button
+                onClick={() => navigate('/cibc/login')}
+                className="font-bold text-[#FFB22C] hover:text-[#FFB22C]/80 transition-colors"
               >
-                {currentStep > step.number ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  step.number
-                )}
-              </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`w-12 md:w-20 h-0.5 mx-2 transition-colors ${
-                    currentStep > step.number ? 'bg-cibc-primary' : 'bg-cibc-border'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
+                {language === 'id' ? 'Masuk' : 'Sign In'}
+              </button>
+            </p>
+          </div>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-cibc-bgCard border border-cibc-border rounded-2xl shadow-lg p-6 md:p-8">
+        {/* Progress Tracker (Horizontal Line with Circles) */}
+        <div className="relative max-w-3xl mx-auto mb-14 px-2 sm:px-10">
+          {/* Background Line */}
+          <div className="absolute top-[18px] left-[10%] right-[10%] h-[2px] bg-[#F4F6F8] -z-10" />
+          {/* Active Line */}
+          <div
+            className="absolute top-[18px] left-[10%] h-[2px] bg-[#FFB22C] transition-all duration-500 -z-10"
+            style={{ width: `${((currentStep - 1) / 4) * 80}%` }}
+          />
+
+          <div className="flex justify-between">
+            {steps.map((step) => (
+              <div key={step.number} className="flex flex-col items-center w-20">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${currentStep >= step.number
+                    ? 'bg-[#FFB22C] text-white shadow-md shadow-[#FFB22C]/30'
+                    : 'bg-[#F4F6F8] text-gray-400'
+                    }`}
+                >
+                  {currentStep > step.number ? <Check className="w-5 h-5" /> : step.number}
+                </div>
+                <span className={`mt-2 text-xs font-semibold text-center ${currentStep >= step.number ? 'text-[#0F0F0F]' : 'text-gray-400'
+                  }`}>
+                  {step.number === 1 && (language === 'id' ? 'Akun' : 'Account')}
+                  {step.number === 2 && (language === 'id' ? 'Personal' : 'Personal')}
+                  {step.number === 3 && (language === 'id' ? 'Kategori' : 'Category')}
+                  {step.number === 4 && (language === 'id' ? 'Tim' : 'Team')}
+                  {step.number === 5 && (language === 'id' ? 'Proyek' : 'Project')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Form Wrapper */}
+        <div className="max-w-4xl mx-auto">
+
           {/* Step 1: Account */}
           {currentStep === 1 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-cibc-primary" />
-                </div>
-                <h2 className="font-display text-2xl text-white">
-                  {language === 'id' ? 'Buat Akun' : 'Create Account'}
-                </h2>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                    Email
-                  </label>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Detail Akun' : 'Account Details'}
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">Email</label>
                   <input
                     type="email"
                     {...step1Form.register('email')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary focus:ring-1 focus:ring-cibc-primary outline-none font-body"
-                    placeholder="your@email.com"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Enter Email Address"
                   />
                   {step1Form.formState.errors.email && (
-                    <p className="mt-1 text-sm text-cibc-error font-body">
-                      {step1Form.formState.errors.email.message}
-                    </p>
+                    <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.email.message}</p>
                   )}
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Password' : 'Password'}
                   </label>
                   <input
                     type="password"
                     {...step1Form.register('password')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    placeholder="Min. 8 characters"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Create Password"
                   />
                   {step1Form.formState.errors.password && (
-                    <p className="mt-1 text-sm text-cibc-error font-body">
-                      {step1Form.formState.errors.password.message}
-                    </p>
+                    <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.password.message}</p>
                   )}
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Konfirmasi Password' : 'Confirm Password'}
                   </label>
                   <input
                     type="password"
                     {...step1Form.register('confirmPassword')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    placeholder="Confirm your password"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Confirm Password"
                   />
                   {step1Form.formState.errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-cibc-error font-body">
-                      {step1Form.formState.errors.confirmPassword.message}
-                    </p>
+                    <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.confirmPassword.message}</p>
                   )}
                 </div>
-
-                <div className="flex items-start gap-3">
+                <div className="sm:col-span-2 flex items-start gap-3 mt-2">
                   <input
                     type="checkbox"
                     {...step1Form.register('agreeToTerms')}
-                    className="mt-1 w-4 h-4 rounded border-cibc-border text-cibc-primary focus:ring-cibc-primary"
+                    className="mt-1 w-5 h-5 rounded border-gray-300 text-[#FFB22C] focus:ring-[#FFB22C] cursor-pointer"
                   />
-                  <label className="font-body text-sm text-cibc-textSecondary">
+                  <label className="text-sm text-gray-500 cursor-pointer">
                     {language === 'id'
-                      ? 'Saya menyetujui syarat dan ketentuan kompetisi'
-                      : 'I agree to the competition terms and conditions'}
+                      ? 'Saya menyetujui syarat dan ketentuan kompetisi.'
+                      : 'I agree to the terms and conditions.'}
                   </label>
                 </div>
               </div>
@@ -511,104 +422,86 @@ const CIBCRegister = () => {
 
           {/* Step 2: Personal Info */}
           {currentStep === 2 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <User className="w-8 h-8 text-cibc-primary" />
-                </div>
-                <h2 className="font-display text-2xl text-white">
-                  {language === 'id' ? 'Informasi Pribadi' : 'Personal Information'}
-                </h2>
-                <p className="font-body text-cibc-textSecondary mt-2">
-                  {language === 'id' ? 'Data ketua tim' : 'Team leader information'}
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Informasi Personal' : 'Personal Details'}
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Nama Lengkap' : 'Full Name'}
                   </label>
                   <input
                     type="text"
                     {...step2Form.register('fullName')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Enter Full Name"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                    {language === 'id' ? 'Tanggal Lahir' : 'Birth Date'}
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'Tanggal Lahir' : 'Date Of Birth'}
                   </label>
                   <input
                     type="date"
                     {...step2Form.register('birthDate')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm text-gray-500"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Nomor Telepon' : 'Phone Number'}
                   </label>
                   <input
                     type="tel"
                     {...step2Form.register('phone')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    placeholder="+62 xxx xxxx xxxx"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="+62 812 xxxx xxxx"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Negara' : 'Country'}
                   </label>
                   <select
                     {...step2Form.register('country')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                   >
-                    <option value="">{language === 'id' ? 'Pilih negara' : 'Select country'}</option>
+                    <option value="">- Select -</option>
                     {COUNTRIES.map(country => (
                       <option key={country} value={country}>{country}</option>
                     ))}
                   </select>
                 </div>
-
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Kota' : 'City'}
                   </label>
                   <input
                     type="text"
                     {...step2Form.register('city')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Enter City"
                   />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 3: Category Selection */}
+          {/* Step 3: Category */}
           {currentStep === 3 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-8 h-8 text-cibc-primary" />
-                </div>
-                <h2 className="font-display text-2xl text-white">
-                  {language === 'id' ? 'Pilih Kategori' : 'Select Category'}
-                </h2>
-              </div>
-
-              <div className="grid gap-4">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Kategori Partisipasi' : 'Participation Category'}
+              </h2>
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
                 {(['student', 'startup', 'corporate'] as const).map(cat => (
                   <label
                     key={cat}
-                    className={`relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      watchedCategory === cat
-                        ? 'border-cibc-primary bg-cibc-primary/10'
-                        : 'border-cibc-border hover:border-cibc-primary/50'
-                    }`}
+                    className={`relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${watchedCategory === cat
+                      ? 'border-[#FFB22C] bg-[#FFB22C]/5'
+                      : 'border-[#F4F6F8] bg-[#F4F6F8] hover:border-gray-300'
+                      }`}
                   >
                     <input
                       type="radio"
@@ -616,110 +509,104 @@ const CIBCRegister = () => {
                       {...step3Form.register('category')}
                       className="sr-only"
                     />
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${
-                      watchedCategory === cat ? 'bg-cibc-primary text-cibc-textDark' : 'bg-cibc-bgSection text-cibc-textMuted'
-                    }`}>
-                      {cat === 'student' && <GraduationCap className="w-6 h-6" />}
-                      {cat === 'startup' && <Briefcase className="w-6 h-6" />}
-                      {cat === 'corporate' && <Building2 className="w-6 h-6" />}
+                    <div className="flex justify-between items-center mb-2">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${watchedCategory === cat ? 'bg-[#FFB22C] text-white' : 'bg-white text-gray-400'
+                        }`}>
+                        {cat === 'student' && <GraduationCap className="w-5 h-5" />}
+                        {cat === 'startup' && <Briefcase className="w-5 h-5" />}
+                        {cat === 'corporate' && <Building2 className="w-5 h-5" />}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${watchedCategory === cat ? 'border-[#FFB22C] bg-[#FFB22C]' : 'border-gray-300 bg-white'
+                        }`}>
+                        {watchedCategory === cat && <Check className="w-3 h-3 text-white" />}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-display text-lg text-white">
-                        {cat === 'student' && (language === 'id' ? 'Mahasiswa' : 'Student Innovation')}
-                        {cat === 'startup' && 'Startup Challenge'}
-                        {cat === 'corporate' && (language === 'id' ? 'Korporat' : 'Corporate Innovation')}
-                      </h3>
-                      <p className="font-body text-sm text-cibc-textSecondary">
-                        {cat === 'student' && (language === 'id' ? 'Siswa & Mahasiswa (16-28 tahun)' : 'High School & University Students')}
-                        {cat === 'startup' && (language === 'id' ? 'Startup awal (0-3 tahun)' : 'Early-stage startups (0-3 years)')}
-                        {cat === 'corporate' && (language === 'id' ? 'Perusahaan established' : 'Established companies')}
-                      </p>
-                    </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      watchedCategory === cat ? 'border-cibc-primary bg-cibc-primary' : 'border-cibc-border'
-                    }`}>
-                      {watchedCategory === cat && <Check className="w-4 h-4 text-cibc-textDark" />}
-                    </div>
+                    <h3 className="font-bold text-sm text-[#0F0F0F] mt-1">
+                      {cat === 'student' && (language === 'id' ? 'Mahasiswa' : 'Student')}
+                      {cat === 'startup' && 'Startup'}
+                      {cat === 'corporate' && (language === 'id' ? 'Korporat' : 'Corporate')}
+                    </h3>
                   </label>
                 ))}
               </div>
 
-              {watchedCategory === 'student' && (
-                <div className="grid md:grid-cols-2 gap-4 mt-6 p-4 bg-cibc-bgSection rounded-xl border border-cibc-border">
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Nama Institusi' : 'Institution Name'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step3Form.register('institutionName')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Jurusan' : 'Major'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step3Form.register('major')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {watchedCategory === 'startup' && (
-                <div className="grid md:grid-cols-2 gap-4 mt-6 p-4 bg-cibc-bgSection rounded-xl border border-cibc-border">
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Nama Perusahaan' : 'Company Name'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step3Form.register('companyName')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      Stage
-                    </label>
-                    <select
-                      {...step3Form.register('companyStage')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    >
-                      <option value="idea">Idea Stage</option>
-                      <option value="mvp">MVP</option>
-                      <option value="revenue">Generating Revenue</option>
-                      <option value="growth">Growth Stage</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {watchedCategory === 'corporate' && (
-                <div className="grid md:grid-cols-2 gap-4 mt-6 p-4 bg-cibc-bgSection rounded-xl border border-cibc-border">
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Nama Korporasi' : 'Corporation Name'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step3Form.register('corporationName')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Posisi' : 'Position'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step3Form.register('position')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgCard border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    />
-                  </div>
+              {/* Conditional Inputs based on Category */}
+              {watchedCategory && (
+                <div className="grid md:grid-cols-2 gap-6 bg-white pt-2">
+                  {watchedCategory === 'student' && (
+                    <>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                          {language === 'id' ? 'Nama Institusi' : 'Institution Name'}
+                        </label>
+                        <input
+                          type="text"
+                          {...step3Form.register('institutionName')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                          {language === 'id' ? 'Jurusan' : 'Major'}
+                        </label>
+                        <input
+                          type="text"
+                          {...step3Form.register('major')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {watchedCategory === 'startup' && (
+                    <>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                          {language === 'id' ? 'Nama Perusahaan' : 'Company Name'}
+                        </label>
+                        <input
+                          type="text"
+                          {...step3Form.register('companyName')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">Stage</label>
+                        <select
+                          {...step3Form.register('companyStage')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        >
+                          <option value="idea">Idea Stage</option>
+                          <option value="mvp">MVP</option>
+                          <option value="revenue">Generating Revenue</option>
+                          <option value="growth">Growth Stage</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                  {watchedCategory === 'corporate' && (
+                    <>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                          {language === 'id' ? 'Nama Korporasi' : 'Corporation Name'}
+                        </label>
+                        <input
+                          type="text"
+                          {...step3Form.register('corporationName')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                          {language === 'id' ? 'Posisi' : 'Position'}
+                        </label>
+                        <input
+                          type="text"
+                          {...step3Form.register('position')}
+                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -727,99 +614,54 @@ const CIBCRegister = () => {
 
           {/* Step 4: Team Formation */}
           {currentStep === 4 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-cibc-primary" />
-                </div>
-                <h2 className="font-display text-2xl text-white">
-                  {language === 'id' ? 'Formasi Tim' : 'Team Formation'}
-                </h2>
-                <p className="font-body text-cibc-textSecondary mt-2">
-                  {language === 'id'
-                    ? 'Anda terdaftar sebagai ketua tim'
-                    : 'You are registered as team leader'}
-                </p>
-              </div>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Formasi Tim' : 'Team Details'}
+              </h2>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <label
-                  className={`relative flex items-center p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                    watchedHasTeam === false
-                      ? 'border-cibc-primary bg-cibc-primary/10'
-                      : 'border-cibc-border hover:border-cibc-primary/50'
-                  }`}
-                >
+              <div className="flex gap-6 mb-8">
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="radio"
-                    value="false"
-                    {...step4Form.register('hasTeam')}
-                    onChange={() => step4Form.setValue('hasTeam', false)}
-                    className="sr-only"
+                    name="hasTeam"
+                    checked={watchedHasTeam === false}
+                    onChange={() => step4Form.setValue('hasTeam', false, { shouldValidate: true })}
+                    className="w-5 h-5 text-[#FFB22C] focus:ring-[#FFB22C] border-gray-300"
                   />
-                  <div className="text-center flex-1">
-                    <User className="w-8 h-8 mx-auto mb-2 text-cibc-textSecondary" />
-                    <h3 className="font-display text-lg text-white">
-                      {language === 'id' ? 'Peserta Individu' : 'Solo Participant'}
-                    </h3>
-                    <p className="font-body text-sm text-cibc-textSecondary">
-                      {language === 'id' ? 'Hanya saya sendiri' : 'Just me'}
-                    </p>
-                  </div>
+                  <span className="font-semibold text-sm text-[#0F0F0F]">
+                    {language === 'id' ? 'Individu' : 'Solo'}
+                  </span>
                 </label>
-
-                <label
-                  className={`relative flex items-center p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                    watchedHasTeam === true
-                      ? 'border-cibc-primary bg-cibc-primary/10'
-                      : 'border-cibc-border hover:border-cibc-primary/50'
-                  }`}
-                >
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="radio"
-                    value="true"
-                    {...step4Form.register('hasTeam')}
-                    onChange={() => step4Form.setValue('hasTeam', true)}
-                    className="sr-only"
+                    name="hasTeam"
+                    checked={watchedHasTeam === true}
+                    onChange={() => step4Form.setValue('hasTeam', true, { shouldValidate: true })}
+                    className="w-5 h-5 text-[#FFB22C] focus:ring-[#FFB22C] border-gray-300"
                   />
-                  <div className="text-center flex-1">
-                    <Users className="w-8 h-8 mx-auto mb-2 text-cibc-textSecondary" />
-                    <h3 className="font-display text-lg text-white">
-                      {language === 'id' ? 'Dengan Tim' : 'With Team'}
-                    </h3>
-                    <p className="font-body text-sm text-cibc-textSecondary">
-                      {language === 'id' ? 'Dengan anggota lain' : 'With other members'}
-                    </p>
-                  </div>
+                  <span className="font-semibold text-sm text-[#0F0F0F]">
+                    {language === 'id' ? 'Dengan Tim' : 'With Team'}
+                  </span>
                 </label>
               </div>
 
               {watchedHasTeam && (
-                <div className="space-y-4 mt-6">
-                  <div>
-                    <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id' ? 'Nama Tim' : 'Team Name'}
-                    </label>
-                    <input
-                      type="text"
-                      {...step4Form.register('teamName')}
-                      className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                      placeholder={language === 'id' ? 'Contoh: Green Innovators' : 'e.g., Green Innovators'}
-                    />
-                  </div>
-
-                  <div className="p-4 bg-cibc-bgSection rounded-xl border border-cibc-border">
-                    <p className="font-body text-sm text-cibc-textSecondary mb-2">
-                      {language === 'id'
-                        ? 'Setelah registrasi, Anda dapat mengundang anggota tim via email atau kode undangan.'
-                        : 'After registration, you can invite team members via email or invitation code.'}
-                    </p>
-                    <p className="font-body text-xs text-cibc-textMuted">
-                      {language === 'id'
-                        ? 'Maksimal 5 anggota untuk Student/Startup, 10 untuk Corporate'
-                        : 'Max 5 members for Student/Startup, 10 for Corporate'}
-                    </p>
-                  </div>
+                <div className="animate-in fade-in">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'Nama Tim' : 'Team Name'}
+                  </label>
+                  <input
+                    type="text"
+                    {...step4Form.register('teamName')}
+                    className="w-full md:w-1/2 bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Enter Team Name"
+                  />
+                  <p className="text-xs text-gray-500 mt-3">
+                    {language === 'id'
+                      ? '* Anda dapat mengundang anggota tim via email setelah pendaftaran selesai.'
+                      : '* You can invite members via email after registration is complete.'}
+                  </p>
                 </div>
               )}
             </div>
@@ -827,164 +669,117 @@ const CIBCRegister = () => {
 
           {/* Step 5: Project Info */}
           {currentStep === 5 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Leaf className="w-8 h-8 text-cibc-primary" />
-                </div>
-                <h2 className="font-display text-2xl text-white">
-                  {language === 'id' ? 'Informasi Proyek' : 'Project Information'}
-                </h2>
-              </div>
-
-              <div className="space-y-4">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Detail Proyek' : 'Project Details'}
+              </h2>
+              <div className="space-y-6">
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Nama Proyek' : 'Project Name'}
                   </label>
                   <input
                     type="text"
                     {...step5Form.register('projectName')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    placeholder={language === 'id' ? 'Contoh: EcoSort AI' : 'e.g., EcoSort AI'}
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Enter Project Name"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                    {language === 'id' ? 'Deskripsi Singkat (maks. 100 kata)' : 'One-line Description (max 100 words)'}
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'Visi & Misi (maks. 100 karakter)' : 'Vision & Mission (max 100 char)'}
                   </label>
                   <input
                     type="text"
                     {...step5Form.register('oneLineDescription')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body"
-                    placeholder={language === 'id' ? 'Solusi AI untuk sortir sampah plastik' : 'AI solution for plastic waste sorting'}
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder="Type Here..."
                     maxLength={100}
                   />
-                  <p className="text-xs text-cibc-textMuted mt-1 font-body">
-                    {step5Form.watch('oneLineDescription')?.length || 0}/100
-                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                      {language === 'id' ? 'Masalah' : 'Problem Statement'}
+                    </label>
+                    <textarea
+                      {...step5Form.register('problemStatement')}
+                      className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm resize-none"
+                      rows={4}
+                      placeholder="Type Here..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                      {language === 'id' ? 'Solusi' : 'Solution Overview'}
+                    </label>
+                    <textarea
+                      {...step5Form.register('solutionOverview')}
+                      className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm resize-none"
+                      rows={4}
+                      placeholder="Type Here..."
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                    {language === 'id' ? 'Pernyataan Masalah' : 'Problem Statement'}
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-3">
+                    {language === 'id' ? 'Pilih SDG (maks. 3)' : 'Select SDG (max 3)'}
                   </label>
-                  <textarea
-                    {...step5Form.register('problemStatement')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body resize-none"
-                    rows={4}
-                    placeholder={language === 'id'
-                      ? 'Jelaskan masalah yang ingin Anda selesaikan...'
-                      : 'Describe the problem you want to solve...'}
-                  />
-                  <p className="text-xs text-cibc-textMuted mt-1 font-body">
-                    {step5Form.watch('problemStatement')?.length || 0} / 50 min
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-2">
-                    {language === 'id' ? 'Ikhtisar Solusi' : 'Solution Overview'}
-                  </label>
-                  <textarea
-                    {...step5Form.register('solutionOverview')}
-                    className="w-full px-4 py-3 rounded-lg bg-cibc-bgSection border border-cibc-border text-white focus:border-cibc-primary outline-none font-body resize-none"
-                    rows={4}
-                    placeholder={language === 'id'
-                      ? 'Jelaskan solusi yang Anda tawarkan...'
-                      : 'Describe your proposed solution...'}
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-body text-sm text-cibc-textSecondary mb-3">
-                    {language === 'id' ? 'Keselarasan SDG (maks. 3)' : 'SDG Alignment (max 3)'}
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {SDG_OPTIONS.map(sdg => (
-                      <button
-                        key={sdg.value}
-                        type="button"
-                        onClick={() => toggleSDG(sdg.value)}
-                        disabled={!selectedSDGs.includes(sdg.value) && selectedSDGs.length >= 3}
-                        className={`p-3 rounded-lg text-xs font-body transition-all ${
-                          selectedSDGs.includes(sdg.value)
-                            ? 'text-white'
-                            : 'bg-cibc-bgSection text-cibc-textSecondary hover:bg-cibc-border'
-                        }`}
-                        style={{
-                          backgroundColor: selectedSDGs.includes(sdg.value) ? sdg.color : undefined,
-                        }}
-                      >
-                        {sdg.label}
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap gap-2">
+                    {SDG_OPTIONS.map(sdg => {
+                      const isSelected = selectedSDGs.includes(sdg.value);
+                      const isDisabled = !isSelected && selectedSDGs.length >= 3;
+                      return (
+                        <button
+                          key={sdg.value}
+                          type="button"
+                          onClick={() => toggleSDG(sdg.value)}
+                          disabled={isDisabled}
+                          className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${isSelected
+                            ? 'text-white shadow-sm'
+                            : 'bg-[#F4F6F8] text-gray-500 hover:bg-gray-200'
+                            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          style={{ backgroundColor: isSelected ? sdg.color : undefined }}
+                        >
+                          {sdg.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-cibc-border">
-            <button
-              type="button"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-body text-sm transition-colors ${
-                currentStep === 1
-                  ? 'text-cibc-textMuted cursor-not-allowed'
-                  : 'text-cibc-textSecondary hover:bg-cibc-bgSection'
-              }`}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              {language === 'id' ? 'Kembali' : 'Back'}
-            </button>
-
-            {currentStep < 5 ? (
+          {/* Bottom Centered Navigation Button */}
+          <div className="flex justify-center items-center gap-4 mt-12">
+            {currentStep > 1 && (
               <button
                 type="button"
-                onClick={nextStep}
-                className="flex items-center gap-2 px-8 py-3 bg-cibc-primary text-cibc-textDark rounded-full font-body text-sm hover:bg-cibc-primaryDark transition-colors"
+                onClick={prevStep}
+                className="px-6 py-3 font-semibold text-sm text-gray-400 hover:text-[#0F0F0F] transition-colors"
               >
-                {language === 'id' ? 'Lanjut' : 'Continue'}
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onSubmit}
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-8 py-3 bg-cibc-primary text-cibc-textDark rounded-full font-body text-sm hover:bg-cibc-primaryDark transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-cibc-textDark/30 border-t-cibc-textDark rounded-full animate-spin" />
-                    {language === 'id' ? 'Mendaftar...' : 'Registering...'}
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4" />
-                    {language === 'id' ? 'Selesaikan Registrasi' : 'Complete Registration'}
-                  </>
-                )}
+                {language === 'id' ? 'Kembali' : 'Cancel'}
               </button>
             )}
-          </div>
-        </div>
 
-        {/* Login Link */}
-        <div className="text-center mt-6">
-          <p className="font-body text-sm text-cibc-textSecondary">
-            {language === 'id' ? 'Sudah punya akun?' : 'Already have an account?'}
             <button
-              onClick={() => navigate('/cibc/login')}
-              className="ml-2 text-cibc-primary hover:underline"
+              type="button"
+              onClick={currentStep < 5 ? nextStep : onSubmit}
+              disabled={isSubmitting}
+              className="px-10 py-3.5 bg-[#FFB22C] text-[#0F0F0F] rounded-full font-bold text-sm hover:bg-[#FFB22C]/90 shadow-md shadow-[#FFB22C]/20 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {language === 'id' ? 'Masuk di sini' : 'Login here'}
+              {isSubmitting ? '...' : (
+                currentStep < 5
+                  ? (language === 'id' ? 'Simpan & Lanjut' : 'Save & Continue')
+                  : (language === 'id' ? 'Selesai' : 'Complete Registration')
+              )}
             </button>
-          </p>
+          </div>
+
         </div>
       </div>
     </div>
