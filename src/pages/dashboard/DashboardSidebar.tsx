@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    LayoutDashboard, Users, FileText, Upload, Calendar, Settings, LogOut, X
+    LayoutDashboard, Users, FileText, Upload, Settings, LogOut, X
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,7 +23,7 @@ const DashboardSidebar: React.FC<SidebarProps> = ({
         { id: 'team', label: 'Tim Saya', icon: Users },
         { id: 'submission', label: 'Pengumpulan', icon: Upload },
         { id: 'resources', label: 'Dokumen', icon: FileText },
-        { id: 'schedule', label: 'Jadwal', icon: Calendar },
+        // { id: 'schedule', label: 'Jadwal', icon: Calendar },
         { id: 'settings', label: 'Pengaturan', icon: Settings },
     ];
 

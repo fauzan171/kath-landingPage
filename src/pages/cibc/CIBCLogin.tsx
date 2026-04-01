@@ -201,26 +201,28 @@ const CIBCLogin: React.FC = () => {
     <div className="min-h-screen bg-white flex font-body">
       {/* Left Side - Branding & Stats */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#F9F8F6] relative overflow-hidden border-r border-gray-100">
-        {/* Decorative Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-20 w-72 h-72 bg-[#FFB22C]/10 rounded-full blur-3xl" />
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#FFB22C]/10 rounded-full blur-3xl" />
         </div>
 
-        {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 lg:px-24">
-          {/* Logo */}
-          <Link to="/cibc" className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 bg-[#FFB22C] rounded-xl flex items-center justify-center shadow-md shadow-[#FFB22C]/20">
-              <span className="text-white font-bold text-xl font-display">K</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[#0F0F0F] font-display">CIBC Power</h1>
-              <p className="text-gray-500 text-sm font-medium">by KATH</p>
-            </div>
+          {/* Logo Terupdate (Sama dengan Footer) */}
+          <Link to="/cibc" className="flex flex-col items-start gap-2 mb-12 group">
+            <img
+              src="/CIBC-logo-white.png"
+              alt="CIBC Power Logo"
+              className="h-14 md:h-16 w-auto object-contain transition-all duration-300 transform-gpu"
+              style={{
+                filter: 'brightness(0)',
+                opacity: 0.9
+              }}
+            />
+            {/* <p className="font-body text-[10px] md:text-xs text-gray-500 font-semibold tracking-wider ml-1">
+              by KATH Event Organizer
+            </p> */}
           </Link>
 
-          {/* Tagline */}
           <h2 className="text-4xl font-bold text-[#0F0F0F] mb-4 font-display leading-tight">
             Innovate for a<br />
             <span className="text-[#FFB22C]">Sustainable Future</span>
@@ -229,7 +231,6 @@ const CIBCLogin: React.FC = () => {
             Join thousands of innovators competing to solve real-world sustainability challenges.
           </p>
 
-          {/* Stats */}
           <div className="space-y-4">
             {stats.map((stat) => (
               <div
@@ -252,26 +253,28 @@ const CIBCLogin: React.FC = () => {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative">
         <div className="login-card w-full max-w-md z-10">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <div className="w-10 h-10 bg-[#FFB22C] rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-lg font-display">K</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-[#0F0F0F] font-display">CIBC Power</h1>
-              <p className="text-gray-500 text-xs font-medium">by KATH</p>
-            </div>
+          {/* Mobile Logo Terupdate */}
+          <div className="lg:hidden flex flex-col items-center justify-center gap-2 mb-10">
+            <img
+              src="/CIBC-logo-white.png"
+              alt="CIBC Power Logo"
+              className="h-12 w-auto object-contain"
+              style={{
+                filter: 'brightness(0)',
+                opacity: 0.9
+              }}
+            />
+            {/* <p className="font-body text-[9px] text-gray-500 font-semibold tracking-wider">
+              by KATH Event Organizer
+            </p> */}
           </div>
 
-          {/* Header */}
           <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#0F0F0F] mb-3 font-display">Welcome Back</h2>
             <p className="text-gray-500 font-medium text-sm sm:text-base">Sign in to access your competition dashboard</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
             <div>
               <Label htmlFor="email" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                 Email Address
@@ -284,14 +287,12 @@ const CIBCLogin: React.FC = () => {
                   placeholder="your@email.com"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className={`w-full bg-[#F4F6F8] pl-11 pr-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''
-                    }`}
+                  className={`w-full bg-[#F4F6F8] pl-11 pr-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''}`}
                 />
               </div>
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
-            {/* Password */}
             <div>
               <Label htmlFor="password" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                 Password
@@ -304,14 +305,12 @@ const CIBCLogin: React.FC = () => {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full bg-[#F4F6F8] pl-11 pr-12 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''
-                    }`}
+                  className={`w-full bg-[#F4F6F8] pl-11 pr-12 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0F0F0F] transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -319,7 +318,6 @@ const CIBCLogin: React.FC = () => {
               {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between pt-1">
               <div className="flex items-center gap-2">
                 <input
@@ -333,15 +331,11 @@ const CIBCLogin: React.FC = () => {
                   Remember me
                 </Label>
               </div>
-              <Link
-                to="/cibc/forgot-password"
-                className="text-[#FFB22C] text-sm font-bold hover:text-[#FFB22C]/80 transition-colors"
-              >
+              <Link to="/cibc/forgot-password" className="text-[#FFB22C] text-sm font-bold hover:text-[#FFB22C]/80 transition-colors">
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -361,7 +355,6 @@ const CIBCLogin: React.FC = () => {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -371,7 +364,6 @@ const CIBCLogin: React.FC = () => {
             </div>
           </div>
 
-          {/* Register Link */}
           <Link
             to="/cibc/register"
             className="flex items-center justify-center w-full py-3.5 px-4 border-2 border-[#F4F6F8] text-[#0F0F0F] font-bold text-sm rounded-xl hover:border-[#FFB22C] hover:bg-[#FFB22C]/5 transition-all"
@@ -379,7 +371,6 @@ const CIBCLogin: React.FC = () => {
             Create Your Team Account
           </Link>
 
-          {/* Back to Landing */}
           <Link
             to="/cibc"
             className="block w-full text-center mt-6 text-gray-400 hover:text-[#0F0F0F] transition-colors text-sm font-medium"
