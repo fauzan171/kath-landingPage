@@ -59,6 +59,9 @@ import {
   AdminSubmissions,
   AdminAnnouncements,
   AdminUsers,
+  AdminTasks,
+  AdminGrading,
+  AdminLeaderboard,
 } from './pages/admin';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -165,7 +168,10 @@ function App() {
         {/* Competition Management */}
         <Route path="registrations" element={<AdminRegistrations />} />
         <Route path="stages" element={<AdminStages />} />
+        <Route path="tasks" element={<AdminTasks />} />
         <Route path="submissions" element={<AdminSubmissions />} />
+        <Route path="grading" element={<AdminGrading />} />
+        <Route path="leaderboard" element={<AdminLeaderboard />} />
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="users" element={<AdminUsers />} />
       </Route>

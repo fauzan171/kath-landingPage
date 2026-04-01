@@ -19,3 +19,8 @@ export { default as AdminStages } from './AdminStages';
 export { default as AdminSubmissions } from './AdminSubmissions';
 export { default as AdminAnnouncements } from './AdminAnnouncements';
 export { default as AdminUsers } from './AdminUsers';
+
+// Competition Management - Enhanced (PRD)
+export { default as AdminTasks } from './AdminTasks';
+export { default as AdminGrading } from './AdminGrading';
+export { default as AdminLeaderboard } from './AdminLeaderboard';
