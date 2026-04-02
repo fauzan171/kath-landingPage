@@ -133,13 +133,48 @@ const CIBCLogin: React.FC = () => {
             .eq('user_id', user.id)
             .single();
 
+          const userRole = roleData?.role || 'participant';
+
+          // ============================================
+          // ADMIN APPROVAL CHECK
+          // ============================================
+          // Admins can always login
+          if (userRole !== 'admin' && userRole !== 'super_admin') {
+            // Check if user is approved
+            // Status: 'pending' = waiting approval, 'approved' = can login, 'rejected' = blocked
+            const userStatus = userData?.status || 'pending';
+
+            if (userStatus === 'pending') {
+              // Sign out the user immediately
+              await supabaseAuthService.signOut();
+
+              toast.warning('Account Pending Approval', {
+                description: 'Your account is waiting for admin approval. Please check your email for confirmation.',
+              });
+
+              // Redirect to pending approval page
+              navigate('/cibc/pending-approval');
+              return;
+            }
+
+            if (userStatus === 'rejected') {
+              // Sign out the user immediately
+              await supabaseAuthService.signOut();
+
+              toast.error('Account Rejected', {
+                description: userData?.rejected_reason || 'Your registration was not approved. Contact support for more information.',
+              });
+              return;
+            }
+          }
+
           // Store session info
           localStorage.setItem('cibc_current_user', JSON.stringify({
             id: user.id,
             email: user.email,
             fullName: userData?.name || user.email?.split('@')[0],
             category: userData?.category || 'student',
-            role: roleData?.role || 'participant',
+            role: userRole,
           }));
         }
 

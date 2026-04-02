@@ -207,10 +207,16 @@ const CIBCRegister = () => {
         const competition = await competitionService.getActive();
         if (!competition) throw new Error('Competition not found');
 
+        // Create user with PENDING status (requires admin approval)
         const { error: userError } = await supabase.from('users').insert({
-          id: user.id, email: step1Data.email, name: step2Data.fullName, phone: step2Data.phone,
+          id: user.id,
+          email: step1Data.email,
+          name: step2Data.fullName,
+          phone: step2Data.phone,
           institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
-          category: step3Data.category, is_verified: false,
+          category: step3Data.category,
+          is_verified: false,
+          status: 'pending', // PENDING - needs admin approval
         });
         if (userError) console.error('Error creating user record:', userError);
 
@@ -218,19 +224,27 @@ const CIBCRegister = () => {
         const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;
         const teamCategory: 'student' | 'open' = step3Data.category === 'student' ? 'student' : 'open';
 
-        const team = await teamsService.create({
+        await teamsService.create({
           competition_id: competition.id, name: teamName, category: teamCategory, institution,
         }, user.id);
 
-        localStorage.setItem('cibc_current_user', JSON.stringify({
-          id: user.id, email: step1Data.email, fullName: step2Data.fullName, category: step3Data.category, teamId: team.id,
-        }));
+        // Don't store user session - they need to wait for approval
+        // localStorage.setItem('cibc_current_user', ...) - REMOVED
+
+        // Sign out the user - they need admin approval first
+        await supabaseAuthService.signOut();
 
         toast.success(
-          language === 'id' ? 'Registrasi berhasil! Mengarahkan ke dashboard...' : 'Registration successful! Redirecting to dashboard...',
-          { description: language === 'id' ? 'Tim Anda sedang menunggu verifikasi.' : 'Your team is pending verification.' }
+          language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!',
+          {
+            description: language === 'id'
+              ? 'Akun Anda sedang menunggu persetujuan admin. Anda akan menerima email setelah disetujui.'
+              : 'Your account is pending admin approval. You will receive an email once approved.'
+          }
         );
-        navigate('/cibc/dashboard');
+
+        // Redirect to pending approval page
+        navigate('/cibc/pending-approval');
       } else {
         // Fallback to localStorage (mock mode) ... (Logika sama)
         const userId = `user_${Date.now()}`;
@@ -240,6 +254,7 @@ const CIBCRegister = () => {
         const newUser = {
           id: userId, email: step1Data.email, password: step1Data.password, fullName: step2Data.fullName,
           category: step3Data.category, teamId: teamId, createdAt: new Date().toISOString(),
+          status: 'pending', // PENDING - needs admin approval
         };
 
         const newTeam = {
@@ -262,10 +277,15 @@ const CIBCRegister = () => {
         const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
         submissions.push(newSubmission); localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
 
-        localStorage.setItem('cibc_current_user', JSON.stringify({ id: userId, email: newUser.email, fullName: newUser.fullName, category: newUser.category, teamId: teamId }));
+        // Don't auto-login - user needs admin approval
+        // localStorage.setItem('cibc_current_user', ...) - REMOVED
 
-        toast.success(language === 'id' ? 'Registrasi berhasil! Mengarahkan ke dashboard...' : 'Registration successful! Redirecting to dashboard...');
-        navigate('/cibc/dashboard');
+        toast.success(language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!', {
+          description: language === 'id'
+            ? 'Akun Anda sedang menunggu persetujuan admin.'
+            : 'Your account is pending admin approval.'
+        });
+        navigate('/cibc/pending-approval');
       }
     } catch (error) {
       console.error('Registration error:', error);

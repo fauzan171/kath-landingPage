@@ -40,6 +40,7 @@ import CIBCLanding from './pages/cibc-landing/CIBCLanding'; // Folder baru untuk
 import CIBCRegister from './pages/cibc/CIBCRegister';
 import CIBCLogin from './pages/cibc/CIBCLogin';
 import CIBCDashboard from './pages/dashboard/CIBCDashboard';
+import PendingApproval from './pages/cibc/PendingApproval';
 
 // Admin Pages
 import {
@@ -59,6 +60,7 @@ import {
   AdminSubmissions,
   AdminAnnouncements,
   AdminUsers,
+  AdminUserApproval,
   AdminTasks,
   AdminGrading,
   AdminLeaderboard,
@@ -150,6 +152,7 @@ function App() {
       <Route path="/cibc" element={<CIBCLanding />} />
       <Route path="/cibc/login" element={<CIBCLogin />} />
       <Route path="/cibc/register" element={<CIBCRegister />} />
+      <Route path="/cibc/pending-approval" element={<PendingApproval />} />
       <Route path="/cibc/dashboard" element={<CIBCDashboard />} />
 
       {/* Admin Routes */}
@@ -174,6 +177,7 @@ function App() {
         <Route path="leaderboard" element={<AdminLeaderboard />} />
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="user-approval" element={<AdminUserApproval />} />
       </Route>
     </Routes>
   );
