@@ -14,11 +14,11 @@ import { z } from 'zod';
 import {
   ChevronLeft, Check, Mail, User,
   Building2, GraduationCap, Briefcase,
-  Users, Leaf, Target, CreditCard, Upload
+  Users, Target, CreditCard, Upload
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
-import type { CompetitionCategory, SDG } from '../../types/cibc';
+import type { CompetitionCategory } from '../../types/cibc';
 import { isSupabaseConfigured } from '@/config/environment';
 import { supabase } from '@/lib/supabase';
 import { supabaseAuthService } from '@/services/supabase.service';
@@ -67,31 +67,11 @@ const step4Schema = z.object({
 });
 
 const step5Schema = z.object({
-  projectName: z.string().min(3, 'Project name must be at least 3 characters'),
-  oneLineDescription: z.string().min(20, 'Description must be at least 20 characters').max(100),
-  problemStatement: z.string().min(50, 'Problem statement must be at least 50 characters'),
-  solutionOverview: z.string().min(50, 'Solution overview must be at least 50 characters'),
-  sdgAlignment: z.array(z.string()).min(1, 'Select at least 1 SDG'),
-});
-
-const step6Schema = z.object({
   paymentFile: z.any().optional(), // File handled separately
   agreeToPayment: z.boolean().refine(val => val === true, {
     message: 'You must confirm payment submission',
   }),
 });
-
-// SDG Options
-const SDG_OPTIONS: { value: SDG; label: string; color: string }[] = [
-  { value: 'clean_energy', label: 'Affordable & Clean Energy', color: '#FCC30B' },
-  { value: 'industry_innovation', label: 'Industry, Innovation & Infrastructure', color: '#FD6925' },
-  { value: 'responsible_consumption', label: 'Responsible Consumption & Production', color: '#BF8B2E' },
-  { value: 'climate_action', label: 'Climate Action', color: '#3F7E44' },
-  { value: 'sustainable_cities', label: 'Sustainable Cities & Communities', color: '#FD9D24' },
-  { value: 'life_on_land', label: 'Life on Land', color: '#56C02B' },
-  { value: 'life_below_water', label: 'Life Below Water', color: '#0A97D9' },
-  { value: 'clean_water', label: 'Clean Water & Sanitation', color: '#26BDE2' },
-];
 
 // Country Options
 const COUNTRIES = [
@@ -108,7 +88,6 @@ const CIBCRegister = () => {
   const { language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedSDGs, setSelectedSDGs] = useState<SDG[]>([]);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [paymentUploaded, setPaymentUploaded] = useState<string | null>(null);
 
@@ -153,17 +132,6 @@ const CIBCRegister = () => {
   const step5Form = useForm({
     resolver: zodResolver(step5Schema),
     defaultValues: {
-      projectName: '',
-      oneLineDescription: '',
-      problemStatement: '',
-      solutionOverview: '',
-      sdgAlignment: [],
-    },
-  });
-
-  const step6Form = useForm({
-    resolver: zodResolver(step6Schema),
-    defaultValues: {
       paymentFile: null,
       agreeToPayment: false,
     },
@@ -182,28 +150,18 @@ const CIBCRegister = () => {
       case 3: isValid = await step3Form.trigger(); break;
       case 4: isValid = await step4Form.trigger(); break;
       case 5: isValid = await step5Form.trigger(); break;
-      case 6: isValid = await step6Form.trigger(); break;
     }
 
-    if (isValid && currentStep < 6) {
+    if (isValid && currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
-  }, [currentStep, step1Form, step2Form, step3Form, step4Form, step5Form, step6Form]);
+  }, [currentStep, step1Form, step2Form, step3Form, step4Form, step5Form]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   }, [currentStep]);
-
-  // Toggle SDG selection
-  const toggleSDG = (sdg: SDG) => {
-    const newSelection = selectedSDGs.includes(sdg)
-      ? selectedSDGs.filter(s => s !== sdg)
-      : [...selectedSDGs, sdg].slice(0, 3);
-    setSelectedSDGs(newSelection);
-    step5Form.setValue('sdgAlignment', newSelection);
-  };
 
   // Final submission
   const onSubmit = async () => {
@@ -214,10 +172,9 @@ const CIBCRegister = () => {
       const step3Data = step3Form.getValues();
       const step4Data = step4Form.getValues();
       const step5Data = step5Form.getValues();
-      const step6Data = step6Form.getValues();
 
       // Validate payment confirmation
-      if (!step6Data.agreeToPayment) {
+      if (!step5Data.agreeToPayment) {
         toast.error(language === 'id' ? 'Harap konfirmasi pembayaran' : 'Please confirm payment');
         setIsSubmitting(false);
         return;
@@ -321,18 +278,11 @@ const CIBCRegister = () => {
           paymentProof: paymentUploaded,
         };
 
-        const newSubmission = {
-          id: `sub_${Date.now()}`, teamId: teamId, projectName: step5Data.projectName, oneLineDescription: step5Data.oneLineDescription, problemStatement: step5Data.problemStatement, solutionOverview: step5Data.solutionOverview, sdgAlignment: step5Data.sdgAlignment, documents: [], status: 'draft' as const, currentPhase: 'registration' as const,
-        };
-
         const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
         users.push(newUser); localStorage.setItem('cibc_users', JSON.stringify(users));
 
         const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
         teams.push(newTeam); localStorage.setItem('cibc_teams', JSON.stringify(teams));
-
-        const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
-        submissions.push(newSubmission); localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
 
         toast.success(language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!', {
           description: language === 'id'
@@ -356,8 +306,7 @@ const CIBCRegister = () => {
     { number: 2, label: language === 'id' ? 'Personal' : 'Personal', icon: User },
     { number: 3, label: language === 'id' ? 'Kategori' : 'Category', icon: Target },
     { number: 4, label: language === 'id' ? 'Tim' : 'Team', icon: Users },
-    { number: 5, label: language === 'id' ? 'Proyek' : 'Project', icon: Leaf },
-    { number: 6, label: language === 'id' ? 'Pembayaran' : 'Payment', icon: CreditCard },
+    { number: 5, label: language === 'id' ? 'Pembayaran' : 'Payment', icon: CreditCard },
   ];
 
   return (
@@ -402,7 +351,7 @@ const CIBCRegister = () => {
           {/* Active Line */}
           <div
             className="absolute top-[18px] left-[10%] h-[2px] bg-[#FFB22C] transition-all duration-500 -z-10"
-            style={{ width: `${((currentStep - 1) / 5) * 80}%` }}
+            style={{ width: `${((currentStep - 1) / 4) * 80}%` }}
           />
 
           <div className="flex justify-between">
@@ -422,8 +371,7 @@ const CIBCRegister = () => {
                   {step.number === 2 && (language === 'id' ? 'Personal' : 'Personal')}
                   {step.number === 3 && (language === 'id' ? 'Kategori' : 'Category')}
                   {step.number === 4 && (language === 'id' ? 'Tim' : 'Team')}
-                  {step.number === 5 && (language === 'id' ? 'Proyek' : 'Project')}
-                  {step.number === 6 && (language === 'id' ? 'Pembayaran' : 'Payment')}
+                  {step.number === 5 && (language === 'id' ? 'Pembayaran' : 'Payment')}
                 </span>
               </div>
             ))}
@@ -743,95 +691,8 @@ const CIBCRegister = () => {
             </div>
           )}
 
-          {/* Step 5: Project Info */}
+          {/* Step 5: Payment */}
           {currentStep === 5 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
-                {language === 'id' ? 'Detail Proyek' : 'Project Details'}
-              </h2>
-              <div className="space-y-6">
-                <div>
-                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                    {language === 'id' ? 'Nama Proyek' : 'Project Name'}
-                  </label>
-                  <input
-                    type="text"
-                    {...step5Form.register('projectName')}
-                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Enter Project Name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                    {language === 'id' ? 'Visi & Misi (maks. 100 karakter)' : 'Vision & Mission (max 100 char)'}
-                  </label>
-                  <input
-                    type="text"
-                    {...step5Form.register('oneLineDescription')}
-                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Type Here..."
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                      {language === 'id' ? 'Masalah' : 'Problem Statement'}
-                    </label>
-                    <textarea
-                      {...step5Form.register('problemStatement')}
-                      className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm resize-none"
-                      rows={4}
-                      placeholder="Type Here..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                      {language === 'id' ? 'Solusi' : 'Solution Overview'}
-                    </label>
-                    <textarea
-                      {...step5Form.register('solutionOverview')}
-                      className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm resize-none"
-                      rows={4}
-                      placeholder="Type Here..."
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-3">
-                    {language === 'id' ? 'Pilih SDG (maks. 3)' : 'Select SDG (max 3)'}
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {SDG_OPTIONS.map(sdg => {
-                      const isSelected = selectedSDGs.includes(sdg.value);
-                      const isDisabled = !isSelected && selectedSDGs.length >= 3;
-                      return (
-                        <button
-                          key={sdg.value}
-                          type="button"
-                          onClick={() => toggleSDG(sdg.value)}
-                          disabled={isDisabled}
-                          className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${isSelected
-                            ? 'text-white shadow-sm'
-                            : 'bg-[#F4F6F8] text-gray-500 hover:bg-gray-200'
-                            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          style={{ backgroundColor: isSelected ? sdg.color : undefined }}
-                        >
-                          {sdg.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 6: Payment */}
-          {currentStep === 6 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Bukti Pembayaran' : 'Payment Proof'}
@@ -931,7 +792,7 @@ const CIBCRegister = () => {
               <div className="flex items-start gap-3 mt-6">
                 <input
                   type="checkbox"
-                  {...step6Form.register('agreeToPayment')}
+                  {...step5Form.register('agreeToPayment')}
                   className="mt-1 w-5 h-5 rounded border-gray-300 text-[#FFB22C] focus:ring-[#FFB22C] cursor-pointer"
                 />
                 <label className="text-sm text-gray-600 cursor-pointer">
@@ -940,8 +801,8 @@ const CIBCRegister = () => {
                     : 'I confirm that the payment proof I uploaded is valid and accurate.'}
                 </label>
               </div>
-              {step6Form.formState.errors.agreeToPayment && (
-                <p className="mt-1 text-xs text-red-500">{step6Form.formState.errors.agreeToPayment.message}</p>
+              {step5Form.formState.errors.agreeToPayment && (
+                <p className="mt-1 text-xs text-red-500">{step5Form.formState.errors.agreeToPayment.message}</p>
               )}
             </div>
           )}
@@ -960,12 +821,12 @@ const CIBCRegister = () => {
 
             <button
               type="button"
-              onClick={currentStep < 6 ? nextStep : onSubmit}
+              onClick={currentStep < 5 ? nextStep : onSubmit}
               disabled={isSubmitting}
               className="px-10 py-3.5 bg-[#FFB22C] text-[#0F0F0F] rounded-full font-bold text-sm hover:bg-[#FFB22C]/90 shadow-md shadow-[#FFB22C]/20 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isSubmitting ? '...' : (
-                currentStep < 6
+                currentStep < 5
                   ? (language === 'id' ? 'Simpan & Lanjut' : 'Save & Continue')
                   : (language === 'id' ? 'Selesai' : 'Complete Registration')
               )}
