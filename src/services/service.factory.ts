@@ -2,11 +2,16 @@
  * Service Factory
  *
  * Provides unified interface for switching between
- * mock, API, and Supabase implementations
+ * mock, localStorage, and Supabase implementations
  *
- * Architecture: Supabase + Google Drive + n8n (100% FREE)
+ * Architecture:
+ * - CIBC Dashboard: Supabase + Google Drive + n8n
+ * - KATH Landing Page: localStorage (demo mode)
  *
- * UPDATED: Auth service now uses Supabase directly (Issue #1 fixed)
+ * UPDATED:
+ * - Issue #1: Auth service now uses Supabase directly
+ * - Issue #2: Competition service now uses localStorage
+ * - Issue #3: Service Factory logic simplified
  */
 
 import { env, isSupabaseConfigured } from '../config/environment';
@@ -29,7 +34,11 @@ export type ServiceType =
  * Service Factory Class
  *
  * Singleton pattern for service instances
- * Priority: Supabase > Mock > Legacy API (deprecated)
+ *
+ * Service Sources:
+ * 1. Auth: Supabase Auth (auth.service.ts)
+ * 2. CIBC Services: Supabase (supabase.service.ts)
+ * 3. KATH Services: localStorage or mock (competition.service.ts, mockData.ts)
  */
 export class ServiceFactory {
   private static instance: ServiceFactory;
@@ -44,134 +53,104 @@ export class ServiceFactory {
   }
 
   /**
-   * Get service implementation based on environment
+   * Get service implementation based on type
    *
-   * Priority:
-   * 1. Supabase (if configured) - ALWAYS preferred
-   * 2. Mock data (if useMockData)
-   * 3. Legacy API (deprecated - being phased out)
+   * Routing Logic:
+   * - auth: Always uses auth.service.ts (Supabase Auth)
+   * - CIBC services (stage, task, announcement): Supabase only
+   * - KATH services (competition, portfolio, news): localStorage
+   * - Shared services (team, submission): Supabase or mock
    */
   async getService(type: ServiceType) {
     const useMock = env.useMockData;
     const useSupabase = isSupabaseConfigured();
 
     // ============================================
-    // AUTH SERVICE - Always uses Supabase
+    // AUTH SERVICE - Supabase Auth
     // ============================================
     // FIXED: Issue #1 - Auth now uses Supabase Auth directly
     if (type === 'auth') {
-      // Auth service always uses Supabase when configured
-      // This is the ONLY correct implementation for auth
-      if (useSupabase) {
-        const auth = await import('./auth.service');
-        return auth.authService;
-      }
-      // If Supabase not configured, still return auth service
-      // (it will handle the error gracefully)
       const auth = await import('./auth.service');
       return auth.authService;
     }
 
     // ============================================
-    // SUPABASE SERVICES (CIBC Dashboard)
+    // KATH LANDING PAGE SERVICES - localStorage
     // ============================================
-    // These services ONLY work with Supabase
-    if (useSupabase && !useMock) {
-      const supabase = await import('./supabase.service');
-      const { supabaseServices } = supabase;
-
-      switch (type) {
-        case 'competition':
-          return supabaseServices.competition;
-        case 'stage':
-          return supabaseServices.stage;
-        case 'task':
-          return supabaseServices.task;
-        case 'team':
-          return supabaseServices.team;
-        case 'submission':
-          return supabaseServices.submission;
-        case 'announcement':
-          return supabaseServices.announcement;
-      }
-    }
-
-    // ============================================
-    // LEGACY SERVICES (KATH Landing Page)
-    // ============================================
-    // These services are being phased out
-    // TODO: Move to Supabase implementation
+    // FIXED: Issue #2 - Competition now uses localStorage
+    // These services are for the KATH Landing Page demo
     switch (type) {
       case 'competition':
-        if (useMock) {
-          const m = await import('./mockData');
-          return m.competitionService;
-        }
+        // Competition service uses localStorage (no REST API)
         return (await import('./competition.service')).competitionService;
       case 'portfolio':
         return (await import('./portfolio.service')).portfolioService;
       case 'news':
         return (await import('./news.service')).newsService;
+    }
+
+    // ============================================
+    // CIBC DASHBOARD SERVICES - Supabase
+    // ============================================
+    // These services require Supabase configuration
+    if (useSupabase) {
+      const supabase = await import('./supabase.service');
+      const { supabaseServices } = supabase;
+
+      switch (type) {
+        case 'stage':
+          return supabaseServices.stage;
+        case 'task':
+          return supabaseServices.task;
+        case 'announcement':
+          return supabaseServices.announcement;
+        case 'team':
+          return supabaseServices.team;
+        case 'submission':
+          return supabaseServices.submission;
+      }
+    }
+
+    // ============================================
+    // FALLBACK SERVICES - Mock or Error
+    // ============================================
+    // For services that don't have Supabase implementations
+    switch (type) {
       case 'team':
         if (useMock) {
           const m = await import('./mockData');
           return m.teamService;
         }
-        // Fallback to Supabase if available
-        if (useSupabase) {
-          const supabase = await import('./supabase.service');
-          return supabase.supabaseServices.team;
-        }
-        throw new Error('Team API service not implemented');
+        throw new Error('Team service requires Supabase configuration');
       case 'submission':
         if (useMock) {
           const m = await import('./mockData');
           return m.submissionService;
         }
-        // Fallback to Supabase if available
-        if (useSupabase) {
-          const supabase = await import('./supabase.service');
-          return supabase.supabaseServices.submission;
-        }
-        throw new Error('Submission API service not implemented');
+        throw new Error('Submission service requires Supabase configuration');
       case 'notification':
         if (useMock) {
           const m = await import('./mockData');
           return m.notificationService;
         }
-        throw new Error('Notification API service not implemented');
+        throw new Error('Notification service requires mock mode or Supabase');
       case 'profile':
         if (useMock) {
           const m = await import('./mockData');
           return m.profileService;
         }
-        throw new Error('Profile API service not implemented');
+        throw new Error('Profile service requires mock mode');
       case 'settings':
         if (useMock) {
           const m = await import('./mockData');
           return m.settingsService;
         }
-        throw new Error('Settings API service not implemented');
+        throw new Error('Settings service requires mock mode');
       case 'stage':
-        // Only available via Supabase
-        if (useSupabase) {
-          const supabase = await import('./supabase.service');
-          return supabase.supabaseServices.stage;
-        }
         throw new Error('Stage service requires Supabase configuration');
       case 'task':
-        // Only available via Supabase
-        if (useSupabase) {
-          const supabase = await import('./supabase.service');
-          return supabase.supabaseServices.task;
-        }
         throw new Error('Task service requires Supabase configuration');
       case 'announcement':
-        // Only available via Supabase
-        if (useSupabase) {
-          const supabase = await import('./supabase.service');
-          return supabase.supabaseServices.announcement;
-        }
         throw new Error('Announcement service requires Supabase configuration');
       default:
         throw new Error(`Unknown service type: ${type}`);
