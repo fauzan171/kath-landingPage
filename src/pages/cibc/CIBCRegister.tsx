@@ -722,7 +722,7 @@ const CIBCRegister = () => {
               {/* Payment Upload Component - Simple file selector for registration */}
               <div className="mb-6">
                 <label className="block font-semibold text-sm text-[#0F0F0F] mb-3">
-                  {language === 'id' ? 'Upload Bukti Pembayaran (PDF)' : 'Upload Payment Proof (PDF)'}
+                  {language === 'id' ? 'Upload Bukti Pembayaran (Foto)' : 'Upload Payment Proof (Image)'}
                 </label>
 
                 {/* File drop zone */}
@@ -730,16 +730,16 @@ const CIBCRegister = () => {
                   onDrop={(e) => {
                     e.preventDefault();
                     const droppedFile = e.dataTransfer.files[0];
-                    if (droppedFile && droppedFile.type === 'application/pdf') {
-                      if (droppedFile.size <= 10 * 1024 * 1024) {
+                    if (droppedFile && droppedFile.type.startsWith('image/')) {
+                      if (droppedFile.size <= 5 * 1024 * 1024) {
                         setPaymentFile(droppedFile);
                         setPaymentUploaded(null);
                         toast.success(language === 'id' ? 'File berhasil dipilih' : 'File selected');
                       } else {
-                        toast.error(language === 'id' ? 'File maksimal 10MB' : 'File max 10MB');
+                        toast.error(language === 'id' ? 'File maksimal 5MB' : 'File max 5MB');
                       }
                     } else {
-                      toast.error(language === 'id' ? 'Format file harus PDF' : 'File must be PDF');
+                      toast.error(language === 'id' ? 'Format file harus gambar' : 'File must be an image');
                     }
                   }}
                   onDragOver={(e) => e.preventDefault()}
@@ -749,15 +749,15 @@ const CIBCRegister = () => {
                 >
                   <input
                     type="file"
-                    accept=".pdf,application/pdf"
+                    accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        if (file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
+                        if (file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) {
                           setPaymentFile(file);
                           setPaymentUploaded(null);
                         } else {
-                          toast.error(language === 'id' ? 'Format PDF, max 10MB' : 'PDF format, max 10MB');
+                          toast.error(language === 'id' ? 'Format gambar (JPG, PNG), max 5MB' : 'Image format (JPG, PNG), max 5MB');
                         }
                       }
                     }}
@@ -773,7 +773,7 @@ const CIBCRegister = () => {
                           onClick={() => setPaymentFile(null)}
                           className="mt-2 text-sm text-red-500 hover:underline"
                         >
-                          {language === 'id' ? 'Hapus file' : 'Remove file'}
+                          {language === 'id' ? 'Hapus gambar' : 'Remove image'}
                         </button>
                       </div>
                     ) : (
@@ -781,7 +781,7 @@ const CIBCRegister = () => {
                         <p className="font-semibold text-[#0F0F0F]">
                           {language === 'id' ? 'Drag & drop atau klik untuk upload' : 'Drag & drop or click to upload'}
                         </p>
-                        <p className="text-sm text-gray-500">PDF, max 10MB</p>
+                        <p className="text-sm text-gray-500">JPG, PNG, max 5MB</p>
                       </div>
                     )}
                   </div>

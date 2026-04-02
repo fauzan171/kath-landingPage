@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { uploadPaymentProof } from '@/services/cibc.service';
 
@@ -30,18 +30,19 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(existingPaymentUrl || null);
   const [error, setError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Validasi file
   const validateFile = (file: File): string | null => {
-    // Check file type - only PDF allowed
-    if (file.type !== 'application/pdf') {
-      return 'File harus berformat PDF';
+    // Check file type - only image allowed
+    if (!file.type.startsWith('image/')) {
+      return 'File harus berupa gambar (JPG, PNG, dll)';
     }
 
-    // Check file size - max 10MB
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Check file size - max 5MB
+    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      return 'File tidak boleh lebih dari 10MB';
+      return 'File tidak boleh lebih dari 5MB';
     }
 
     return null;
@@ -64,6 +65,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
     }
 
     setFile(droppedFile);
+    setPreviewUrl(URL.createObjectURL(droppedFile));
   }, []);
 
   // Handle file input change
@@ -80,6 +82,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
     }
 
     setFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
   };
 
   // Upload file
@@ -127,6 +130,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
   // Remove file
   const handleRemove = () => {
     setFile(null);
+    setPreviewUrl(null);
     setError(null);
   };
 
@@ -153,7 +157,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
               rel="noopener noreferrer"
               className="text-sm text-green-600 hover:underline"
             >
-              Lihat file PDF
+              Lihat gambar
             </a>
           </div>
         </div>
@@ -192,7 +196,14 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
             </>
           ) : file ? (
             <>
-              <FileText className="w-12 h-12 text-[#FFB22C]" />
+              {/* Image Preview */}
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="max-h-48 rounded-xl border border-gray-200 shadow-sm"
+                />
+              )}
               <div className="text-center">
                 <p className="font-semibold text-[#0F0F0F]">{file.name}</p>
                 <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
@@ -211,11 +222,11 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
                 <p className="font-semibold text-[#0F0F0F]">
                   Drag & drop bukti pembayaran
                 </p>
-                <p className="text-sm text-gray-500">atau klik untuk memilih file</p>
+                <p className="text-sm text-gray-500">atau klik untuk memilih gambar</p>
               </div>
               <input
                 type="file"
-                accept=".pdf,application/pdf"
+                accept="image/*"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -234,8 +245,8 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
 
       {/* Requirements */}
       <div className="flex items-center gap-2 text-xs text-gray-500">
-        <FileText className="w-4 h-4" />
-        <span>Format: PDF | Maksimal: 10MB</span>
+        <Upload className="w-4 h-4" />
+        <span>Format: JPG, PNG, dll | Maksimal: 5MB</span>
       </div>
 
       {/* Upload Button */}
@@ -265,7 +276,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
                   rel="noopener noreferrer"
                   className="text-sm text-green-600 hover:underline"
                 >
-                  Lihat file PDF
+                  Lihat gambar
                 </a>
               </div>
             </div>
@@ -274,7 +285,7 @@ const PaymentUpload: React.FC<PaymentUploadProps> = ({
               onClick={() => setUploadedUrl(null)}
               className="text-sm text-gray-500 hover:text-red-600 transition-colors"
             >
-              Ganti file
+              Ganti gambar
             </button>
           </div>
         </div>
