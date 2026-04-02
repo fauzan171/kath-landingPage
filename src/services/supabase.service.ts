@@ -158,6 +158,62 @@ export const supabaseCompetitionService = {
   },
 
   /**
+   * Get active competition (alias for getCompetition)
+   */
+  getActive: async (): Promise<Competition | null> => {
+    const { data, error } = await supabase
+      .from('competitions')
+      .select('*')
+      .eq('code', COMPETITION_CODE)
+      .eq('is_active', true)
+      .single();
+
+    if (error) return null;
+    return data;
+  },
+
+  /**
+   * Get competition stats
+   */
+  getStats: async (): Promise<{
+    totalTeams: number;
+    verifiedTeams: number;
+    pendingTeams: number;
+    totalSubmissions: number;
+  } | null> => {
+    const competition = await supabaseCompetitionService.getActive();
+    if (!competition) return null;
+
+    const { data, error } = await supabase.rpc('get_competition_stats', {
+      p_competition_id: competition.id
+    });
+
+    if (error) {
+      // Fallback: manual calculation
+      const { data: teams } = await supabase
+        .from('teams')
+        .select('status')
+        .eq('competition_id', competition.id);
+
+      const { data: submissions } = await supabase
+        .from('submissions')
+        .select('id')
+        .eq('competition_id', competition.id);
+
+      type TeamStatus = { status: string };
+      const teamList = (teams || []) as TeamStatus[];
+
+      return {
+        totalTeams: teamList.length,
+        verifiedTeams: teamList.filter((t: TeamStatus) => t.status === 'verified').length,
+        pendingTeams: teamList.filter((t: TeamStatus) => t.status === 'pending').length,
+        totalSubmissions: submissions?.length || 0,
+      };
+    }
+    return data;
+  },
+
+  /**
    * Get competition by code (for backward compatibility)
    */
   getByCode: async (code: string): Promise<Competition | null> => {
@@ -338,138 +394,6 @@ export const supabaseCompetitionService = {
   },
 
   // ============================================
-  // STATISTICS
-  // ============================================
-
-  /**
-   * Get competition statistics
-   */
-  getStats: async (): Promise<{
-    competition: Competition | null;
-    totalTeams: number;
-    totalSubmissions: number;
-    activeStages: number;
-    teamsByCategory: { startup: number; student: number; corporate: number };
-    submissionsByStatus: { draft: number; submitted: number; graded: number };
-  }> => {
-    // Try RPC function first
-    const { data: rpcData, error: rpcError } = await supabase.rpc('get_competition_stats');
-
-    if (!rpcError && rpcData) {
-      return rpcData;
-    }
-
-    // Fallback: manual calculation
-    const competition = await supabaseCompetitionService.getCompetition();
-    if (!competition) {
-      return {
-        competition: null,
-        totalTeams: 0,
-        totalSubmissions: 0,
-        activeStages: 0,
-        teamsByCategory: { startup: 0, student: 0, corporate: 0 },
-        submissionsByStatus: { draft: 0, submitted: 0, graded: 0 },
-      };
-    }
-
-    // Get teams
-    const { data: teams } = await supabase
-      .from('teams')
-      .select('category')
-      .eq('competition_id', competition.id);
-
-    // Get submissions
-    const { data: submissions } = await supabase
-      .from('submissions')
-      .select('status')
-      .eq('competition_id', competition.id);
-
-    // Get active stages
-    const { data: stages } = await supabase
-      .from('stages')
-      .select('id')
-      .eq('competition_id', competition.id)
-      .eq('is_active', true);
-
-    return {
-      competition,
-      totalTeams: teams?.length || 0,
-      totalSubmissions: submissions?.length || 0,
-      activeStages: stages?.length || 0,
-      teamsByCategory: {
-        startup: teams?.filter((t: { category: string }) => t.category === 'startup').length || 0,
-        student: teams?.filter((t: { category: string }) => t.category === 'student').length || 0,
-        corporate: teams?.filter((t: { category: string }) => t.category === 'corporate').length || 0,
-      },
-      submissionsByStatus: {
-        draft: submissions?.filter((s: { status: string }) => s.status === 'draft').length || 0,
-        submitted: submissions?.filter((s: { status: string }) => s.status === 'submitted').length || 0,
-        graded: submissions?.filter((s: { status: string }) => s.status === 'graded').length || 0,
-      },
-    };
-  },
-
-  /**
-   * Get leaderboard
-   */
-  getLeaderboard: async (category?: string, limit: number = 50): Promise<{
-    rank: number;
-    team_id: string;
-    team_name: string;
-    team_institution: string;
-    team_category: string;
-    total_score: number;
-    submissions_count: number;
-  }[]> => {
-    // Try RPC function first
-    const { data: rpcData, error: rpcError } = await supabase.rpc('get_leaderboard', {
-      p_category: category || null,
-      p_limit: limit
-    });
-
-    if (!rpcError && rpcData) {
-      return rpcData;
-    }
-
-    // Fallback: manual query
-    const competition = await supabaseCompetitionService.getCompetition();
-    if (!competition) return [];
-
-    let query = supabase
-      .from('teams')
-      .select(`
-        id,
-        name,
-        institution,
-        category,
-        total_score,
-        submissions(id)
-      `)
-      .eq('competition_id', competition.id)
-      .eq('status', 'active')
-      .order('total_score', { ascending: false })
-      .limit(limit);
-
-    if (category) {
-      query = query.eq('category', category);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    return (data || []).map((team, index) => ({
-      rank: index + 1,
-      team_id: team.id,
-      team_name: team.name,
-      team_institution: team.institution || '',
-      team_category: team.category,
-      total_score: team.total_score || 0,
-      submissions_count: team.submissions?.length || 0,
-    }));
-  },
-
-  // ============================================
   // LEGACY METHODS (for backward compatibility)
   // ============================================
 
@@ -477,7 +401,7 @@ export const supabaseCompetitionService = {
    * Get all active competitions (legacy - returns only CIBC 2026)
    * @deprecated Use getCompetition() instead
    */
-  getActive: async (): Promise<Competition[]> => {
+  getAllActive: async (): Promise<Competition[]> => {
     const competition = await supabaseCompetitionService.getCompetition();
     return competition ? [competition] : [];
   },
@@ -508,6 +432,35 @@ export const supabaseStageService = {
       .order('order_index', { ascending: true });
 
     if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Get visible stages for a competition (public)
+   */
+  getVisible: async (competitionId: string): Promise<Stage[]> => {
+    const { data, error } = await supabase
+      .from('stages')
+      .select('*')
+      .eq('competition_id', competitionId)
+      .eq('is_visible', true)
+      .order('order_index', { ascending: true });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get all stages (admin) - alias for getByCompetition
+   */
+  getAll: async (competitionId: string): Promise<Stage[]> => {
+    const { data, error } = await supabase
+      .from('stages')
+      .select('*')
+      .eq('competition_id', competitionId)
+      .order('order_index', { ascending: true });
+
+    if (error) return [];
     return data || [];
   },
 
@@ -553,6 +506,18 @@ export const supabaseStageService = {
     if (error) throw error;
     return data;
   },
+
+  /**
+   * Delete stage (admin)
+   */
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('stages')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
 };
 
 // ============================================
@@ -572,6 +537,35 @@ export const supabaseTaskService = {
       .order('order_index', { ascending: true });
 
     if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Get published tasks for a stage (alias for getByStage)
+   */
+  getPublished: async (stageId: string): Promise<Task[]> => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('stage_id', stageId)
+      .eq('is_published', true)
+      .order('order_index', { ascending: true });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get all tasks for a stage (admin - includes unpublished)
+   */
+  getAll: async (stageId: string): Promise<Task[]> => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('stage_id', stageId)
+      .order('order_index', { ascending: true });
+
+    if (error) return [];
     return data || [];
   },
 
@@ -631,6 +625,18 @@ export const supabaseTaskService = {
     if (error) throw error;
     return data;
   },
+
+  /**
+   * Delete task (admin)
+   */
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
 };
 
 // ============================================
@@ -650,6 +656,58 @@ export const supabaseTeamService = {
 
     if (error) throw error;
     return data || [];
+  },
+
+  /**
+   * Get all teams (admin) - alias for getByCompetition
+   */
+  getAll: async (competitionId: string): Promise<Team[]> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('competition_id', competitionId)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get current user's team for competition
+   */
+  getMyTeam: async (competitionId: string): Promise<(Team & { members: TeamMember[] }) | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    // Get team member record
+    const { data: memberData } = await supabase
+      .from('team_members')
+      .select('team_id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!memberData) return null;
+
+    // Get team with members
+    const { data: teamData, error } = await supabase
+      .from('teams')
+      .select(`
+        *,
+        members:team_members(
+          id,
+          team_id,
+          user_id,
+          role,
+          joined_at,
+          user:users(id, name, email, institution)
+        )
+      `)
+      .eq('id', memberData.team_id)
+      .eq('competition_id', competitionId)
+      .single();
+
+    if (error) return null;
+    return teamData;
   },
 
   /**
@@ -704,6 +762,60 @@ export const supabaseTeamService = {
   },
 
   /**
+   * Update team
+   */
+  update: async (id: string, updates: Partial<Team>): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Verify team (admin)
+   */
+  verify: async (id: string, adminId: string): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        status: 'verified',
+        payment_status: 'verified',
+        verified_by: adminId,
+        verified_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Reject team (admin)
+   */
+  reject: async (id: string, notes: string): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        status: 'draft',
+        payment_status: 'rejected',
+        notes,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
    * Add team member
    */
   addMember: async (
@@ -731,6 +843,19 @@ export const supabaseTeamService = {
 
     if (error) throw error;
     return data;
+  },
+
+  /**
+   * Remove member from team
+   */
+  removeMember: async (teamId: string, userId: string): Promise<void> => {
+    const { error } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('team_id', teamId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
   },
 
   /**
@@ -802,6 +927,42 @@ export const supabaseSubmissionService = {
       .order('submitted_at', { ascending: false });
 
     if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Get team's submissions (alias for getByTeam)
+   */
+  getMySubmissions: async (teamId: string): Promise<Submission[]> => {
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('team_id', teamId)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get all submissions (admin)
+   */
+  getAll: async (competitionId?: string): Promise<(Submission & { team: Team })[]> => {
+    let query = supabase
+      .from('submissions')
+      .select(`
+        *,
+        team:teams!submissions_team_id_fkey(*)
+      `)
+      .order('submitted_at', { ascending: false });
+
+    if (competitionId) {
+      query = query.eq('competition_id', competitionId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) return [];
     return data || [];
   },
 
@@ -913,6 +1074,38 @@ export const supabaseSubmissionService = {
         submitted_at: new Date().toISOString(),
         is_late: false,
       })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Create or update submission
+   */
+  upsert: async (submission: Partial<Submission>): Promise<Submission> => {
+    const { data, error } = await supabase
+      .from('submissions')
+      .upsert(submission, { onConflict: 'task_id,team_id' })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Submit (change status to submitted)
+   */
+  submit: async (id: string): Promise<Submission> => {
+    const { data, error } = await supabase
+      .from('submissions')
+      .update({
+        status: 'submitted',
+        submitted_at: new Date().toISOString(),
+      })
+      .eq('id', id)
       .select()
       .single();
 
@@ -1071,6 +1264,18 @@ export const supabaseAnnouncementService = {
     if (error) throw error;
     return data;
   },
+
+  /**
+   * Delete announcement (admin)
+   */
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('announcements')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
 };
 
 // ============================================
@@ -1088,3 +1293,439 @@ export const supabaseServices = {
 };
 
 export default supabaseServices;
+
+// ============================================
+// Notification Service (Supabase)
+// ============================================
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: string;
+  link?: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export const supabaseNotificationService = {
+  /**
+   * Get user's notifications
+   */
+  getMy: async (): Promise<Notification[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Mark notification as read
+   */
+  markRead: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  /**
+   * Mark all notifications as read
+   */
+  markAllRead: async (): Promise<void> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+
+    if (error) throw error;
+  },
+
+  /**
+   * Get unread count
+   */
+  getUnreadCount: async (): Promise<number> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 0;
+
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+
+    if (error) return 0;
+    return count || 0;
+  },
+
+  /**
+   * Create notification (admin/system)
+   */
+  create: async (notification: Partial<Notification>): Promise<Notification> => {
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(notification)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
+// ============================================
+// CIBC Content Service (Supabase)
+// ============================================
+
+export interface CIBCContent {
+  id: string;
+  section: string;
+  content: Record<string, unknown>;
+  is_published: boolean;
+  updated_at: string;
+}
+
+export const supabaseContentService = {
+  /**
+   * Get section content
+   */
+  getSection: async (section: string): Promise<Record<string, unknown> | null> => {
+    const { data, error } = await supabase
+      .from('cibc_content')
+      .select('content')
+      .eq('section', section)
+      .eq('is_published', true)
+      .single();
+
+    if (error) return null;
+    return data?.content || null;
+  },
+
+  /**
+   * Get all sections
+   */
+  getAll: async (): Promise<CIBCContent[]> => {
+    const { data, error } = await supabase
+      .from('cibc_content')
+      .select('*')
+      .order('section', { ascending: true });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Update section (admin)
+   */
+  update: async (section: string, content: Record<string, unknown>): Promise<CIBCContent> => {
+    const { data, error } = await supabase
+      .from('cibc_content')
+      .upsert({
+        section,
+        content,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'section' })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
+// ============================================
+// Payment Service (Supabase + n8n)
+// ============================================
+
+export interface PaymentUploadResult {
+  fileUrl: string;
+  driveFileId: string;
+  fileName: string;
+  fileSize: number;
+}
+
+/**
+ * Upload payment proof via n8n to Google Drive
+ */
+export async function uploadPaymentProof(
+  file: File,
+  teamId: string,
+  competitionId: string
+): Promise<PaymentUploadResult> {
+  const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+
+  if (!n8nWebhookUrl) {
+    throw new Error(
+      'N8N_WEBHOOK_URL is not configured. ' +
+      'Please add VITE_N8N_WEBHOOK_URL to your .env file.'
+    );
+  }
+
+  // Create form data
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('teamId', teamId);
+  formData.append('competitionId', competitionId);
+  formData.append('uploadType', 'payment');
+  formData.append('fileName', file.name);
+  formData.append('fileSize', file.size.toString());
+
+  // Upload via n8n webhook
+  const response = await fetch(`${n8nWebhookUrl}/upload-payment`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+    throw new Error(error.message || 'Failed to upload payment proof');
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || 'Upload failed');
+  }
+
+  return {
+    fileUrl: result.fileUrl,
+    driveFileId: result.driveFileId,
+    fileName: result.fileName,
+    fileSize: parseInt(result.fileSize, 10),
+  };
+}
+
+export const supabasePaymentService = {
+  /**
+   * Upload payment proof for a team
+   */
+  uploadProof: async (
+    file: File,
+    teamId: string,
+    competitionId: string
+  ): Promise<PaymentUploadResult> => {
+    return uploadPaymentProof(file, teamId, competitionId);
+  },
+
+  /**
+   * Update team payment info
+   */
+  updateTeamPayment: async (
+    teamId: string,
+    paymentProofUrl: string,
+    driveFileId?: string
+  ): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_proof: paymentProofUrl,
+        payment_status: 'pending',
+        payment_uploaded_at: new Date().toISOString(),
+        payment_drive_id: driveFileId || null,
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Get pending payments (admin)
+   */
+  getPendingPayments: async (competitionId: string): Promise<(Team & { members: TeamMember[] })[]> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .select(`
+        *,
+        members:team_members(
+          id,
+          team_id,
+          user_id,
+          role,
+          joined_at,
+          user:users(id, name, email, institution)
+        )
+      `)
+      .eq('competition_id', competitionId)
+      .eq('payment_status', 'pending')
+      .not('payment_proof', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get all payments with filter (admin)
+   */
+  getAllPayments: async (
+    competitionId: string,
+    status?: 'pending' | 'verified' | 'rejected'
+  ): Promise<(Team & { members: TeamMember[] })[]> => {
+    let query = supabase
+      .from('teams')
+      .select(`
+        *,
+        members:team_members(
+          id,
+          team_id,
+          user_id,
+          role,
+          joined_at,
+          user:users(id, name, email, institution)
+        )
+      `)
+      .eq('competition_id', competitionId)
+      .not('payment_proof', 'is', null);
+
+    if (status) {
+      query = query.eq('payment_status', status);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Verify payment (admin)
+   */
+  verifyPayment: async (teamId: string, adminId: string): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_status: 'verified',
+        status: 'verified',
+        verified_by: adminId,
+        verified_at: new Date().toISOString(),
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Create notification for team members
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', teamId);
+
+    if (members && members.length > 0) {
+      const notifications = members.map((m: { user_id: string }) => ({
+        user_id: m.user_id,
+        title: 'Pembayaran Diverifikasi',
+        message: 'Bukti pembayaran tim Anda telah diverifikasi. Anda dapat mulai mengakses dashboard.',
+        type: 'payment_verified',
+        link: '/dashboard',
+        is_read: false,
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    }
+
+    return data;
+  },
+
+  /**
+   * Reject payment (admin)
+   */
+  rejectPayment: async (teamId: string, reason: string, adminId: string): Promise<Team> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_status: 'rejected',
+        payment_rejection_reason: reason,
+        rejected_by: adminId,
+        rejected_at: new Date().toISOString(),
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Create notification for team members
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', teamId);
+
+    if (members && members.length > 0) {
+      const notifications = members.map((m: { user_id: string }) => ({
+        user_id: m.user_id,
+        title: 'Pembayaran Ditolak',
+        message: `Bukti pembayaran ditolak: ${reason}. Silakan upload ulang bukti pembayaran yang valid.`,
+        type: 'payment_rejected',
+        link: '/dashboard/settings',
+        is_read: false,
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    }
+
+    return data;
+  },
+
+  /**
+   * Get payment stats (admin)
+   */
+  getPaymentStats: async (competitionId: string): Promise<{
+    total: number;
+    pending: number;
+    verified: number;
+    rejected: number;
+  }> => {
+    const { data, error } = await supabase
+      .from('teams')
+      .select('payment_status')
+      .eq('competition_id', competitionId)
+      .not('payment_proof', 'is', null);
+
+    if (error) return { total: 0, pending: 0, verified: 0, rejected: 0 };
+
+    type PaymentStatus = { payment_status: string };
+    const teams = (data || []) as PaymentStatus[];
+
+    return {
+      total: teams.length,
+      pending: teams.filter((t: PaymentStatus) => t.payment_status === 'pending').length,
+      verified: teams.filter((t: PaymentStatus) => t.payment_status === 'verified').length,
+      rejected: teams.filter((t: PaymentStatus) => t.payment_status === 'rejected').length,
+    };
+  },
+};
+
+// ============================================
+// Extended Exports (with all services)
+// ============================================
+
+export const allSupabaseServices = {
+  auth: supabaseAuthService,
+  competition: supabaseCompetitionService,
+  stage: supabaseStageService,
+  task: supabaseTaskService,
+  team: supabaseTeamService,
+  submission: supabaseSubmissionService,
+  announcement: supabaseAnnouncementService,
+  notification: supabaseNotificationService,
+  content: supabaseContentService,
+  payment: supabasePaymentService,
+};

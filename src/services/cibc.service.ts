@@ -2,12 +2,16 @@
 // CIBC Competition Service
 // ============================================
 // Service for managing competition data
+//
+// PARTIALLY MERGED with supabase.service.ts (Issue #4)
+// - Methods are now delegated to supabase.service.ts
+// - Types remain here for backward compatibility
 // ============================================
 
 import { supabase } from '@/lib/supabase';
 
 // ============================================
-// TYPES
+// TYPES (kept for backward compatibility)
 // ============================================
 
 export interface Competition {
@@ -41,6 +45,7 @@ export interface Stage {
   end_date?: string;
   is_active: boolean;
   is_visible: boolean;
+  status?: 'upcoming' | 'active' | 'completed';
   created_at: string;
   updated_at: string;
 }
@@ -158,6 +163,13 @@ export interface CIBCContent {
   updated_at: string;
 }
 
+export interface PaymentUploadResult {
+  fileUrl: string;
+  driveFileId: string;
+  fileName: string;
+  fileSize: number;
+}
+
 // ============================================
 // COMPETITION SERVICE
 // ============================================
@@ -237,12 +249,12 @@ export const stagesService = {
   /**
    * Get all stages (admin)
    */
-  async getAll(_competitionId?: string): Promise<Stage[]> {
+  async getAll(competitionId?: string): Promise<Stage[]> {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('stages')
       .select('*')
-      .eq('competition_id', _competitionId)
+      .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -555,15 +567,21 @@ export const submissionsService = {
   /**
    * Get all submissions (admin)
    */
-  async getAll(_competitionId?: string): Promise<(Submission & { team: Team })[]> {
+  async getAll(competitionId?: string): Promise<(Submission & { team: Team })[]> {
     if (!supabase) return [];
-    const { data, error } = await supabase
+    let query = supabase
       .from('submissions')
       .select(`
         *,
         team:teams!submissions_team_id_fkey(*)
       `)
       .order('submitted_at', { ascending: false });
+
+    if (competitionId) {
+      query = query.eq('competition_id', competitionId);
+    }
+
+    const { data, error } = await query;
     if (error) return [];
     return data || [];
   },
@@ -838,13 +856,6 @@ export const cibcContentService = {
 // PAYMENT SERVICE
 // ============================================
 
-export interface PaymentUploadResult {
-  fileUrl: string;
-  driveFileId: string;
-  fileName: string;
-  fileSize: number;
-}
-
 /**
  * Upload payment proof via n8n → Google Drive
  */
@@ -856,14 +867,10 @@ export async function uploadPaymentProof(
   const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
   if (!n8nWebhookUrl) {
-    // Mock mode for development
-    console.warn('N8N_WEBHOOK_URL not configured, using mock upload');
-    return {
-      fileUrl: `https://mock-drive-url.com/payments/${teamId}/${file.name}`,
-      driveFileId: `mock_file_${Date.now()}`,
-      fileName: file.name,
-      fileSize: file.size
-    };
+    throw new Error(
+      'N8N_WEBHOOK_URL is not configured. ' +
+      'Please add VITE_N8N_WEBHOOK_URL to your .env file.'
+    );
   }
 
   // Create form data
