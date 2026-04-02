@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { cardStackConfig } from '../config';
@@ -8,149 +8,171 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CardStack = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const triggerRef = useRef<ScrollTrigger | null>(null);
+  const textRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Ref baru untuk animasi kotak bergulir
+  const containerRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const indicatorRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  const [activeIndex, setActiveIndex] = useState(0);
   const { language } = useLanguage();
 
   const cards = cardStackConfig.cards;
 
+  // Efek 1: Deteksi Scroll untuk mengubah activeIndex
   useEffect(() => {
-    const section = sectionRef.current;
-    const wrapper = wrapperRef.current;
-    const cardElements = cardsRef.current.filter(Boolean) as HTMLDivElement[];
+    if (!sectionRef.current || cards.length === 0) return;
 
-    if (!section || !wrapper || cardElements.length === 0) return;
+    const ctx = gsap.context(() => {
+      textRefs.current.forEach((ref, index) => {
+        if (!ref) return;
 
-    // Set initial positions - cards start at screen center
-    cardElements.forEach((card, index) => {
-      gsap.set(card, {
-        y: index === 0 ? 0 : window.innerHeight * 0.5,
-        rotation: cards[index].rotation,
-        opacity: index === 0 ? 1 : 0,
-      });
-    });
-
-    // Create pinned scroll animation
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: `${cardElements.length * 50}%`,
-      pin: wrapper,
-      pinSpacing: true,
-      scrub: 0.5,
-      onUpdate: (self) => {
-        const progress = self.progress;
-        const segmentSize = 1 / cardElements.length;
-
-        cardElements.forEach((card, index) => {
-          const cardStart = index * segmentSize;
-          const cardProgress = gsap.utils.clamp(0, 1, (progress - cardStart) / segmentSize);
-
-          if (index === 0) {
-            // First card - fade out as user scrolls
-            gsap.set(card, {
-              opacity: 1 - cardProgress * 0.3,
-              scale: 1 - cardProgress * 0.05,
-            });
-          } else {
-            // Other cards - slide up from bottom
-            const prevCardEnd = index * segmentSize;
-            const prevProgress = gsap.utils.clamp(0, 1, (progress - prevCardEnd + segmentSize) / segmentSize);
-
-            gsap.set(card, {
-              y: (1 - prevProgress) * window.innerHeight * 0.8,
-              opacity: prevProgress,
-              zIndex: index,
-            });
-          }
+        ScrollTrigger.create({
+          trigger: ref,
+          start: 'top 50%',
+          end: 'bottom 50%',
+          onEnter: () => setActiveIndex(index),
+          onEnterBack: () => setActiveIndex(index),
         });
-      },
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [cards.length]);
+
+  // Efek 2: Animasi Kotak Bergulir setiap kali activeIndex berubah
+  useEffect(() => {
+    if (!boxRef.current || !indicatorRefs.current[activeIndex]) return;
+
+    // Mengambil target posisi Y dari angka yang sedang aktif
+    const target = indicatorRefs.current[activeIndex];
+    const targetY = target?.offsetTop || 0;
+
+    // Menggerakkan kotak ke target Y dengan GSAP
+    gsap.to(boxRef.current, {
+      y: targetY,
+      rotation: activeIndex * 90, // Memberikan efek berputar saat pindah
+      duration: 0.6,
+      ease: 'back.out(1.2)', // Efek sedikit memantul saat berhenti
     });
-
-    triggerRef.current = trigger;
-
-    return () => {
-      if (triggerRef.current) {
-        triggerRef.current.kill();
-      }
-    };
-  }, []);
+  }, [activeIndex]);
 
   if (!cardStackConfig.sectionTitle && cards.length === 0) return null;
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-bg-section"
-      style={{ minHeight: `${(cards.length + 1) * 50}vh` }}
+      id="process"
+      className="relative w-full bg-[#F9F8F6] text-[#0F0F0F]"
     >
-      {/* Section Header */}
-      <div className="absolute top-0 left-0 right-0 py-12 md:py-16 text-center z-10">
-        <span className="font-body text-sm text-kath-primary uppercase tracking-[0.2em]">
-          {cardStackConfig.sectionSubtitle[language]}
-        </span>
-        <h2 className="font-display text-headline text-kath-text-primary mt-4">
-          {cardStackConfig.sectionTitle[language]}
-        </h2>
-      </div>
+      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row relative">
+        
+        {/* KOLOM KIRI: Konten Teks yang Di-scroll */}
+        <div className="w-full md:w-1/2 md:pr-16 lg:pr-24 py-24 md:py-[15vh]">
+          
+          <div className="mb-20 md:mb-32">
+            <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
+              {cardStackConfig.sectionSubtitle[language]}
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-medium mt-4">
+              {cardStackConfig.sectionTitle[language]}
+            </h2>
+          </div>
 
-      {/* Pinned Card Wrapper */}
-      <div
-        ref={wrapperRef}
-        className="relative w-full h-screen flex items-center justify-center overflow-hidden"
-      >
-        <div className="relative w-full max-w-4xl mx-auto px-6 md:px-8 aspect-[4/3]">
-          {cards.map((card, index) => (
-            <div
-              key={card.id}
-              ref={(el) => { cardsRef.current[index] = el; }}
-              className="absolute inset-0"
-              style={{
-                willChange: 'transform, opacity',
-                zIndex: index,
-              }}
-            >
-              <div className="relative overflow-hidden rounded-3xl shadow-lg shadow-kath-primary/10 bg-white h-full border border-kath-bg-section">
-                {/* Image - Centered */}
-                <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+          {/* List Teks Proses dengan Container Relative untuk jalur kotak */}
+          <div ref={containerRef} className="relative flex flex-col">
+            
+            {/* THE ROLLING BOX (Satu kotak yang bergerak) */}
+            <div 
+              ref={boxRef}
+              className="absolute left-0 w-2.5 h-2.5 bg-[#FFB22C] z-10 mt-[1.2rem] md:mt-[1.3rem]"
+              style={{ top: 0 }}
+            />
+
+            {cards.map((card, index) => (
+              <div
+                key={card.id}
+                ref={(el) => { textRefs.current[index] = el; }}
+                className={`flex flex-col min-h-[50vh] transition-all duration-700 ease-out ${
+                  activeIndex === index ? 'opacity-100' : 'opacity-30 hover:opacity-60'
+                }`}
+              >
+                
+                {/* [Versi Mobile] Gambar muncul di atas teks */}
+                <div className="md:hidden w-full aspect-[4/3] rounded-2xl overflow-hidden mb-8 shadow-md">
                   <img
                     src={card.image}
                     alt={card.title[language]}
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: 'center center' }}
                   />
-                  {/* Image Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-kath-text-primary/80 via-kath-text-primary/20 to-transparent" />
                 </div>
 
-                {/* Card Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className="inline-block px-3 py-1 bg-kath-primary/20 text-white text-xs font-body rounded-full mb-3">
-                    {card.category[language]}
-                  </span>
-                  <h3 className="font-display text-2xl md:text-3xl text-white mb-2">
-                    {card.title[language]}
-                  </h3>
-                  <p className="font-body text-sm text-white/70">
-                    {card.description[language]}
-                  </p>
-                </div>
+                <div className="flex gap-4 md:gap-5 items-start">
+                  {/* Container Angka (Digunakan sebagai patokan posisi Y kotak) */}
+                  <div 
+                    ref={(el) => { indicatorRefs.current[index] = el; }}
+                    className="flex items-center mt-3.5 shrink-0 pl-6 md:pl-8" // Padding kiri untuk memberi jalan pada kotak oranye
+                  >
+                    <span className="font-body text-sm font-semibold text-[#0F0F0F]/40 tracking-widest">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                  </div>
 
-                {/* Card Number */}
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-kath-primary/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="font-body text-xs text-white">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
+                  {/* Teks Judul & Deskripsi */}
+                  <div className="pt-2">
+                    {card.category && (
+                      <span className="inline-block px-3 py-1 bg-[#FFB22C]/10 text-[#FFB22C] text-[10px] font-bold uppercase tracking-wider rounded-full mb-3">
+                        {card.category[language]}
+                      </span>
+                    )}
+                    <h3 className="font-display text-3xl md:text-4xl font-semibold mb-4 text-[#0F0F0F]">
+                      {card.title[language]}
+                    </h3>
+                    <p className="font-body text-[#0F0F0F]/70 text-base md:text-lg leading-relaxed max-w-md">
+                      {card.description[language]}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* KOLOM KANAN: Gambar yang Dipin/Sticky (Hanya untuk Desktop) */}
+        {/* KOLOM KANAN: Gambar yang Dipin/Sticky (Hanya untuk Desktop) */}
+        <div className="hidden md:flex w-1/2 h-screen sticky top-0 items-center justify-center py-20">
+          {/* UKURAN DIKECILKAN: dari max-w-lg ke max-w-[400px] dan aspect ratio disesuaikan */}
+          <div className="relative w-full max-w-[380px] lg:max-w-[420px] aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl shadow-[#0F0F0F]/10 bg-white border border-[#0F0F0F]/5">
+            {cards.map((card, index) => (
+              <div
+                key={`img-${card.id}`}
+                className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                  activeIndex === index
+                    ? 'opacity-100 translate-y-0 scale-100 z-10'
+                    : activeIndex > index
+                    ? 'opacity-0 -translate-y-20 scale-90 z-0'
+                    : 'opacity-0 translate-y-20 scale-110 z-0'
+                }`}
+              >
+                <img
+                  src={card.image}
+                  alt={card.title[language]}
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlay gradien halus */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
-      {/* Bottom spacer */}
-      <div className="h-24" />
+      {/* Garis Pembatas Bawah */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 mt-12 md:mt-24">
+        <div className="h-[1px] w-full bg-[#FFB22C]/30" />
+      </div>
     </section>
   );
 };

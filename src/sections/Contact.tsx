@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { contactConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight, Twitter, Sparkles } from '../icons';
+import { Mail, Phone, MapPin, Clock, Instagram, Facebook, Linkedin, Send, ArrowRight, Twitter } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -78,17 +78,16 @@ const Contact = () => {
     triggers.push(formTrigger);
 
     // Info animation
-    gsap.set(info.children, { opacity: 0, y: 30 });
+    gsap.set(info, { opacity: 0, x: 40 });
     const infoTrigger = ScrollTrigger.create({
       trigger: info,
       start: 'top 75%',
       once: true,
       onEnter: () => {
-        gsap.to(info.children, {
+        gsap.to(info, {
           opacity: 1,
-          y: 0,
+          x: 0,
           duration: 0.8,
-          stagger: 0.1,
           ease: 'power3.out',
         });
       },
@@ -141,261 +140,210 @@ const Contact = () => {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative w-full bg-kath-bg-main py-24 md:py-32 overflow-hidden"
+      className="relative w-full bg-[#F9F8F6] py-24 md:py-32"
     >
-      {/* Background decoration - Premium Gold */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-kath-primary/5 rounded-full blur-[200px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-kath-primary/3 rounded-full blur-[150px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-kath-primary/3 to-transparent rounded-full" />
-      </div>
-
-      {/* Decorative lines */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kath-primary/20 to-transparent" />
+      {/* Background decoration - emas transparan yang soft */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#FFB22C]/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#FFB22C]/5 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
-        {/* Header - Premium Style */}
-        <div ref={headerRef} className="text-center mb-16 md:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-kath-primary/5 border border-kath-primary/20 rounded-full mb-6">
-            <Sparkles className="w-4 h-4 text-kath-primary" />
-            <span className="font-body text-kath-primary text-xs uppercase tracking-[0.2em]">
-              {contactConfig.sectionLabel[language]}
-            </span>
-          </div>
-          <h2 className="font-display text-headline text-kath-text-primary mt-4">
-            {language === 'id' ? 'Mari Rencanakan ' : "Let's Plan Your "}
-            <span className="text-gold-gradient">{language === 'id' ? 'Event Anda' : 'Event'}</span>
-            {language === 'en' && ' Together'}
+        {/* Header */}
+        <div ref={headerRef} className="text-center mb-12 md:mb-16">
+          <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
+            {contactConfig.sectionLabel[language]}
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+            {contactConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-text-secondary mt-4 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
             {contactConfig.sectionDescription[language]}
           </p>
         </div>
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Contact Form - Premium Card */}
+          {/* Contact Form */}
           <form
             ref={formRef}
             onSubmit={handleSubmit}
-            className="relative p-8 md:p-10 bg-white border border-kath-primary/10 rounded-3xl shadow-xl shadow-kath-primary/5"
+            className="space-y-6"
           >
-            {/* Corner decorations */}
-            <div className="absolute -top-3 -left-3 w-6 h-6 border-t-2 border-l-2 border-kath-primary/30" />
-            <div className="absolute -top-3 -right-3 w-6 h-6 border-t-2 border-r-2 border-kath-primary/30" />
-            <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-2 border-l-2 border-kath-primary/30" />
-            <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-2 border-r-2 border-kath-primary/30" />
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block font-body text-sm text-kath-text-secondary mb-2">
-                    {labels.name}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-kath-bg-main border border-kath-primary/10 rounded-xl font-body text-kath-text-primary placeholder-kath-text-muted focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 focus:outline-none transition-all"
-                    placeholder={labels.placeholders.name}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block font-body text-sm text-kath-text-secondary mb-2">
-                    {labels.email}
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-kath-bg-main border border-kath-primary/10 rounded-xl font-body text-kath-text-primary placeholder-kath-text-muted focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 focus:outline-none transition-all"
-                    placeholder={labels.placeholders.email}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block font-body text-sm text-kath-text-secondary mb-2">
-                    {labels.phone}
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-kath-bg-main border border-kath-primary/10 rounded-xl font-body text-kath-text-primary placeholder-kath-text-muted focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 focus:outline-none transition-all"
-                    placeholder={labels.placeholders.phone}
-                  />
-                </div>
-                <div>
-                  <label className="block font-body text-sm text-kath-text-secondary mb-2">
-                    {labels.eventType}
-                  </label>
-                  <select
-                    value={formData.eventType}
-                    onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-kath-bg-main border border-kath-primary/10 rounded-xl font-body text-kath-text-primary focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 focus:outline-none transition-all appearance-none cursor-pointer"
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23AE8E1C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '16px' }}
-                    required
-                  >
-                    <option value="">{labels.selectEvent}</option>
-                    {labels.eventTypes.map((type) => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block font-body text-sm text-kath-text-secondary mb-2">
-                  {labels.message}
+                <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
+                  {labels.name}
                 </label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  rows={5}
-                  className="w-full px-4 py-3.5 bg-kath-bg-main border border-kath-primary/10 rounded-xl font-body text-kath-text-primary placeholder-kath-text-muted focus:border-kath-primary focus:ring-2 focus:ring-kath-primary/10 focus:outline-none transition-all resize-none"
-                  placeholder={labels.placeholders.message}
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-[#0F0F0F]/10 rounded-lg font-body text-[#0F0F0F] placeholder-[#0F0F0F]/30 focus:border-[#FFB22C] focus:bg-white focus:shadow-md focus:shadow-[#FFB22C]/10 focus:outline-none transition-all duration-300"
+                  placeholder={labels.placeholders.name}
                   required
                 />
               </div>
-
-              <button
-                type="submit"
-                className="group w-full md:w-auto px-8 py-4 bg-gradient-to-r from-kath-primary to-kath-primary-dark hover:from-kath-primary-light hover:to-kath-primary text-white font-body text-sm uppercase tracking-wider rounded-full transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-kath-primary/25 hover:shadow-xl hover:shadow-kath-primary/30 hover:-translate-y-0.5"
-              >
-                {contactConfig.ctaText[language]}
-                <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <div>
+                <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
+                  {labels.email}
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-[#0F0F0F]/10 rounded-lg font-body text-[#0F0F0F] placeholder-[#0F0F0F]/30 focus:border-[#FFB22C] focus:bg-white focus:shadow-md focus:shadow-[#FFB22C]/10 focus:outline-none transition-all duration-300"
+                  placeholder={labels.placeholders.email}
+                  required
+                />
+              </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
+                  {labels.phone}
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-[#0F0F0F]/10 rounded-lg font-body text-[#0F0F0F] placeholder-[#0F0F0F]/30 focus:border-[#FFB22C] focus:bg-white focus:shadow-md focus:shadow-[#FFB22C]/10 focus:outline-none transition-all duration-300"
+                  placeholder={labels.placeholders.phone}
+                />
+              </div>
+              <div>
+                <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
+                  {labels.eventType}
+                </label>
+                <select
+                  value={formData.eventType}
+                  onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-[#0F0F0F]/10 rounded-lg font-body text-[#0F0F0F] focus:border-[#FFB22C] focus:bg-white focus:shadow-md focus:shadow-[#FFB22C]/10 focus:outline-none transition-all duration-300"
+                  required
+                >
+                  <option value="">{labels.selectEvent}</option>
+                  {labels.eventTypes.map((type) => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
+                {labels.message}
+              </label>
+              <textarea
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                rows={5}
+                className="w-full px-4 py-3 bg-white border border-[#0F0F0F]/10 rounded-lg font-body text-[#0F0F0F] placeholder-[#0F0F0F]/30 focus:border-[#FFB22C] focus:bg-white focus:shadow-md focus:shadow-[#FFB22C]/10 focus:outline-none transition-all duration-300 resize-none"
+                placeholder={labels.placeholders.message}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="group w-full md:w-auto px-8 py-4 bg-[#FFB22C] hover:bg-[#e59f27] text-[#0F0F0F] font-body font-bold text-sm uppercase tracking-wider rounded-full shadow-lg shadow-[#FFB22C]/20 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5"
+            >
+              {contactConfig.ctaText[language]}
+              <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </form>
 
-          {/* Contact Info - Premium Cards */}
-          <div ref={infoRef} className="space-y-6">
-            {/* Contact Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Email Card */}
-              <div className="group p-6 bg-white border border-kath-primary/10 rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kath-primary/10 to-kath-primary/5 flex items-center justify-center mb-4 group-hover:from-kath-primary/20 group-hover:to-kath-primary/10 transition-all">
-                  <Mail className="w-5 h-5 text-kath-primary" />
+          {/* Contact Info */}
+          <div ref={infoRef} className="space-y-8">
+            {/* Contact Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
+                  <Mail className="w-5 h-5 text-[#FFB22C]" />
                 </div>
-                <h4 className="font-body text-xs text-kath-text-muted uppercase tracking-wider mb-1">{labels.contactInfo.email}</h4>
+                <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.email}</h4>
                 <a
                   href={`mailto:${contactConfig.contactInfo.email}`}
-                  className="font-body text-kath-text-primary hover:text-kath-primary transition-colors"
+                  className="font-display font-medium text-[#0F0F0F] hover:text-[#FFB22C] transition-colors break-all"
                 >
                   {contactConfig.contactInfo.email}
                 </a>
               </div>
 
-              {/* Phone Card */}
-              <div className="group p-6 bg-white border border-kath-primary/10 rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kath-primary/10 to-kath-primary/5 flex items-center justify-center mb-4 group-hover:from-kath-primary/20 group-hover:to-kath-primary/10 transition-all">
-                  <Phone className="w-5 h-5 text-kath-primary" />
+              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
+                  <Phone className="w-5 h-5 text-[#FFB22C]" />
                 </div>
-                <h4 className="font-body text-xs text-kath-text-muted uppercase tracking-wider mb-1">{labels.contactInfo.phone}</h4>
+                <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.phone}</h4>
                 <a
                   href={`tel:${contactConfig.contactInfo.phone}`}
-                  className="font-body text-kath-text-primary hover:text-kath-primary transition-colors"
+                  className="font-display font-medium text-[#0F0F0F] hover:text-[#FFB22C] transition-colors"
                 >
                   {contactConfig.contactInfo.phone}
                 </a>
               </div>
 
-              {/* Address Card */}
-              <div className="group p-6 bg-white border border-kath-primary/10 rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kath-primary/10 to-kath-primary/5 flex items-center justify-center mb-4 group-hover:from-kath-primary/20 group-hover:to-kath-primary/10 transition-all">
-                  <MapPin className="w-5 h-5 text-kath-primary" />
+              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
+                  <MapPin className="w-5 h-5 text-[#FFB22C]" />
                 </div>
-                <h4 className="font-body text-xs text-kath-text-muted uppercase tracking-wider mb-1">{labels.contactInfo.address}</h4>
-                <p className="font-body text-kath-text-primary text-sm leading-relaxed">
+                <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.address}</h4>
+                <p className="font-display font-medium text-[#0F0F0F]">
                   {contactConfig.contactInfo.address[language]}
                 </p>
               </div>
 
-              {/* Hours Card */}
-              <div className="group p-6 bg-white border border-kath-primary/10 rounded-2xl hover:border-kath-primary/30 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kath-primary/10 to-kath-primary/5 flex items-center justify-center mb-4 group-hover:from-kath-primary/20 group-hover:to-kath-primary/10 transition-all">
-                  <Clock className="w-5 h-5 text-kath-primary" />
+              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
+                  <Clock className="w-5 h-5 text-[#FFB22C]" />
                 </div>
-                <h4 className="font-body text-xs text-kath-text-muted uppercase tracking-wider mb-1">{labels.contactInfo.hours}</h4>
-                <p className="font-body text-kath-text-primary text-sm">
+                <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.hours}</h4>
+                <p className="font-display font-medium text-[#0F0F0F]">
                   {contactConfig.contactInfo.hours[language]}
                 </p>
               </div>
             </div>
 
-            {/* Social Links - Premium Style */}
-            <div className="p-6 bg-kath-bg-dark rounded-2xl">
-              <h4 className="font-body text-xs text-kath-primary uppercase tracking-wider mb-4">{labels.followUs}</h4>
-              <div className="flex gap-3">
-                <a
-                  href={contactConfig.socials.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-kath-primary/20 hover:border-kath-primary/50 transition-all duration-300 group"
-                >
-                  <Instagram className="w-5 h-5 text-white/70 group-hover:text-kath-primary transition-colors" />
-                </a>
-                <a
-                  href={contactConfig.socials.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-kath-primary/20 hover:border-kath-primary/50 transition-all duration-300 group"
-                >
-                  <Facebook className="w-5 h-5 text-white/70 group-hover:text-kath-primary transition-colors" />
-                </a>
-                <a
-                  href={contactConfig.socials.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-kath-primary/20 hover:border-kath-primary/50 transition-all duration-300 group"
-                >
-                  <Linkedin className="w-5 h-5 text-white/70 group-hover:text-kath-primary transition-colors" />
-                </a>
-                <a
-                  href={contactConfig.socials.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-kath-primary/20 hover:border-kath-primary/50 transition-all duration-300 group"
-                >
-                  <Twitter className="w-5 h-5 text-white/70 group-hover:text-kath-primary transition-colors" />
-                </a>
+            {/* Social Links */}
+            <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl">
+              <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-4">{labels.followUs}</h4>
+              <div className="flex gap-4">
+                {[
+                  { icon: Instagram, href: contactConfig.socials.instagram },
+                  { icon: Facebook, href: contactConfig.socials.facebook },
+                  { icon: Linkedin, href: contactConfig.socials.linkedin },
+                  { icon: Twitter, href: contactConfig.socials.twitter },
+                ].map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 rounded-full bg-[#F9F8F6] flex items-center justify-center border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group transition-all duration-300 shadow-sm"
+                  >
+                    <social.icon className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
+                  </a>
+                ))}
               </div>
             </div>
 
-            {/* CTA Card - Premium Gold */}
-            <div className="relative p-6 bg-gradient-to-br from-kath-primary to-kath-primary-dark rounded-2xl overflow-hidden">
-              {/* Background pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full blur-2xl" />
-              </div>
-              
-              <div className="relative">
-                <h4 className="font-display text-xl text-white mb-2">
-                  {labels.ctaTitle}
-                </h4>
-                <p className="font-body text-sm text-white/80 mb-4">
-                  {labels.ctaDesc}
-                </p>
-                <a
-                  href={`mailto:${contactConfig.contactInfo.email}`}
-                  className="group inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full font-body text-sm text-white transition-all duration-300"
-                >
-                  {labels.scheduleCall}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
+            {/* CTA Card */}
+            <div className="p-6 bg-[#FFB22C]/10 border border-[#FFB22C]/30 rounded-2xl">
+              <h4 className="font-display text-xl font-bold text-[#0F0F0F] mb-2">
+                {labels.ctaTitle}
+              </h4>
+              <p className="font-body text-sm text-[#0F0F0F]/70 mb-4">
+                {labels.ctaDesc}
+              </p>
+              <a
+                href={`mailto:${contactConfig.contactInfo.email}`}
+                className="group inline-flex items-center gap-2 font-body font-semibold text-sm text-[#0F0F0F] hover:text-[#FFB22C] transition-colors"
+              >
+                {labels.scheduleCall}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Section divider */}
-      <div className="section-divider mt-24 md:mt-32" />
     </section>
   );
 };

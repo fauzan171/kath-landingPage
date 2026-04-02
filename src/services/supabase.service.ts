@@ -6,7 +6,7 @@
 // ============================================
 
 import {
-  supabase,
+  supabase as _supabase,
   uploadFileToDrive,
   type Competition,
   type Stage,
@@ -17,6 +17,9 @@ import {
   type Announcement,
 } from '@/lib/supabase';
 import { env, isSupabaseConfigured, isN8nConfigured } from '@/config/environment';
+
+// Non-null alias - always check isSupabaseConfigured() before using
+const supabase = _supabase!;
 
 // ============================================
 // Auth Service (Supabase)
@@ -1046,6 +1049,21 @@ export const supabaseAnnouncementService = {
         is_published: true,
         published_at: new Date().toISOString(),
       })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Update announcement (admin)
+   */
+  update: async (id: string, updates: Partial<Announcement>): Promise<Announcement> => {
+    const { data, error } = await supabase
+      .from('announcements')
+      .update(updates)
       .eq('id', id)
       .select()
       .single();

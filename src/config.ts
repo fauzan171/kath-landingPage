@@ -26,11 +26,11 @@ export interface HeroConfig {
 }
 
 export const heroConfig: HeroConfig = {
-  backgroundImage: "/hero-bg.webp",
+  backgroundImage: "/hero-pic2.webp",
   backgroundAlt: "Luxury Event Venue by KATH Event Organizer",
   title: t(
-    "We Create\nUnforgettable\nMoments",
-    "We Create\nUnforgettable\nMoments"
+    "We Create,Unforgettable\nMoments",
+    "We Create,Unforgettable\nMoments"
   ),
   subtitle: t(
     "Mengubah visi Anda menjadi pengalaman luar biasa sejak 2019.",
@@ -131,7 +131,6 @@ export interface ServiceItem {
   icon: string;
   title: { id: string; en: string };
   description: { id: string; en: string };
-  image: string;
   features: { id: string; en: string }[];
 }
 
@@ -144,70 +143,82 @@ export interface ServicesConfig {
 
 export const servicesConfig: ServicesConfig = {
   sectionLabel: t("APA YANG KAMI TAWARKAN", "WHAT WE OFFER"),
-  sectionTitle: t("Layanan Kami", "Our Services"),
+  sectionTitle: t("Layanan Premium Kami", "Our Premium Services"),
   sectionDescription: t(
-    "Kami menyediakan layanan event organizer lengkap untuk semua kebutuhan Anda, dari wedding hingga corporate event.",
-    "We provide comprehensive event organizer services for all your needs, from weddings to corporate events."
+    "Solusi event komprehensif yang disesuaikan dengan visi dan kebutuhan unik Anda",
+    "Comprehensive event solutions tailored to your unique vision and requirements"
   ),
   services: [
     {
       id: "wedding",
-      icon: "heart",
-      title: t("Wedding", "Wedding"),
-      description: t(
-        "Menciptakan pernikahan impian Anda dengan detail yang sempurna dan momen yang tak terlupakan.",
-        "Creating your dream wedding with perfect details and unforgettable moments."
-      ),
-      image: "/wedding-event.webp",
+      icon: "Heart",
+      title: t("Perencanaan Pernikahan", "Wedding Planning"),
+      description: t("Perencanaan pernikahan full-service dari konsep hingga eksekusi", "Full-service wedding planning from concept to execution"),
       features: [
-        t("Dekorasi & Tema", "Decoration & Theme"),
+        t("Pemilihan Venue", "Venue Selection"),
+        t("Desain Dekor", "Décor Design"),
         t("Koordinasi Vendor", "Vendor Coordination"),
-        t("Manajemen Acara", "Event Management"),
+        t("Manajemen Hari-H", "Day-of Management"),
       ],
     },
     {
       id: "corporate",
-      icon: "briefcase",
-      title: t("Corporate Event", "Corporate Event"),
-      description: t(
-        "Mengelola event bisnis profesional yang meninggalkan kesan mendalam bagi stakeholder.",
-        "Managing professional business events that leave lasting impressions on stakeholders."
-      ),
-      image: "/corporate-event.webp",
+      icon: "Building2",
+      title: t("Event Korporat", "Corporate Events"),
+      description: t("Event profesional yang meningkatkan presence merek Anda", "Professional events that elevate your brand presence"),
       features: [
-        t("Konferensi & Seminar", "Conferences & Seminars"),
-        t("Product Launch", "Product Launch"),
+        t("Peluncuran Produk", "Product Launches"),
+        t("Rapat Tahunan", "Annual Meetings"),
+        t("Gala Dinner", "Gala Dinners"),
         t("Team Building", "Team Building"),
       ],
     },
     {
-      id: "private",
-      icon: "sparkles",
-      title: t("Private Party", "Private Party"),
-      description: t(
-        "Merancang perayaan eksklusif yang mencerminkan kepribadian dan gaya unik Anda.",
-        "Designing exclusive celebrations that reflect your unique personality and style."
-      ),
-      image: "/private-party.webp",
+      id: "birthday",
+      icon: "Cake",
+      title: t("Perayaan Ulang Tahun", "Birthday Celebrations"),
+      description: t("Pesta ulang tahun yang berkesan untuk semua usia", "Memorable birthday parties for all ages and occasions"),
       features: [
-        t("Birthday Party", "Birthday Party"),
-        t("Anniversary", "Anniversary"),
-        t("Private Gathering", "Private Gathering"),
+        t("Desain Tema", "Theme Design"),
+        t("Hiburan", "Entertainment"),
+        t("Katering", "Catering"),
+        t("Fotografi", "Photography"),
       ],
     },
     {
       id: "exhibition",
-      icon: "presentation",
-      title: t("Exhibition", "Exhibition"),
-      description: t(
-        "Menyelenggarakan pameran yang menarik perhatian dan memaksimalkan brand visibility.",
-        "Organizing exhibitions that capture attention and maximize brand visibility."
-      ),
-      image: "/exhibition-event.webp",
+      icon: "LayoutGrid",
+      title: t("Pameran", "Exhibitions"),
+      description: t("Desain booth memukau yang memikat audiens Anda", "Stunning booth designs that captivate your audience"),
       features: [
-        t("Booth Design", "Booth Design"),
-        t("Event Production", "Event Production"),
-        t("Brand Activation", "Brand Activation"),
+        t("Desain Booth", "Booth Design"),
+        t("Aktivasi Merek", "Brand Activation"),
+        t("Display Interaktif", "Interactive Displays"),
+        t("Logistik", "Logistics"),
+      ],
+    },
+    {
+      id: "private",
+      icon: "Sparkles",
+      title: t("Pesta Pribadi", "Private Parties"),
+      description: t("Perayaan eksklusif yang disesuaikan dengan preferensi Anda", "Exclusive celebrations tailored to your preferences"),
+      features: [
+        t("Styling Venue", "Venue Styling"),
+        t("Hiburan", "Entertainment"),
+        t("Katering Gourmet", "Gourmet Catering"),
+        t("Layanan Personal", "Personalized Service"),
+      ],
+    },
+    {
+      id: "virtual",
+      icon: "Monitor",
+      title: t("Event Virtual & Hybrid", "Virtual & Hybrid Events"),
+      description: t("Pengalaman digital seamless yang menghubungkan audiens", "Seamless digital experiences that connect audiences"),
+      features: [
+        t("Live Streaming", "Live Streaming"),
+        t("Platform Virtual", "Virtual Platforms"),
+        t("Solusi Hybrid", "Hybrid Solutions"),
+        t("Dukungan Teknis", "Tech Support"),
       ],
     },
   ],
@@ -240,9 +251,9 @@ export const breathConfig: BreathConfig = {
 // Alias for BreathSection component
 export const breathSectionConfig = breathConfig;
 
-// Portfolio Grid Section
+// Portfolio Section
 export interface PortfolioItem {
-  id: number;
+  id: string;
   image: string;
   title: { id: string; en: string };
   category: { id: string; en: string };
@@ -254,73 +265,73 @@ export interface PortfolioConfig {
   sectionLabel: { id: string; en: string };
   sectionTitle: { id: string; en: string };
   sectionDescription: { id: string; en: string };
+  categories: { id: string; en: string }[];
   items: PortfolioItem[];
-  categories: { id: string; id_text: string; en: string }[];
 }
 
 export const portfolioConfig: PortfolioConfig = {
-  sectionLabel: t("KARYA TERBAIK KAMI", "OUR BEST WORK"),
-  sectionTitle: t("Portfolio Kami", "Our Portfolio"),
+  sectionLabel: t("KARYA KAMI", "OUR WORK"),
+  sectionTitle: t("Portofolio Event", "Event Portfolio"),
   sectionDescription: t(
-    "Lihat berbagai event yang telah kami selenggarakan dengan sukses. Setiap proyek adalah cerminan dedikasi dan profesionalisme tim kami.",
-    "See the various events we have successfully organized. Each project is a reflection of our team's dedication and professionalism."
+    "Jelajahi koleksi event kami yang dirancang dengan meticulosa yang menampilkan kreativitas dan keahlian kami",
+    "Explore our collection of meticulously crafted events that showcase our creativity and expertise"
   ),
+  categories: [
+    t("Semua", "All"),
+    t("Pernikahan", "Wedding"),
+    t("Korporat", "Corporate"),
+    t("Pameran", "Exhibition"),
+    t("Pribadi", "Private"),
+  ],
   items: [
     {
-      id: 1,
-      image: "/grid-1.webp",
-      title: t("Romantic Garden Wedding", "Romantic Garden Wedding"),
-      category: t("Wedding", "Wedding"),
+      id: "1",
+      image: "/wedding-event.webp",
+      title: t("Garden Romance Wedding", "Garden Romance Wedding"),
+      category: t("Pernikahan", "Wedding"),
+      location: "Jakarta",
+      year: "2025",
+    },
+    {
+      id: "2",
+      image: "/corporate-event.webp",
+      title: t("Executive Summit 2025", "Executive Summit 2025"),
+      category: t("Korporat", "Corporate"),
+      location: "Jakarta",
+      year: "2025",
+    },
+    {
+      id: "3",
+      image: "/exhibition-event.webp",
+      title: t("Tech Innovation Expo", "Tech Innovation Expo"),
+      category: t("Pameran", "Exhibition"),
       location: "Jakarta",
       year: "2024",
     },
     {
-      id: 2,
-      image: "/grid-2.webp",
-      title: t("Annual Corporate Gala", "Annual Corporate Gala"),
-      category: t("Corporate", "Corporate"),
+      id: "4",
+      image: "/private-party.webp",
+      title: t("Golden Anniversary Gala", "Golden Anniversary Gala"),
+      category: t("Pribadi", "Private"),
       location: "Bali",
       year: "2024",
     },
     {
-      id: 3,
-      image: "/birthday-event.webp",
-      title: t("Birthday Celebration", "Birthday Celebration"),
-      category: t("Private Party", "Private Party"),
+      id: "5",
+      image: "/card-1.webp",
+      title: t("Crystal Ballroom Wedding", "Crystal Ballroom Wedding"),
+      category: t("Pernikahan", "Wedding"),
       location: "Jakarta",
       year: "2024",
     },
     {
-      id: 4,
-      image: "/virtual-event.webp",
-      title: t("Virtual Product Launch", "Virtual Product Launch"),
-      category: t("Corporate", "Corporate"),
-      location: "Online",
-      year: "2024",
-    },
-    {
-      id: 5,
-      image: "/wedding-event.webp",
-      title: t("Luxury Wedding", "Luxury Wedding"),
-      category: t("Wedding", "Wedding"),
-      location: "Yogyakarta",
-      year: "2023",
-    },
-    {
-      id: 6,
-      image: "/exhibition-event.webp",
-      title: t("Trade Exhibition", "Trade Exhibition"),
-      category: t("Exhibition", "Exhibition"),
+      id: "6",
+      image: "/card-2.webp",
+      title: t("Annual Awards Night", "Annual Awards Night"),
+      category: t("Korporat", "Corporate"),
       location: "Jakarta",
-      year: "2024",
+      year: "2025",
     },
-  ],
-  categories: [
-    { id: "all", id_text: "Semua", en: "All" },
-    { id: "wedding", id_text: "Wedding", en: "Wedding" },
-    { id: "corporate", id_text: "Corporate", en: "Corporate" },
-    { id: "private", id_text: "Private Party", en: "Private Party" },
-    { id: "exhibition", id_text: "Exhibition", en: "Exhibition" },
   ],
 };
 
@@ -633,16 +644,17 @@ export const competitionConfig: CompetitionConfig = {
   ctaText: t("Daftar Sekarang", "Register Now"),
 };
 
-// News Section
+// News/Blog Section
 export interface NewsItem {
-  id: number;
-  image: string;
+  id: string;
   title: { id: string; en: string };
   excerpt: { id: string; en: string };
   content: { id: string; en: string };
-  date: string;
+  image: string;
   category: { id: string; en: string };
+  date: string;
   author: string;
+  slug: string;
 }
 
 export interface NewsConfig {
@@ -653,63 +665,136 @@ export interface NewsConfig {
 }
 
 export const newsConfig: NewsConfig = {
-  sectionLabel: t("UPDATE KAMI", "OUR UPDATES"),
-  sectionTitle: t("Berita Terbaru", "Latest News"),
+  sectionLabel: t("UPDATE TERBARU", "LATEST UPDATES"),
+  sectionTitle: t("Berita & Pengumuman", "News & Announcements"),
   sectionDescription: t(
-    "Dapatkan informasi terbaru tentang event dan kompetisi yang kami selenggarakan.",
-    "Get the latest information about events and competitions we organize."
+    "Ikuti perkembangan terbaru dan pengumuman dari KATH Event Organizer",
+    "Stay updated with the latest news and announcements from KATH Event Organizer"
   ),
   items: [
     {
-      id: 1,
-      image: "/corporate-event.webp",
-      title: t("KATH sukses menggelar konferensi teknologi terbesar", "KATH successfully hosts largest tech conference"),
+      id: "1",
+      title: t(
+        "Pendaftaran BMC Competition 2026 Resmi Dibuka",
+        "BMC Competition 2026 Registration Now Open"
+      ),
       excerpt: t(
-        "Lebih dari 2000 peserta hadir dalam Tech Summit 2024 yang diselenggarakan di Jakarta Convention Center.",
-        "More than 2000 attendees joined Tech Summit 2024 held at Jakarta Convention Center."
+        "Bergabunglah dengan kompetisi BMC bergengsi dan menangkan hadiah luar biasa senilai lebih dari $100,000.",
+        "Join the prestigious BMC competition and win amazing prizes worth over $100,000."
       ),
       content: t(
-        "Lebih dari 2000 peserta hadir dalam Tech Summit 2024 yang diselenggarakan di Jakarta Convention Center. Event ini menghadirkan pembicara dari berbagai perusahaan teknologi ternama.",
-        "More than 2000 attendees joined Tech Summit 2024 held at Jakarta Convention Center. The event featured speakers from various leading technology companies."
+        "KATH Event Organizer dengan bangga mempersembahkan BMC International Competition 2026, platform bergengsi bagi entrepreneur dan inovator untuk menampilkan model bisnis terbaik mereka. Kompetisi tahun ini menampilkan berbagai kategori termasuk Startup Challenge, Social Enterprise, Student Innovation, dan Corporate Innovation.",
+        "KATH Event Organizer proudly presents BMC International Competition 2026, a prestigious platform for entrepreneurs and innovators to showcase their best business models. This year's competition features various categories including Startup Challenge, Social Enterprise, Student Innovation, and Corporate Innovation."
       ),
-      date: "2024-03-15",
-      category: t("Corporate", "Corporate"),
-      author: "KATH Team",
-    },
-    {
-      id: 2,
       image: "/wedding-event.webp",
-      title: t("Trend pernikahan 2024 yang wajib diketahui", "2024 wedding trends you need to know"),
-      excerpt: t(
-        "Warna earthy tone, dekorasi sustainable, dan intimate wedding menjadi tren utama tahun ini.",
-        "Earthy tones, sustainable decor, and intimate weddings are the main trends this year."
-      ),
-      content: t(
-        "Warna earthy tone, dekorasi sustainable, dan intimate wedding menjadi tren utama tahun ini. KATH hadir dengan berbagai pilihan tema yang sesuai dengan tren terkini.",
-        "Earthy tones, sustainable decor, and intimate weddings are the main trends this year. KATH presents various theme options that match current trends."
-      ),
-      date: "2024-03-10",
-      category: t("Wedding", "Wedding"),
+      category: t("Kompetisi", "Competition"),
+      date: "2025-03-01",
       author: "KATH Team",
+      slug: "bmc-competition-2026-open",
     },
     {
-      id: 3,
-      image: "/virtual-event.webp",
-      title: t("Tips mengadakan hybrid event yang sukses", "Tips for hosting successful hybrid events"),
+      id: "2",
+      title: t(
+        "Kategori Green Business Ditambahkan",
+        "Green Business Category Added"
+      ),
       excerpt: t(
-        "Pelajari strategi untuk menggabungkan pengalaman offline dan online dalam satu event yang memorable.",
-        "Learn strategies to combine offline and online experiences in one memorable event."
+        "Kami dengan senang hati mengumumkan kategori baru untuk bisnis berkelanjutan dengan hadiah khusus.",
+        "We are excited to announce a new category for sustainable businesses with special prizes."
       ),
       content: t(
-        "Pelajari strategi untuk menggabungkan pengalaman offline dan online dalam satu event yang memorable. Hybrid event menjadi pilihan tepat untuk menjangkau audiens yang lebih luas.",
-        "Learn strategies to combine offline and online experiences in one memorable event. Hybrid events are a great choice to reach a wider audience."
+        "Karena permintaan yang luar biasa, kami telah menambahkan kategori BMC Green Business ke dalam lineup kompetisi kami. Kategori ini berfokus pada inovasi bisnis berkelanjutan dan solusi ramah lingkungan.",
+        "Due to overwhelming demand, we have added the BMC Green Business category to our competition lineup. This category focuses on sustainable business innovation and eco-friendly solutions."
       ),
-      date: "2024-03-05",
-      category: t("Tips", "Tips"),
+      image: "/card-2.webp",
+      category: t("Pengumuman", "Announcement"),
+      date: "2025-02-28",
       author: "KATH Team",
+      slug: "new-green-business-category",
+    },
+    {
+      id: "3",
+      title: t(
+        "Perkenalan Panel Juri BMC 2026",
+        "Introducing BMC 2026 Judges Panel"
+      ),
+      excerpt: t(
+        "Mengenal para ahli industri yang akan menilai submission Anda dalam kompetisi BMC.",
+        "Meet the industry experts who will evaluate your submissions in the BMC competition."
+      ),
+      content: t(
+        "Kami dengan hormat memperkenalkan panel juri kami untuk BMC International Competition 2026. Panel kami mencakup investor terkemuka, pengusaha sukses, dan veteran industri.",
+        "We are honored to introduce our judges panel for BMC International Competition 2026. Our panel includes leading investors, successful entrepreneurs, and industry veterans."
+      ),
+      image: "/about-team.webp",
+      category: t("Berita", "News"),
+      date: "2025-02-25",
+      author: "KATH Team",
+      slug: "judges-panel-2026",
+    },
+    {
+      id: "4",
+      title: t(
+        "Tips Merencanakan Pernikahan Impian",
+        "Tips for Planning Your Dream Wedding"
+      ),
+      excerpt: t(
+        "Pelajari cara merencanakan pernikahan sempurna dengan tips dari para ahli KATH.",
+        "Learn how to plan the perfect wedding with tips from KATH experts."
+      ),
+      content: t(
+        "Merencanakan pernikahan bisa menjadi tugas yang menakutkan, tetapi dengan pendekatan yang tepat, ini bisa menjadi pengalaman yang menyenangkan. Berikut adalah tips dari para ahli KATH untuk membantu Anda merencanakan hari istimewa Anda.",
+        "Planning a wedding can be a daunting task, but with the right approach, it can be an enjoyable experience. Here are tips from KATH experts to help you plan your special day."
+      ),
+      image: "/grid-1.webp",
+      category: t("Berita", "News"),
+      date: "2025-02-20",
+      author: "KATH Team",
+      slug: "wedding-planning-tips",
+    },
+    {
+      id: "5",
+      title: t(
+        "Tren Event Korporat 2025",
+        "Corporate Event Trends 2025"
+      ),
+      excerpt: t(
+        "Temukan tren terbaru dalam event korporat yang akan mendominasi tahun ini.",
+        "Discover the latest trends in corporate events that will dominate this year."
+      ),
+      content: t(
+        "Dari teknologi imersif hingga keberlanjutan, temukan tren event korporat yang akan membentuk industri di tahun 2025 dan seterusnya.",
+        "From immersive technology to sustainability, discover the corporate event trends that will shape the industry in 2025 and beyond."
+      ),
+      image: "/grid-2.webp",
+      category: t("Berita", "News"),
+      date: "2025-02-15",
+      author: "KATH Team",
+      slug: "corporate-event-trends-2025",
+    },
+    {
+      id: "6",
+      title: t(
+        "KATH Raih Penghargaan Industri 2025",
+        "KATH Wins Industry Award 2025"
+      ),
+      excerpt: t(
+        "Kami bangga mengumumkan KATH menerima penghargaan prestisius dari Asosiasi Event Indonesia.",
+        "We are proud to announce KATH received a prestigious award from the Indonesian Event Association."
+      ),
+      content: t(
+        "KATH Event Organizer dihormati menerima Industry Excellence Award 2025 dari Indonesian Event Professionals Association. Pengakuan ini adalah bukti komitmen kami dalam menyelenggarakan event berkualitas.",
+        "KATH Event Organizer is honored to receive the Industry Excellence Award 2025 from the Indonesian Event Professionals Association. This recognition is a testament to our commitment to hosting quality events."
+      ),
+      image: "/corporate-event.webp",
+      category: t("Berita", "News"),
+      date: "2025-02-10",
+      author: "KATH Team",
+      slug: "industry-award-2025",
     },
   ],
 };
+
 
 // Clients Section
 export interface ClientItem {

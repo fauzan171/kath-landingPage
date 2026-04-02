@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { faqConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChevronDown } from '../icons';
+import { ChevronDown } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,16 +12,12 @@ const FAQ = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [openItems, setOpenItems] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const { language } = useLanguage();
 
-  // Default category based on language
-  const defaultCategory = language === 'id' ? 'Umum' : 'General';
-  const [activeCategory, setActiveCategory] = useState<string>(defaultCategory);
-
-  // Sync category with language changes
+  // Set initial category based on language
   useEffect(() => {
     setActiveCategory(language === 'id' ? 'Umum' : 'General');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [language]);
 
   const toggleItem = (id: string) => {
@@ -43,46 +39,44 @@ const FAQ = () => {
 
     if (!section || !header || !content) return;
 
-    const triggers: ScrollTrigger[] = [];
-
-    // Header animation
-    gsap.set(header.children, { opacity: 0, y: 30 });
-    const headerTrigger = ScrollTrigger.create({
-      trigger: header,
-      start: 'top 80%',
-      once: true,
-      onEnter: () => {
-        gsap.to(header.children, {
+    const ctx = gsap.context(() => {
+      // Header animation
+      gsap.fromTo(
+        header.children,
+        { opacity: 0, y: 30 },
+        {
           opacity: 1,
           y: 0,
           duration: 0.8,
           stagger: 0.15,
           ease: 'power3.out',
-        });
-      },
-    });
-    triggers.push(headerTrigger);
+          scrollTrigger: {
+            trigger: header,
+            start: 'top 80%',
+            once: true,
+          },
+        }
+      );
 
-    // Content animation
-    gsap.set(content, { opacity: 0, y: 40 });
-    const contentTrigger = ScrollTrigger.create({
-      trigger: content,
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        gsap.to(content, {
+      // Content animation
+      gsap.fromTo(
+        content,
+        { opacity: 0, y: 40 },
+        {
           opacity: 1,
           y: 0,
           duration: 0.8,
           ease: 'power3.out',
-        });
-      },
-    });
-    triggers.push(contentTrigger);
+          scrollTrigger: {
+            trigger: content,
+            start: 'top 75%',
+            once: true,
+          },
+        }
+      );
+    }, sectionRef);
 
-    return () => {
-      triggers.forEach(trigger => trigger.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   if (!faqConfig.items.length) return null;
@@ -91,32 +85,35 @@ const FAQ = () => {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative w-full bg-kath-bg-section py-24 md:py-32"
+      // Diubah kembali ke krem
+      className="relative w-full bg-[#F9F8F6] py-24 md:py-32"
     >
       <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12">
+        
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-12">
-          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
+        <div ref={headerRef} className="text-center mb-12 md:mb-16">
+          <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {faqConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-headline text-kath-text-primary mt-4">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {faqConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-kath-text-secondary mt-4">
+          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
             {faqConfig.sectionDescription[language]}
           </p>
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           {[allLabel, ...faqConfig.categories.map(c => c[language])].map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 font-body text-xs rounded-full transition-all duration-300 ${
+              className={`px-6 py-2.5 font-body text-sm rounded-full transition-all duration-300 border ${
                 activeCategory === category
-                  ? 'bg-kath-primary text-white'
-                  : 'bg-white text-kath-text-secondary hover:text-kath-text-primary border border-kath-bg-section'
+                  ? 'bg-[#FFB22C] border-[#FFB22C] text-[#0F0F0F] font-bold shadow-md shadow-[#FFB22C]/20'
+                  // Diubah ke bg-white agar kontras dengan bg krem
+                  : 'bg-white border-[#0F0F0F]/5 text-[#0F0F0F]/60 hover:text-[#0F0F0F] hover:border-[#0F0F0F]/15'
               }`}
             >
               {category}
@@ -131,33 +128,43 @@ const FAQ = () => {
             return (
               <div
                 key={item.id}
-                className={`border rounded-xl transition-all duration-300 ${
+                className={`border rounded-2xl transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-kath-primary/30 bg-white shadow-sm'
-                    : 'border-kath-bg-section bg-white'
+                    ? 'border-[#FFB22C] bg-white shadow-lg shadow-[#0F0F0F]/5'
+                    // Item yang tidak aktif juga menggunakan bg-white
+                    : 'border-[#0F0F0F]/10 bg-white hover:border-[#0F0F0F]/20'
                 }`}
               >
                 <button
                   onClick={() => toggleItem(item.id)}
-                  className="w-full flex items-center justify-between p-5 text-left"
+                  className="w-full flex items-center justify-between p-6 text-left group"
                 >
-                  <span className="font-body text-sm md:text-base text-kath-text-primary pr-4">
+                  <span className={`font-display text-base md:text-lg pr-4 transition-colors ${
+                    isOpen ? 'text-[#0F0F0F] font-bold' : 'text-[#0F0F0F] font-semibold group-hover:text-[#FFB22C]'
+                  }`}>
                     {item.question[language]}
                   </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-kath-primary flex-shrink-0 transition-transform duration-300 ${
-                      isOpen ? 'rotate-180' : ''
-                    }`}
-                  />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${
+                    // Sedikit disesuaikan background icon agar tidak terlalu gelap
+                    isOpen ? 'bg-[#FFB22C]/10' : 'bg-[#F9F8F6] group-hover:bg-[#FFB22C]/10'
+                  }`}>
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-300 ${
+                        isOpen ? 'rotate-180 text-[#FFB22C]' : 'text-[#0F0F0F]/50 group-hover:text-[#FFB22C]'
+                      }`}
+                    />
+                  </div>
                 </button>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    isOpen ? 'max-h-96' : 'max-h-0'
+                  className={`transition-all duration-300 ease-in-out ${
+                    isOpen ? 'grid grid-rows-[1fr] opacity-100' : 'grid grid-rows-[0fr] opacity-0'
                   }`}
                 >
-                  <p className="px-5 pb-5 font-body text-sm text-kath-text-secondary leading-relaxed">
-                    {item.answer[language]}
-                  </p>
+                  <div className="overflow-hidden">
+                    <p className="px-6 pb-6 pt-2 font-body text-sm md:text-base text-[#0F0F0F]/70 leading-relaxed">
+                      {item.answer[language]}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
@@ -165,8 +172,10 @@ const FAQ = () => {
         </div>
       </div>
 
-      {/* Section divider */}
-      <div className="section-divider mt-24 md:mt-32" />
+      {/* Garis Pembatas Bawah */}
+      <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12 mt-24 md:mt-32">
+        <div className="h-[1px] w-full bg-[#0F0F0F]/10" />
+      </div>
     </section>
   );
 };

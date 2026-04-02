@@ -8,7 +8,10 @@
 // - View tracking
 // ============================================
 
-import { supabase } from '@/lib/supabase';
+import { supabase as supabaseClient } from '@/lib/supabase';
+
+// Use non-null assertion - Supabase should be configured before using this service
+const sb = supabaseClient!;
 
 // ============================================
 // TYPES
@@ -75,7 +78,7 @@ export const supabaseNewsService = {
    * Optionally filter by category
    */
   async getAll(category?: NewsCategory | 'all'): Promise<News[]> {
-    let query = supabase
+    let query = sb
       .from('news')
       .select('*')
       .eq('is_published', true)
@@ -95,7 +98,7 @@ export const supabaseNewsService = {
    * Get news by URL slug (for detail page)
    */
   async getBySlug(slug: string): Promise<News | null> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .eq('slug', slug)
@@ -109,7 +112,7 @@ export const supabaseNewsService = {
    * Get news by ID
    */
   async getById(id: string): Promise<News | null> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .eq('id', id)
@@ -123,7 +126,7 @@ export const supabaseNewsService = {
    * Get news by category
    */
   async getByCategory(category: NewsCategory): Promise<News[]> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .eq('category', category)
@@ -138,7 +141,7 @@ export const supabaseNewsService = {
    * Get featured/latest news
    */
   async getFeatured(limit: number = 3): Promise<News[]> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .eq('is_published', true)
@@ -153,7 +156,7 @@ export const supabaseNewsService = {
    * Search news by title or content
    */
   async search(query: string): Promise<News[]> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .eq('is_published', true)
@@ -172,7 +175,7 @@ export const supabaseNewsService = {
    * Get all news (admin - includes unpublished)
    */
   async getAllAdmin(): Promise<News[]> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .select('*')
       .order('created_at', { ascending: false });
@@ -185,7 +188,7 @@ export const supabaseNewsService = {
    * Create news article (admin)
    */
   async create(news: Partial<NewsFormData>): Promise<News> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .insert({
         ...news,
@@ -204,7 +207,7 @@ export const supabaseNewsService = {
    * Update news article (admin)
    */
   async update(id: string, updates: Partial<NewsFormData>): Promise<News> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .update({
         ...updates,
@@ -222,7 +225,7 @@ export const supabaseNewsService = {
    * Delete news article (admin)
    */
   async delete(id: string): Promise<{ success: boolean }> {
-    const { error } = await supabase
+    const { error } = await sb
       .from('news')
       .delete()
       .eq('id', id);
@@ -235,7 +238,7 @@ export const supabaseNewsService = {
    * Publish news article (admin)
    */
   async publish(id: string, publishedAt?: string): Promise<News> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .update({
         is_published: true,
@@ -254,7 +257,7 @@ export const supabaseNewsService = {
    * Unpublish news article (admin)
    */
   async unpublish(id: string): Promise<News> {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('news')
       .update({
         is_published: false,
@@ -272,20 +275,20 @@ export const supabaseNewsService = {
    * Increment view count (when user reads news)
    */
   async incrementView(id: string): Promise<void> {
-    const { error } = await supabase.rpc('increment_news_view', {
+    const { error } = await sb.rpc('increment_news_view', {
       p_news_id: id
     });
 
     if (error) {
       // Fallback: manual increment if RPC fails
-      const { data: news } = await supabase
+      const { data: news } = await sb
         .from('news')
         .select('views')
         .eq('id', id)
         .single();
 
       if (news) {
-        await supabase
+        await sb
           .from('news')
           .update({ views: (news.views || 0) + 1 })
           .eq('id', id);
@@ -303,7 +306,7 @@ export const supabaseNewsService = {
     totalViews: number;
     byCategory: Record<NewsCategory, number>;
   }> {
-    const { data: allNews, error } = await supabase
+    const { data: allNews, error } = await sb
       .from('news')
       .select('category, is_published, views');
 

@@ -16,18 +16,24 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
+// Warn if Supabase is not configured (but don't throw error)
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn(
+    '⚠️ Supabase environment variables are missing. Please create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. ' +
+    'See .env.example for reference.'
+  );
 }
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+// Create Supabase client (will be null if not configured)
+export const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : null;
 
 // ============================================
 // TYPE DEFINITIONS
@@ -229,6 +235,7 @@ export interface Announcement {
 // ============================================
 
 export async function signUp(email: string, password: string, metadata?: Record<string, unknown>) {
+  if (!supabase) throw new Error('Supabase is not configured');
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -242,6 +249,7 @@ export async function signUp(email: string, password: string, metadata?: Record<
 }
 
 export async function signIn(email: string, password: string) {
+  if (!supabase) throw new Error('Supabase is not configured');
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
@@ -252,16 +260,19 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  if (!supabase) throw new Error('Supabase is not configured');
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
 
 export async function getCurrentUser() {
+  if (!supabase) return null;
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 }
 
 export async function getSession() {
+  if (!supabase) return null;
   const { data: { session } } = await supabase.auth.getSession();
   return session;
 }
@@ -327,6 +338,7 @@ export async function createSubmission(
   competitionId: string,
   file: File
 ): Promise<Submission> {
+  if (!supabase) throw new Error('Supabase is not configured');
   // 1. Upload file to Google Drive via n8n
   const uploadResult = await uploadFileToDrive(file, taskId, teamId);
 
@@ -353,6 +365,7 @@ export async function createSubmission(
 }
 
 export async function getTeamSubmissions(teamId: string): Promise<Submission[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('submissions')
     .select(`
@@ -371,6 +384,7 @@ export async function getTeamSubmissions(teamId: string): Promise<Submission[]> 
 }
 
 export async function getSubmissionById(submissionId: string): Promise<Submission | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from('submissions')
     .select(`
@@ -398,6 +412,7 @@ export async function getSubmissionById(submissionId: string): Promise<Submissio
 // ============================================
 
 export async function getCompetitionByCode(code: string): Promise<Competition | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from('competitions')
     .select('*')
@@ -409,6 +424,7 @@ export async function getCompetitionByCode(code: string): Promise<Competition | 
 }
 
 export async function getActiveCompetitions(): Promise<Competition[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('competitions')
     .select('*')
@@ -424,6 +440,7 @@ export async function getActiveCompetitions(): Promise<Competition[]> {
 // ============================================
 
 export async function getCompetitionStages(competitionId: string): Promise<Stage[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('stages')
     .select('*')
@@ -435,6 +452,7 @@ export async function getCompetitionStages(competitionId: string): Promise<Stage
 }
 
 export async function getStageTasks(stageId: string): Promise<Task[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
@@ -456,6 +474,7 @@ export async function createTeam(
   category: string,
   institution?: string
 ): Promise<Team> {
+  if (!supabase) throw new Error('Supabase is not configured');
   const { data, error } = await supabase
     .from('teams')
     .insert({
@@ -485,6 +504,7 @@ export async function addTeamMember(
     role?: 'leader' | 'member' | 'mentor';
   }
 ): Promise<TeamMember> {
+  if (!supabase) throw new Error('Supabase is not configured');
   const { data, error } = await supabase
     .from('team_members')
     .insert({
@@ -500,6 +520,7 @@ export async function addTeamMember(
 }
 
 export async function getTeamById(teamId: string): Promise<(Team & { members: TeamMember[] }) | null> {
+  if (!supabase) return null;
   const { data: team, error: teamError } = await supabase
     .from('teams')
     .select('*')
@@ -527,6 +548,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
 // ============================================
 
 export async function getPublishedAnnouncements(competitionId: string): Promise<Announcement[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('announcements')
     .select('*')

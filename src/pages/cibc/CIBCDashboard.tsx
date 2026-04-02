@@ -2,35 +2,95 @@
  * CIBC Power by KATH - Dashboard
  *
  * Main dashboard for registered participants
+ * Connected to Supabase for real data
  * Color Theme: Cream (#E6DDC5) & Black
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Trophy, FileText, Users, Bell, Settings,
   CheckCircle2, AlertCircle,
-  Target, Leaf, LogOut, UserPlus, Calendar
-} from '../../icons';
+  Target, Leaf, LogOut, UserPlus, Calendar, Loader2
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { isSupabaseConfigured, env } from '@/config/environment';
+import { supabase } from '@/lib/supabase';
 import {
-  teamService,
-  submissionService,
-  notificationService,
-  dashboardService,
-  timelineService,
-  initializeCIBCData,
-} from '../../services/cibcMockData';
-import type { Team, Submission, CIBCNotification, DashboardProgress, TimelinePhase } from '../../types/cibc';
+  competitionService,
+  stagesService,
+  teamsService,
+  submissionsService,
+  announcementsService,
+  notificationsService,
+} from '@/services/cibc.service';
+import { teamService, notificationService } from '@/services/cibcMockData';
 
-// Current user type
+// Types
+interface TeamMember {
+  id: string;
+  user_id: string;
+  role: 'leader' | 'member';
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    institution?: string;
+  };
+}
+
+interface Team {
+  id: string;
+  name: string;
+  team_code: string;
+  category: 'student' | 'open';
+  status: 'draft' | 'pending' | 'verified' | 'disqualified';
+  payment_status: 'pending' | 'verified' | 'rejected';
+  institution?: string;
+}
+
+interface Stage {
+  id: string;
+  name: string;
+  is_active: boolean;
+  start_date?: string;
+  end_date?: string;
+}
+
+interface Submission {
+  id: string;
+  status: 'draft' | 'submitted' | 'late' | 'graded';
+  file_name?: string;
+  total_score?: number;
+  feedback?: string;
+  created_at: string;
+}
+
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  type: string;
+  published_at?: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+// Current user type from localStorage
 interface CurrentUser {
   id: string;
   email: string;
   fullName: string;
-  category: string;
+  category?: string;
   teamId?: string;
+  role?: string;
 }
 
 // Dashboard sections
@@ -43,59 +103,127 @@ const CIBCDashboard = () => {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [activeSection, setActiveSection] = useState<DashboardSection>('overview');
   const [team, setTeam] = useState<Team | null>(null);
-  const [submission, setSubmission] = useState<Submission | null>(null);
-  const [notifications, setNotifications] = useState<CIBCNotification[]>([]);
-  const [progress, setProgress] = useState<DashboardProgress | null>(null);
-  const [timeline, setTimeline] = useState<TimelinePhase[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [stages, setStages] = useState<Stage[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Check authentication
   useEffect(() => {
-    const storedUser = localStorage.getItem('cibc_current_user');
-    if (!storedUser) {
-      navigate('/cibc/login');
-      return;
-    }
+    const checkAuth = async () => {
+      // First check localStorage for session
+      const storedUser = localStorage.getItem('cibc_current_user');
 
-    try {
-      const user = JSON.parse(storedUser);
-      setCurrentUser(user);
-      initializeCIBCData();
-      loadData(user);
-    } catch {
-      navigate('/cibc/login');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (!storedUser) {
+        // Check Supabase session
+        if (isSupabaseConfigured() && supabase) {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            navigate('/cibc/login');
+            return;
+          }
+          // Create user from Supabase session
+          const newUser: CurrentUser = {
+            id: user.id,
+            email: user.email || '',
+            fullName: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+          };
+          localStorage.setItem('cibc_current_user', JSON.stringify(newUser));
+          setCurrentUser(newUser);
+        } else {
+          navigate('/cibc/login');
+          return;
+        }
+      } else {
+        try {
+          setCurrentUser(JSON.parse(storedUser));
+        } catch {
+          navigate('/cibc/login');
+        }
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
-  const loadData = async (user: CurrentUser) => {
+  // Load data when user is set
+  useEffect(() => {
+    if (currentUser) {
+      loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+
     try {
+      // Use mock data if in mock mode
+      if (env.useMockData) {
+        await loadMockData();
+        setIsLoading(false);
+        return;
+      }
+
+      // Use Supabase if configured
+      if (!isSupabaseConfigured() || !supabase) {
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
 
-      const [teams, submissions, notifs, tl] = await Promise.all([
-        teamService.getAll(),
-        submissionService.getAll(),
-        notificationService.getAll(),
-        timelineService.getAll(),
-      ]);
-
-      let currentTeam = teams.find(t => t.leaderId === user.id || t.id === user.teamId);
-
-      if (!currentTeam && teams.length > 0) {
-        currentTeam = teams[0];
+      // Get competition
+      const comp = await competitionService.getActive();
+      if (!comp) {
+        toast.error(language === 'id' ? 'Kompetisi tidak ditemukan' : 'Competition not found');
+        setIsLoading(false);
+        return;
       }
 
-      setTeam(currentTeam || null);
+      // Load stages
+      const stagesData = await stagesService.getVisible(comp.id);
+      setStages(stagesData);
+
+      // Load team if user has one
+      const teamData = await teamsService.getMyTeam(comp.id);
+      if (teamData) {
+        setTeam({
+          id: teamData.id,
+          name: teamData.name,
+          team_code: teamData.team_code,
+          category: teamData.category,
+          status: teamData.status,
+          payment_status: teamData.payment_status,
+          institution: teamData.institution,
+        });
+        setTeamMembers(teamData.members || []);
+
+        // Load submissions for team
+        const subs = await submissionsService.getMySubmissions(teamData.id);
+        setSubmissions(subs);
+
+        // Update current user with team ID
+        if (currentUser && !currentUser.teamId) {
+          const updatedUser: CurrentUser = {
+            ...currentUser,
+            teamId: teamData.id,
+          };
+          localStorage.setItem('cibc_current_user', JSON.stringify(updatedUser));
+          setCurrentUser(updatedUser);
+        }
+      }
+
+      // Load announcements
+      const announcementsData = await announcementsService.getPublished(comp.id);
+      setAnnouncements(announcementsData);
+
+      // Load notifications
+      const notifs = await notificationsService.getMy();
       setNotifications(notifs);
-      setTimeline(tl);
 
-      if (currentTeam) {
-        const teamSubmission = submissions.find(s => s.teamId === currentTeam!.id);
-        setSubmission(teamSubmission || null);
-
-        const prog = await dashboardService.getProgress(currentTeam.id);
-        setProgress(prog);
-      }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       toast.error(language === 'id' ? 'Gagal memuat data' : 'Failed to load data');
@@ -104,25 +232,92 @@ const CIBCDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+  // Load mock data for testing
+  const loadMockData = async () => {
+    try {
+      // Get team if user has one
+      if (currentUser?.teamId) {
+        const teamData = await teamService.getById(currentUser.teamId);
+        if (teamData) {
+          setTeam({
+            id: teamData.id,
+            name: teamData.name,
+            team_code: teamData.code,
+            category: teamData.category as 'student' | 'open',
+            status: teamData.status === 'complete' ? 'verified' : 'pending',
+            payment_status: 'verified',
+            institution: teamData.members?.[0]?.institution,
+          });
+          setTeamMembers((teamData.members || []).map(m => ({
+            id: m.id,
+            user_id: m.id,
+            role: m.role as 'leader' | 'member',
+            user: {
+              id: m.id,
+              name: m.name,
+              email: m.email,
+              institution: m.institution,
+            },
+          })));
+        }
+      }
+
+      // Get notifications
+      const notifs = await notificationService.getAll();
+      setNotifications(notifs.map(n => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        is_read: n.read,
+        created_at: new Date().toISOString(),
+      })));
+
+      // Mock stages
+      setStages([
+        { id: '1', name: 'Registration', is_active: true, start_date: '2026-01-01', end_date: '2026-02-28' },
+        { id: '2', name: 'Submission', is_active: false, start_date: '2026-03-01', end_date: '2026-03-31' },
+        { id: '3', name: 'Screening', is_active: false, start_date: '2026-04-01', end_date: '2026-04-30' },
+        { id: '4', name: 'Final', is_active: false, start_date: '2026-05-15', end_date: '2026-05-17' },
+      ]);
+
+    } catch (error) {
+      console.error('Failed to load mock data:', error);
+    }
+  };
+
+  const handleLogout = useCallback(async () => {
+    if (isSupabaseConfigured() && supabase) {
+      await supabase.auth.signOut();
+    }
     localStorage.removeItem('cibc_current_user');
     navigate('/cibc');
-  };
+  }, [navigate]);
 
   const handleMarkAsRead = async (id: string) => {
-    await notificationService.markAsRead(id);
-    setNotifications(notifications.map(n =>
-      n.id === id ? { ...n, read: true } : n
-    ));
+    try {
+      await notificationsService.markRead(id);
+      setNotifications(notifications.map(n =>
+        n.id === id ? { ...n, is_read: true } : n
+      ));
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
-  const progressPercentage = progress?.overallProgress || 0;
+  // Calculate progress
+  const progressPercentage = team ? (
+    (team.status === 'verified' ? 40 : 20) +
+    (submissions.some(s => s.status !== 'draft') ? 30 : 0) +
+    (submissions.some(s => s.status === 'graded') ? 30 : 0)
+  ) : 0;
+
+  const unreadNotifications = notifications.filter(n => !n.is_read).length;
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cibc-bgMain flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-cibc-primary/30 border-t-cibc-primary rounded-full animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-cibc-primary animate-spin mx-auto mb-4" />
           <p className="font-body text-cibc-textSecondary">
             {language === 'id' ? 'Memuat...' : 'Loading...'}
           </p>
@@ -157,7 +352,7 @@ const CIBCDashboard = () => {
               {/* Notifications */}
               <button className="relative p-2 text-cibc-textSecondary hover:text-white">
                 <Bell className="w-5 h-5" />
-                {notifications.filter(n => !n.read).length > 0 && (
+                {unreadNotifications > 0 && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-cibc-primary rounded-full" />
                 )}
               </button>
@@ -217,7 +412,7 @@ const CIBCDashboard = () => {
                         {language === 'id' ? `Selamat Datang, ${currentUser?.fullName?.split(' ')[0]}!` : `Welcome, ${currentUser?.fullName?.split(' ')[0]}!`}
                       </h2>
                       <p className="font-body text-cibc-textSecondary">
-                        {team?.name || 'Create your team to get started'}
+                        {team?.name || language === 'id' ? 'Buat tim Anda untuk memulai' : 'Create your team to get started'}
                       </p>
                     </div>
                     <div className="w-16 h-16 rounded-full bg-cibc-primary/20 flex items-center justify-center">
@@ -226,14 +421,24 @@ const CIBCDashboard = () => {
                   </div>
                 </div>
 
-                {/* Progress Card */}
+                {/* Team Status Card */}
                 <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-display text-lg text-white">
-                      {language === 'id' ? 'Progress Registrasi' : 'Registration Progress'}
+                      {language === 'id' ? 'Status Registrasi' : 'Registration Status'}
                     </h3>
-                    <span className="text-2xl font-display text-cibc-primary">{progressPercentage}%</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-body ${
+                      team?.status === 'verified' ? 'bg-cibc-success/20 text-cibc-success' :
+                      team?.status === 'pending' ? 'bg-cibc-warning/20 text-cibc-warning' :
+                      'bg-cibc-textMuted/20 text-cibc-textMuted'
+                    }`}>
+                      {team?.status === 'verified' ? (language === 'id' ? 'Terverifikasi' : 'Verified') :
+                       team?.status === 'pending' ? (language === 'id' ? 'Menunggu' : 'Pending') :
+                       (language === 'id' ? 'Belum Terdaftar' : 'Not Registered')}
+                    </span>
                   </div>
+
+                  {/* Progress Bar */}
                   <div className="w-full bg-cibc-bgSection rounded-full h-3 mb-6">
                     <div
                       className="bg-cibc-primary h-3 rounded-full transition-all duration-500"
@@ -241,13 +446,13 @@ const CIBCDashboard = () => {
                     />
                   </div>
 
-                  {/* Progress Items */}
+                  {/* Progress Steps */}
                   <div className="grid md:grid-cols-2 gap-4">
                     {[
-                      { label: language === 'id' ? 'Registrasi Akun' : 'Account Registration', done: progress?.registration },
-                      { label: language === 'id' ? 'Formasi Tim' : 'Team Formation', done: progress?.teamFormation },
-                      { label: language === 'id' ? 'Submission BMC' : 'BMC Submission', done: progress?.submission },
-                      { label: language === 'id' ? 'Dokumen Pendukung' : 'Supporting Documents', done: progress?.documentsUploaded?.bmc && progress?.documentsUploaded?.pitchDeck },
+                      { label: language === 'id' ? 'Akun Dibuat' : 'Account Created', done: !!currentUser },
+                      { label: language === 'id' ? 'Tim Terbentuk' : 'Team Formed', done: !!team },
+                      { label: language === 'id' ? 'Registrasi Diverifikasi' : 'Registration Verified', done: team?.status === 'verified' },
+                      { label: language === 'id' ? 'Submission Selesai' : 'Submission Complete', done: submissions.some(s => s.status !== 'draft') },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
@@ -261,6 +466,17 @@ const CIBCDashboard = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* No Team Warning */}
+                  {!team && (
+                    <div className="mt-6 p-4 bg-cibc-warning/10 border border-cibc-warning/30 rounded-lg">
+                      <p className="font-body text-sm text-cibc-warning">
+                        {language === 'id'
+                          ? 'Anda belum terdaftar dalam tim. Silakan hubungi ketua tim atau daftarkan tim baru.'
+                          : "You're not registered in a team yet. Contact your team leader or register a new team."}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Timeline Preview */}
@@ -269,18 +485,21 @@ const CIBCDashboard = () => {
                     {language === 'id' ? 'Timeline Kompetisi' : 'Competition Timeline'}
                   </h3>
                   <div className="space-y-4">
-                    {timeline.slice(0, 4).map((phase, index) => (
-                      <div key={index} className="flex items-center gap-4">
+                    {stages.slice(0, 4).map((stage, index) => (
+                      <div key={stage.id || index} className="flex items-center gap-4">
                         <div className={`w-3 h-3 rounded-full ${
-                          phase.status === 'active' ? 'bg-cibc-primary' : 'bg-cibc-border'
+                          stage.is_active ? 'bg-cibc-primary' : 'bg-cibc-border'
                         }`} />
                         <div className="flex-1">
-                          <p className="font-body text-sm text-white">{phase.name}</p>
-                          <p className="font-body text-xs text-cibc-textMuted">
-                            {new Date(phase.startDate).toLocaleDateString()} - {new Date(phase.endDate).toLocaleDateString()}
-                          </p>
+                          <p className="font-body text-sm text-white">{stage.name}</p>
+                          {stage.start_date && (
+                            <p className="font-body text-xs text-cibc-textMuted">
+                              {new Date(stage.start_date).toLocaleDateString()}
+                              {stage.end_date && ` - ${new Date(stage.end_date).toLocaleDateString()}`}
+                            </p>
+                          )}
                         </div>
-                        {phase.status === 'active' && (
+                        {stage.is_active && (
                           <span className="px-2 py-1 bg-cibc-primary/20 text-cibc-primary text-xs rounded-full font-body">
                             {language === 'id' ? 'Aktif' : 'Active'}
                           </span>
@@ -290,38 +509,61 @@ const CIBCDashboard = () => {
                   </div>
                 </div>
 
-                {/* Notifications */}
-                <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-display text-lg text-white">
-                      {language === 'id' ? 'Notifikasi' : 'Notifications'}
-                    </h3>
-                    <span className="text-cibc-primary text-sm font-body cursor-pointer hover:underline">
-                      {language === 'id' ? 'Lihat Semua' : 'View All'}
-                    </span>
+                {/* Announcements */}
+                {announcements.length > 0 && (
+                  <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-display text-lg text-white">
+                        {language === 'id' ? 'Pengumuman' : 'Announcements'}
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
+                      {announcements.slice(0, 3).map(announcement => (
+                        <div key={announcement.id} className="p-4 bg-cibc-bgSection rounded-lg">
+                          <h4 className="font-body font-medium text-white">{announcement.title}</h4>
+                          <p className="font-body text-sm text-cibc-textSecondary mt-1 line-clamp-2">{announcement.content}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    {notifications.slice(0, 3).map(notif => (
-                      <div
-                        key={notif.id}
-                        onClick={() => handleMarkAsRead(notif.id)}
-                        className={`p-4 rounded-lg cursor-pointer transition-colors ${
-                          notif.read ? 'bg-cibc-bgSection' : 'bg-cibc-primary/5 border border-cibc-primary/20'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${
-                            notif.read ? 'bg-cibc-border' : 'bg-cibc-primary'
-                          }`} />
-                          <div>
-                            <p className="font-body text-sm text-white">{notif.title}</p>
-                            <p className="font-body text-xs text-cibc-textMuted mt-1">{notif.message}</p>
+                )}
+
+                {/* Notifications */}
+                {notifications.length > 0 && (
+                  <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-display text-lg text-white">
+                        {language === 'id' ? 'Notifikasi' : 'Notifications'}
+                      </h3>
+                      {unreadNotifications > 0 && (
+                        <span className="text-cibc-primary text-sm font-body cursor-pointer hover:underline">
+                          {language === 'id' ? `Tandai semua dibaca` : 'Mark all read'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      {notifications.slice(0, 3).map(notif => (
+                        <div
+                          key={notif.id}
+                          onClick={() => handleMarkAsRead(notif.id)}
+                          className={`p-4 rounded-lg cursor-pointer transition-colors ${
+                            notif.is_read ? 'bg-cibc-bgSection' : 'bg-cibc-primary/5 border border-cibc-primary/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`w-2 h-2 rounded-full mt-2 ${
+                              notif.is_read ? 'bg-cibc-border' : 'bg-cibc-primary'
+                            }`} />
+                            <div>
+                              <p className="font-body text-sm text-white">{notif.title}</p>
+                              <p className="font-body text-xs text-cibc-textMuted mt-1">{notif.message}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -334,15 +576,17 @@ const CIBCDashboard = () => {
                       {language === 'id' ? 'Informasi Tim' : 'Team Information'}
                     </h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-body ${
-                      team?.status === 'complete' ? 'bg-cibc-success/20 text-cibc-success' : 'bg-cibc-warning/20 text-cibc-warning'
+                      team?.status === 'verified' ? 'bg-cibc-success/20 text-cibc-success' :
+                      team?.status === 'pending' ? 'bg-cibc-warning/20 text-cibc-warning' :
+                      'bg-cibc-textMuted/20 text-cibc-textMuted'
                     }`}>
-                      {team?.status === 'complete'
-                        ? (language === 'id' ? 'Lengkap' : 'Complete')
-                        : (language === 'id' ? 'Pembentukan' : 'Forming')}
+                      {team?.status === 'verified' ? (language === 'id' ? 'Terverifikasi' : 'Verified') :
+                       team?.status === 'pending' ? (language === 'id' ? 'Menunggu' : 'Pending') :
+                       (language === 'id' ? 'Draft' : 'Draft')}
                     </span>
                   </div>
 
-                  {team && (
+                  {team ? (
                     <div className="space-y-4">
                       <div>
                         <label className="font-body text-sm text-cibc-textMuted">
@@ -356,68 +600,90 @@ const CIBCDashboard = () => {
                         </label>
                         <div className="flex items-center gap-2 mt-1">
                           <code className="px-3 py-2 bg-cibc-bgSection rounded-lg font-body text-cibc-primary">
-                            {team.code}
+                            {team.team_code}
                           </code>
-                          <button className="px-3 py-2 text-cibc-primary hover:bg-cibc-primary/10 rounded-lg font-body text-sm">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(team.team_code);
+                              toast.success(language === 'id' ? 'Kode disalin!' : 'Code copied!');
+                            }}
+                            className="px-3 py-2 text-cibc-primary hover:bg-cibc-primary/10 rounded-lg font-body text-sm"
+                          >
                             {language === 'id' ? 'Salin' : 'Copy'}
                           </button>
                         </div>
                       </div>
+                      <div>
+                        <label className="font-body text-sm text-cibc-textMuted">
+                          {language === 'id' ? 'Kategori' : 'Category'}
+                        </label>
+                        <p className="font-body text-white mt-1 capitalize">{team.category}</p>
+                      </div>
+                      {team.institution && (
+                        <div>
+                          <label className="font-body text-sm text-cibc-textMuted">
+                            {language === 'id' ? 'Institusi' : 'Institution'}
+                          </label>
+                          <p className="font-body text-white mt-1">{team.institution}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-12 h-12 text-cibc-textMuted mx-auto mb-4" />
+                      <p className="font-body text-cibc-textSecondary">
+                        {language === 'id' ? 'Anda belum bergabung dengan tim' : "You haven't joined a team yet"}
+                      </p>
                     </div>
                   )}
                 </div>
 
                 {/* Team Members */}
-                <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-display text-lg text-white">
-                      {language === 'id' ? 'Anggota Tim' : 'Team Members'}
-                    </h3>
-                    <span className="font-body text-sm text-cibc-textSecondary">
-                      {team?.members?.length || 0} / {team?.maxMembers || 5}
-                    </span>
-                  </div>
+                {team && (
+                  <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="font-display text-lg text-white">
+                        {language === 'id' ? 'Anggota Tim' : 'Team Members'}
+                      </h3>
+                      <span className="font-body text-sm text-cibc-textSecondary">
+                        {teamMembers.length} / {team.category === 'open' ? 10 : 5}
+                      </span>
+                    </div>
 
-                  <div className="space-y-3">
-                    {team?.members?.map(member => (
-                      <div key={member.id} className="flex items-center justify-between p-4 bg-cibc-bgSection rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-cibc-primary/20 flex items-center justify-center">
-                            <span className="font-display text-cibc-primary">
-                              {member.name.charAt(0)}
-                            </span>
+                    <div className="space-y-3">
+                      {teamMembers.map(member => (
+                        <div key={member.id} className="flex items-center justify-between p-4 bg-cibc-bgSection rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-cibc-primary/20 flex items-center justify-center">
+                              <span className="font-display text-cibc-primary">
+                                {member.user?.name?.charAt(0) || '?'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-body text-white">{member.user?.name || 'Unknown'}</p>
+                              <p className="font-body text-xs text-cibc-textMuted">{member.user?.email}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-body text-white">{member.name}</p>
-                            <p className="font-body text-xs text-cibc-textMuted">{member.email}</p>
+                          <div className="flex items-center gap-2">
+                            {member.role === 'leader' && (
+                              <span className="px-2 py-1 bg-cibc-primary/20 text-cibc-primary text-xs rounded-full font-body">
+                                Leader
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {member.role === 'leader' && (
-                            <span className="px-2 py-1 bg-cibc-primary/20 text-cibc-primary text-xs rounded-full font-body">
-                              Leader
-                            </span>
-                          )}
-                          <span className={`px-2 py-1 text-xs rounded-full font-body ${
-                            member.status === 'active' ? 'bg-cibc-success/20 text-cibc-success' : 'bg-cibc-warning/20 text-cibc-warning'
-                          }`}>
-                            {member.status === 'active'
-                              ? (language === 'id' ? 'Aktif' : 'Active')
-                              : (language === 'id' ? 'Pending' : 'Pending')}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
-                  {/* Invite Button */}
-                  {(team?.members?.length || 0) < (team?.maxMembers || 5) && (
-                    <button className="w-full mt-4 py-3 border-2 border-dashed border-cibc-border rounded-lg text-cibc-textSecondary hover:border-cibc-primary hover:text-cibc-primary transition-colors font-body flex items-center justify-center gap-2">
-                      <UserPlus className="w-5 h-5" />
-                      {language === 'id' ? 'Undang Anggota' : 'Invite Member'}
-                    </button>
-                  )}
-                </div>
+                    {/* Invite Button */}
+                    {teamMembers.length < (team.category === 'open' ? 10 : 5) && (
+                      <button className="w-full mt-4 py-3 border-2 border-dashed border-cibc-border rounded-lg text-cibc-textSecondary hover:border-cibc-primary hover:text-cibc-primary transition-colors font-body flex items-center justify-center gap-2">
+                        <UserPlus className="w-5 h-5" />
+                        {language === 'id' ? 'Undang Anggota' : 'Invite Member'}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -429,76 +695,51 @@ const CIBCDashboard = () => {
                     {language === 'id' ? 'Status Submission' : 'Submission Status'}
                   </h3>
 
-                  {submission ? (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="font-body text-sm text-cibc-textMuted">
-                          {language === 'id' ? 'Nama Proyek' : 'Project Name'}
-                        </label>
-                        <p className="font-display text-xl text-white mt-1">{submission.projectName}</p>
+                  {team ? (
+                    submissions.length > 0 ? (
+                      <div className="space-y-4">
+                        {submissions.map(submission => (
+                          <div key={submission.id} className="p-4 bg-cibc-bgSection rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-body ${
+                                submission.status === 'graded' ? 'bg-cibc-success/20 text-cibc-success' :
+                                submission.status === 'submitted' ? 'bg-cibc-info/20 text-cibc-info' :
+                                'bg-cibc-warning/20 text-cibc-warning'
+                              }`}>
+                                {submission.status.toUpperCase()}
+                              </span>
+                              {submission.total_score !== undefined && (
+                                <span className="font-display text-cibc-primary">{submission.total_score}/100</span>
+                              )}
+                            </div>
+                            {submission.file_name && (
+                              <p className="font-body text-sm text-white">{submission.file_name}</p>
+                            )}
+                            {submission.feedback && (
+                              <p className="font-body text-xs text-cibc-textMuted mt-2">{submission.feedback}</p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <label className="font-body text-sm text-cibc-textMuted">
-                          {language === 'id' ? 'Deskripsi' : 'Description'}
-                        </label>
-                        <p className="font-body text-white mt-1">{submission.oneLineDescription}</p>
-                      </div>
-                      <div>
-                        <label className="font-body text-sm text-cibc-textMuted">
-                          Status
-                        </label>
-                        <p className="mt-1">
-                          <span className={`px-3 py-1 rounded-full text-xs font-body ${
-                            submission.status === 'draft' ? 'bg-cibc-warning/20 text-cibc-warning' :
-                            submission.status === 'submitted' ? 'bg-cibc-info/20 text-cibc-info' :
-                            'bg-cibc-success/20 text-cibc-success'
-                          }`}>
-                            {submission.status.toUpperCase()}
-                          </span>
+                    ) : (
+                      <div className="text-center py-8">
+                        <AlertCircle className="w-12 h-12 text-cibc-textMuted mx-auto mb-4" />
+                        <p className="font-body text-cibc-textSecondary">
+                          {language === 'id' ? 'Belum ada submission' : 'No submissions yet'}
                         </p>
+                        <button className="mt-4 px-6 py-2 bg-cibc-primary text-cibc-textDark rounded-lg font-body text-sm hover:bg-cibc-primaryDark transition-colors">
+                          {language === 'id' ? 'Buat Submission' : 'Create Submission'}
+                        </button>
                       </div>
-                    </div>
+                    )
                   ) : (
                     <div className="text-center py-8">
                       <AlertCircle className="w-12 h-12 text-cibc-textMuted mx-auto mb-4" />
                       <p className="font-body text-cibc-textSecondary">
-                        {language === 'id' ? 'Belum ada submission' : 'No submission yet'}
+                        {language === 'id' ? 'Daftar tim terlebih dahulu untuk mengirim submission' : 'Register a team first to submit'}
                       </p>
-                      <button className="mt-4 px-6 py-2 bg-cibc-primary text-cibc-textDark rounded-lg font-body text-sm hover:bg-cibc-primaryDark transition-colors">
-                        {language === 'id' ? 'Buat Submission' : 'Create Submission'}
-                      </button>
                     </div>
                   )}
-                </div>
-
-                {/* Documents */}
-                <div className="bg-cibc-bgCard border border-cibc-border rounded-xl p-6">
-                  <h3 className="font-display text-lg text-white mb-6">
-                    {language === 'id' ? 'Dokumen Pendukung' : 'Supporting Documents'}
-                  </h3>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {[
-                      { type: 'BMC', key: 'bmc', icon: FileText },
-                      { type: 'Pitch Deck', key: 'pitchDeck', icon: FileText },
-                      { type: 'Executive Summary', key: 'executiveSummary', icon: FileText },
-                      { type: 'Video Pitch', key: 'video', icon: FileText },
-                    ].map(doc => (
-                      <div key={doc.key} className="p-4 bg-cibc-bgSection rounded-lg flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <doc.icon className="w-5 h-5 text-cibc-textMuted" />
-                          <span className="font-body text-white">{doc.type}</span>
-                        </div>
-                        {progress?.documentsUploaded?.[doc.key as keyof typeof progress.documentsUploaded] ? (
-                          <CheckCircle2 className="w-5 h-5 text-cibc-success" />
-                        ) : (
-                          <button className="px-3 py-1 text-cibc-primary border border-cibc-primary/30 rounded-lg font-body text-sm hover:bg-cibc-primary/10">
-                            Upload
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             )}
@@ -575,12 +816,14 @@ const CIBCDashboard = () => {
                       </label>
                       <p className="font-body text-white mt-1">{currentUser?.fullName}</p>
                     </div>
-                    <div>
-                      <label className="font-body text-sm text-cibc-textMuted">
-                        {language === 'id' ? 'Kategori' : 'Category'}
-                      </label>
-                      <p className="font-body text-white mt-1 capitalize">{currentUser?.category}</p>
-                    </div>
+                    {currentUser?.category && (
+                      <div>
+                        <label className="font-body text-sm text-cibc-textMuted">
+                          {language === 'id' ? 'Kategori' : 'Category'}
+                        </label>
+                        <p className="font-body text-white mt-1 capitalize">{currentUser.category}</p>
+                      </div>
+                    )}
                   </div>
 
                   <button className="mt-6 px-6 py-2 bg-cibc-primary text-cibc-textDark rounded-lg font-body text-sm hover:bg-cibc-primaryDark transition-colors">

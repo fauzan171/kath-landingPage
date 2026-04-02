@@ -15,10 +15,14 @@ import {
   ChevronLeft, ChevronRight, Check, Mail, User,
   Building2, GraduationCap, Briefcase,
   Users, Leaf, Target
-} from '../../icons';
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
 import type { CompetitionCategory, SDG } from '../../types/cibc';
+import { isSupabaseConfigured } from '@/config/environment';
+import { supabase } from '@/lib/supabase';
+import { supabaseAuthService } from '@/services/supabase.service';
+import { competitionService, teamsService } from '@/services/cibc.service';
 
 // Validation Schemas
 const step1Schema = z.object({
@@ -201,89 +205,170 @@ const CIBCRegister = () => {
       const step4Data = step4Form.getValues();
       const step5Data = step5Form.getValues();
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const userId = `user_${Date.now()}`;
-      const teamId = `team_${Date.now()}`;
-      const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-
-      const newUser = {
-        id: userId,
-        email: step1Data.email,
-        password: step1Data.password,
-        fullName: step2Data.fullName,
-        category: step3Data.category,
-        teamId: teamId,
-        createdAt: new Date().toISOString(),
-      };
-
-      const newTeam = {
-        id: teamId,
-        name: step4Data.teamName || `${step2Data.fullName}'s Team`,
-        code: teamCode,
-        category: step3Data.category,
-        leaderId: userId,
-        members: [
+      // Check if Supabase is configured
+      if (isSupabaseConfigured() && supabase) {
+        // 1. Create auth user with Supabase
+        const { user } = await supabaseAuthService.signUp(
+          step1Data.email,
+          step1Data.password,
           {
-            id: `mem_${Date.now()}`,
             name: step2Data.fullName,
+            category: step3Data.category,
+          }
+        );
+
+        if (!user) {
+          throw new Error('Failed to create user account');
+        }
+
+        // 2. Get the active competition
+        const competition = await competitionService.getActive();
+        if (!competition) {
+          throw new Error('Competition not found');
+        }
+
+        // 3. Create user record in users table
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
             email: step1Data.email,
-            role: 'leader' as const,
-            status: 'active' as const,
+            name: step2Data.fullName,
+            phone: step2Data.phone,
             institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
-            joinedAt: new Date().toISOString(),
-          },
-        ],
-        maxMembers: step3Data.category === 'corporate' ? 10 : 5,
-        createdAt: new Date().toISOString(),
-        status: 'forming' as const,
-      };
+            category: step3Data.category,
+            is_verified: false,
+          });
 
-      const newSubmission = {
-        id: `sub_${Date.now()}`,
-        teamId: teamId,
-        projectName: step5Data.projectName,
-        oneLineDescription: step5Data.oneLineDescription,
-        problemStatement: step5Data.problemStatement,
-        solutionOverview: step5Data.solutionOverview,
-        sdgAlignment: step5Data.sdgAlignment,
-        documents: [],
-        status: 'draft' as const,
-        currentPhase: 'registration' as const,
-      };
+        if (userError) {
+          console.error('Error creating user record:', userError);
+          // Continue anyway - auth user is created
+        }
 
-      const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
-      users.push(newUser);
-      localStorage.setItem('cibc_users', JSON.stringify(users));
+        // 4. Create team
+        const teamName = step4Data.teamName || `${step2Data.fullName}'s Team`;
+        const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;
 
-      const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
-      teams.push(newTeam);
-      localStorage.setItem('cibc_teams', JSON.stringify(teams));
+        // Map category: student -> 'student', startup/corporate -> 'open'
+        const teamCategory: 'student' | 'open' = step3Data.category === 'student' ? 'student' : 'open';
 
-      const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
-      submissions.push(newSubmission);
-      localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
+        const team = await teamsService.create({
+          competition_id: competition.id,
+          name: teamName,
+          category: teamCategory,
+          institution,
+        }, user.id);
 
-      localStorage.setItem('cibc_current_user', JSON.stringify({
-        id: userId,
-        email: newUser.email,
-        fullName: newUser.fullName,
-        category: newUser.category,
-        teamId: teamId,
-      }));
+        // 5. Store session info
+        localStorage.setItem('cibc_current_user', JSON.stringify({
+          id: user.id,
+          email: step1Data.email,
+          fullName: step2Data.fullName,
+          category: step3Data.category,
+          teamId: team.id,
+        }));
 
-      toast.success(
-        language === 'id'
-          ? 'Registrasi berhasil! Mengarahkan ke dashboard...'
-          : 'Registration successful! Redirecting to dashboard...'
-      );
+        toast.success(
+          language === 'id'
+            ? 'Registrasi berhasil! Mengarahkan ke dashboard...'
+            : 'Registration successful! Redirecting to dashboard...',
+          {
+            description: language === 'id'
+              ? 'Tim Anda sedang menunggu verifikasi.'
+              : 'Your team is pending verification.',
+          }
+        );
 
-      navigate('/cibc/dashboard');
-    } catch {
+        navigate('/cibc/dashboard');
+      } else {
+        // Fallback to localStorage (mock mode)
+        const userId = `user_${Date.now()}`;
+        const teamId = `team_${Date.now()}`;
+        const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        const newUser = {
+          id: userId,
+          email: step1Data.email,
+          password: step1Data.password,
+          fullName: step2Data.fullName,
+          category: step3Data.category,
+          teamId: teamId,
+          createdAt: new Date().toISOString(),
+        };
+
+        const newTeam = {
+          id: teamId,
+          name: step4Data.teamName || `${step2Data.fullName}'s Team`,
+          code: teamCode,
+          category: step3Data.category,
+          leaderId: userId,
+          members: [
+            {
+              id: `mem_${Date.now()}`,
+              name: step2Data.fullName,
+              email: step1Data.email,
+              role: 'leader' as const,
+              status: 'active' as const,
+              institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
+              joinedAt: new Date().toISOString(),
+            },
+          ],
+          maxMembers: step3Data.category === 'corporate' ? 10 : 5,
+          createdAt: new Date().toISOString(),
+          status: 'forming' as const,
+        };
+
+        const newSubmission = {
+          id: `sub_${Date.now()}`,
+          teamId: teamId,
+          projectName: step5Data.projectName,
+          oneLineDescription: step5Data.oneLineDescription,
+          problemStatement: step5Data.problemStatement,
+          solutionOverview: step5Data.solutionOverview,
+          sdgAlignment: step5Data.sdgAlignment,
+          documents: [],
+          status: 'draft' as const,
+          currentPhase: 'registration' as const,
+        };
+
+        const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
+        users.push(newUser);
+        localStorage.setItem('cibc_users', JSON.stringify(users));
+
+        const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
+        teams.push(newTeam);
+        localStorage.setItem('cibc_teams', JSON.stringify(teams));
+
+        const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
+        submissions.push(newSubmission);
+        localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
+
+        localStorage.setItem('cibc_current_user', JSON.stringify({
+          id: userId,
+          email: newUser.email,
+          fullName: newUser.fullName,
+          category: newUser.category,
+          teamId: teamId,
+        }));
+
+        toast.success(
+          language === 'id'
+            ? 'Registrasi berhasil! Mengarahkan ke dashboard...'
+            : 'Registration successful! Redirecting to dashboard...'
+        );
+
+        navigate('/cibc/dashboard');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(
         language === 'id'
           ? 'Registrasi gagal. Silakan coba lagi.'
-          : 'Registration failed. Please try again.'
+          : 'Registration failed. Please try again.',
+        {
+          description: errorMessage,
+        }
       );
     } finally {
       setIsSubmitting(false);

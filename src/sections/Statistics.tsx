@@ -26,7 +26,6 @@ const Statistics = () => {
 
     const triggers: ScrollTrigger[] = [];
 
-    // Stats animation trigger
     const statsTrigger = ScrollTrigger.create({
       trigger: stats,
       start: 'top 80%',
@@ -84,17 +83,17 @@ const Statistics = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-kath-bg-main py-16 sm:py-20 md:py-28"
+      className="relative w-full bg-[#F9F8F6] py-16 sm:py-20 md:py-28"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-        {/* Label */}
+        {/* Label Atas - Emas Baru #FFB22C */}
         <div className="text-center mb-10 sm:mb-12">
-          <span className="font-body text-kath-primary text-xs uppercase tracking-[0.3em]">
+          <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {statisticsConfig.sectionLabel[language]}
           </span>
         </div>
 
-        {/* Stats Grid - Mobile Optimized */}
+        {/* Stats Grid */}
         <div
           ref={statsRef}
           className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12"
@@ -102,20 +101,20 @@ const Statistics = () => {
           {statItems.map((stat, index) => (
             <div
               key={stat.key}
-              className="text-center group p-6 bg-white rounded-2xl border border-kath-bg-section hover:border-kath-primary/20 hover:shadow-lg hover:shadow-kath-primary/5 transition-all duration-300"
+              className="text-center group"
               style={{
                 animationDelay: `${index * 100}ms`,
               }}
             >
               <div className="relative inline-flex items-baseline justify-center">
-                <span className="font-display text-4xl sm:text-5xl md:text-6xl text-kath-text-primary group-hover:text-kath-primary transition-colors duration-500">
+                <span className="font-display text-4xl sm:text-5xl md:text-7xl text-[#0F0F0F] group-hover:text-[#FFB22C] transition-colors duration-500">
                   {stat.value}
                 </span>
-                <span className="font-display text-2xl sm:text-3xl md:text-4xl text-kath-primary ml-1">
+                <span className="font-display text-2xl sm:text-3xl md:text-4xl text-[#FFB22C] ml-1">
                   {stat.suffix}
                 </span>
               </div>
-              <p className="font-body text-xs sm:text-sm text-kath-text-muted mt-2 sm:mt-3 uppercase tracking-wider">
+              <p className="font-body text-xs sm:text-sm text-[#0F0F0F]/60 mt-2 sm:mt-3 uppercase tracking-wider font-medium">
                 {stat.label}
               </p>
             </div>
@@ -123,8 +122,11 @@ const Statistics = () => {
         </div>
       </div>
 
-      {/* Section divider */}
-      <div className="section-divider mt-16 sm:mt-20 md:mt-28" />
+      {/* SECTION DIVIDER - Garis tipis Emas Baru #FFB22C */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-16 sm:mt-20 md:mt-28">
+        <div className="h-[1px] w-full bg-[#FFB22C]/30" />
+      </div>
+      
     </section>
   );
 };
