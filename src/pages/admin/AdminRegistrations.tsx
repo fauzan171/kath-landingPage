@@ -327,22 +327,10 @@ const AdminRegistrations = () => {
                   <div className="mt-1">{getPaymentBadge(selectedTeam.payment_status)}</div>
                 </div>
 
-                {selectedTeam.documents && Object.keys(selectedTeam.documents).length > 0 && (
+                {selectedTeam.payment_drive_id && (
                   <div>
-                    <label className="text-xs text-gray-500">Documents</label>
-                    <div className="mt-2 space-y-2">
-                      {Object.entries(selectedTeam.documents).map(([key, value]) => (
-                        <a
-                          key={key}
-                          href={value as string}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block text-amber-600 hover:underline text-sm"
-                        >
-                          {key} →
-                        </a>
-                      ))}
-                    </div>
+                    <label className="text-xs text-gray-500">Payment Drive ID</label>
+                    <p className="mt-1 text-sm text-gray-700">{selectedTeam.payment_drive_id}</p>
                   </div>
                 )}
               </div>

@@ -41,6 +41,7 @@ import CIBCRegister from './pages/cibc/CIBCRegister';
 import CIBCLogin from './pages/cibc/CIBCLogin';
 import CIBCDashboard from './pages/dashboard/CIBCDashboard';
 import PendingApproval from './pages/cibc/PendingApproval';
+import ForgotPassword from './pages/cibc/ForgotPassword';
 
 // Admin Pages
 import {
@@ -61,11 +62,21 @@ import {
   AdminAnnouncements,
   AdminUsers,
   AdminUserApproval,
+  AdminUserManagement,
   AdminPayments,
   AdminTasks,
   AdminGrading,
   AdminLeaderboard,
+  AdminJudges,
 } from './pages/admin';
+
+// Judge Pages
+import {
+  JudgeLayout,
+  JudgeDashboard,
+  JudgeGrading,
+  JudgeLogin,
+} from './pages/judge';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -154,6 +165,7 @@ function App() {
       <Route path="/cibc/login" element={<CIBCLogin />} />
       <Route path="/cibc/register" element={<CIBCRegister />} />
       <Route path="/cibc/pending-approval" element={<PendingApproval />} />
+      <Route path="/cibc/forgot-password" element={<ForgotPassword />} />
       <Route path="/cibc/dashboard" element={<CIBCDashboard />} />
 
       {/* Admin Routes */}
@@ -179,7 +191,16 @@ function App() {
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="user-approval" element={<AdminUserApproval />} />
+        <Route path="user-management" element={<AdminUserManagement />} />
         <Route path="payments" element={<AdminPayments />} />
+        <Route path="judges" element={<AdminJudges />} />
+      </Route>
+
+      {/* Judge Routes */}
+      <Route path="/judge/login" element={<JudgeLogin />} />
+      <Route path="/judge" element={<JudgeLayout />}>
+        <Route index element={<JudgeDashboard />} />
+        <Route path="grading/:submissionId" element={<JudgeGrading />} />
       </Route>
     </Routes>
   );

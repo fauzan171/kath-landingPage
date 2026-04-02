@@ -181,7 +181,7 @@ const CIBCRegister = () => {
       }
 
       if (isSupabaseConfigured() && supabase) {
-        // Sign up user
+        // Sign up user - trigger will auto-create public.users entry
         const { user } = await supabaseAuthService.signUp(
           step1Data.email, step1Data.password, { name: step2Data.fullName, category: step3Data.category }
         );
@@ -190,18 +190,13 @@ const CIBCRegister = () => {
         const competition = await competitionService.getActive();
         if (!competition) throw new Error('Competition not found');
 
-        // Create user with PENDING status (requires admin approval)
-        const { error: userError } = await supabase.from('users').insert({
-          id: user.id,
-          email: step1Data.email,
-          name: step2Data.fullName,
+        // Update user with additional data (trigger already created basic entry)
+        const { error: userError } = await supabase.from('users').update({
           phone: step2Data.phone,
           institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
           category: step3Data.category,
-          is_verified: false,
-          status: 'pending', // PENDING - needs admin approval
-        });
-        if (userError) console.error('Error creating user record:', userError);
+        }).eq('id', user.id);
+        if (userError) console.error('Error updating user record:', userError);
 
         const teamName = step4Data.teamName || `${step2Data.fullName}'s Team`;
         const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;

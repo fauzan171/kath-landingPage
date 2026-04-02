@@ -11,14 +11,24 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { submissionsService, tasksService, stagesService } from '@/services/cibc.service';
-import type { Task, Stage, Submission } from '@/services/cibc.service';
+import type { Task, Stage } from '@/services/cibc.service';
 import { uploadFileToDrive } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+// Use a simplified type for existing submissions
+interface ExistingSubmission {
+  id: string;
+  task_id: string;
+  team_id: string;
+  status: string;
+  file_url?: string;
+  file_name?: string;
+}
 
 interface SubmissionFormSectionProps {
   teamId: string;
   competitionId: string;
-  existingSubmissions: Submission[];
+  existingSubmissions: ExistingSubmission[];
   onSubmissionComplete: () => void;
 }
 
@@ -153,7 +163,7 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
     }
   };
 
-  const getTaskStatus = (taskId: string): { status: string; submission?: Submission } => {
+  const getTaskStatus = (taskId: string): { status: string; submission?: ExistingSubmission } => {
     const submission = existingSubmissions.find(s => s.task_id === taskId);
     return {
       status: submission?.status || 'not_submitted',

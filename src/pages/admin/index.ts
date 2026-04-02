@@ -20,9 +20,11 @@ export { default as AdminSubmissions } from './AdminSubmissions';
 export { default as AdminAnnouncements } from './AdminAnnouncements';
 export { default as AdminUsers } from './AdminUsers';
 export { default as AdminUserApproval } from './AdminUserApproval';
+export { default as AdminUserManagement } from './AdminUserManagement';
 export { default as AdminPayments } from './AdminPayments';
 
 // Competition Management - Enhanced (PRD)
 export { default as AdminTasks } from './AdminTasks';
 export { default as AdminGrading } from './AdminGrading';
 export { default as AdminLeaderboard } from './AdminLeaderboard';
+export { default as AdminJudges } from './AdminJudges';

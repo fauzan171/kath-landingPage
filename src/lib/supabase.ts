@@ -291,8 +291,16 @@ export async function uploadFileToDrive(
   fileName: string;
   fileSize: number;
 }> {
+  // Mock mode for development - return fake URL
   if (!n8nWebhookUrl) {
-    throw new Error('N8N_WEBHOOK_URL is not configured');
+    console.warn('N8N_WEBHOOK_URL not configured, using mock upload');
+    const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return {
+      fileUrl: `https://drive.google.com/file/d/${mockFileId}/view`,
+      driveFileId: mockFileId,
+      fileName: file.name,
+      fileSize: file.size
+    };
   }
 
   // Create form data

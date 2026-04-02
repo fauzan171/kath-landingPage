@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, Bell, Globe, ChevronRight, LogOut } from 'lucide-react';
+import { Menu, Globe, ChevronRight, LogOut } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
 
 // Interface disesuaikan dengan prop yang dikirim dari CIBCDashboard
 interface HeaderProps {
@@ -8,6 +9,8 @@ interface HeaderProps {
     currentUser: any;
     unreadNotifications: number; // Diubah dari unreadCount
     handleLogout: () => void; // Ditambahkan
+    handleMarkAsRead: (id: string) => void; // Ditambahkan
+    handleMarkAllRead: () => void; // Ditambahkan
 }
 
 const DashboardHeader: React.FC<HeaderProps> = ({
@@ -15,7 +18,9 @@ const DashboardHeader: React.FC<HeaderProps> = ({
     setIsSidebarOpen,
     currentUser,
     unreadNotifications,
-    handleLogout
+    handleLogout,
+    handleMarkAsRead,
+    handleMarkAllRead
 }) => {
     return (
         <header className="sticky top-0 z-30 bg-[#F9F8F6]/80 backdrop-blur-xl border-b border-[#0F0F0F]/5 h-20 flex items-center justify-between px-6 lg:px-10">
@@ -42,14 +47,11 @@ const DashboardHeader: React.FC<HeaderProps> = ({
                     <span className="hidden sm:block">ID</span>
                 </button>
 
-                <div className="relative">
-                    <button className="p-2.5 bg-white border border-[#0F0F0F]/5 text-[#0F0F0F]/60 hover:text-[#FFB22C] rounded-xl shadow-sm transition-all hover:-translate-y-0.5">
-                        <Bell className="w-5 h-5" />
-                        {unreadNotifications > 0 && (
-                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#FFB22C] border-2 border-white rounded-full"></span>
-                        )}
-                    </button>
-                </div>
+                <NotificationBell
+                    unreadCount={unreadNotifications}
+                    onMarkAsRead={handleMarkAsRead}
+                    onMarkAllRead={handleMarkAllRead}
+                />
 
                 <div className="w-px h-8 bg-[#0F0F0F]/10 hidden sm:block"></div>
 

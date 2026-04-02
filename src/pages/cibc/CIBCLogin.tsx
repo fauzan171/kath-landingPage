@@ -162,7 +162,7 @@ const CIBCLogin: React.FC = () => {
               await supabaseAuthService.signOut();
 
               toast.error('Account Rejected', {
-                description: userData?.rejected_reason || 'Your registration was not approved. Contact support for more information.',
+                description: userData?.rejection_reason || 'Your registration was not approved. Contact support for more information.',
               });
               return;
             }

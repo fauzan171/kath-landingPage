@@ -111,7 +111,7 @@ export const supabaseAuthService = {
    */
   resetPassword: async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${env.appUrl}/reset-password`,
+      redirectTo: `${env.appUrl}/cibc/reset-password`,
     });
     if (error) throw error;
   },

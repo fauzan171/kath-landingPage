@@ -330,6 +330,8 @@ const CIBCDashboard = () => {
         currentUser={currentUser}
         unreadNotifications={unreadNotifications}
         handleLogout={handleLogout}
+        handleMarkAsRead={handleMarkAsRead}
+        handleMarkAllRead={handleMarkAllRead}
       />
 
       <div className="container mx-auto px-4 py-8">

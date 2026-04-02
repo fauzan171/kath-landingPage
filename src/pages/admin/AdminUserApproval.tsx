@@ -21,7 +21,7 @@ interface PendingUser {
   category?: string;
   status: string;
   created_at: string;
-  rejected_reason?: string;
+  rejection_reason?: string;
 }
 
 const AdminUserApproval = () => {
@@ -78,7 +78,7 @@ const AdminUserApproval = () => {
         .from('users')
         .update({
           status: 'approved',
-          approved_at: new Date().toISOString(),
+          is_verified: true,
         })
         .eq('id', userId);
 
@@ -109,8 +109,7 @@ const AdminUserApproval = () => {
         .from('users')
         .update({
           status: 'rejected',
-          rejected_reason: rejectReason,
-          rejected_at: new Date().toISOString(),
+          rejection_reason: rejectReason,
         })
         .eq('id', selectedUser.id);
 
@@ -339,9 +338,9 @@ const AdminUserApproval = () => {
                             </button>
                           </>
                         )}
-                        {user.status === 'rejected' && user.rejected_reason && (
-                          <span className="text-xs text-red-500 max-w-[200px] truncate" title={user.rejected_reason}>
-                            {user.rejected_reason}
+                        {user.status === 'rejected' && user.rejection_reason && (
+                          <span className="text-xs text-red-500 max-w-[200px] truncate" title={user.rejection_reason}>
+                            {user.rejection_reason}
                           </span>
                         )}
                       </div>

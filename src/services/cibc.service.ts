@@ -79,7 +79,6 @@ export interface Team {
   payment_uploaded_at?: string;
   payment_rejection_reason?: string;
   payment_drive_id?: string;
-  documents?: Record<string, unknown>;
   notes?: string;
   verified_by?: string;
   verified_at?: string;
@@ -928,7 +927,7 @@ export const paymentService = {
         payment_proof: paymentProofUrl,
         payment_status: 'pending',
         payment_uploaded_at: new Date().toISOString(),
-        documents: driveFileId ? { payment_drive_id: driveFileId } : undefined
+        payment_drive_id: driveFileId || null,
       })
       .eq('id', teamId)
       .select()
