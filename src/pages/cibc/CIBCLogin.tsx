@@ -10,10 +10,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Trophy, Users } from '../../icons';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
 import { supabaseAuthService } from '@/services/supabase.service';
 import { isSupabaseConfigured, env } from '@/config/environment';
 
@@ -198,197 +198,182 @@ const CIBCLogin: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-cibc-bgMain flex">
+    <div className="min-h-screen bg-white flex font-body">
       {/* Left Side - Branding & Stats */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-cibc-primary/20 via-cibc-bgMain to-cibc-bgMain relative overflow-hidden">
-        {/* Decorative Elements */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#F9F8F6] relative overflow-hidden border-r border-gray-100">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-cibc-primary/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cibc-primary/10 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-[#FFB22C]/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#FFB22C]/10 rounded-full blur-3xl" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-16">
-          {/* Logo */}
-          <Link to="/cibc" className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 bg-cibc-primary rounded-xl flex items-center justify-center">
-              <span className="text-cibc-textDark font-bold text-xl font-display">K</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white font-display">CIBC Power</h1>
-              <p className="text-cibc-primary text-sm font-body">by KATH</p>
-            </div>
+        <div className="relative z-10 flex flex-col justify-center px-16 lg:px-24">
+          {/* Logo Terupdate (Sama dengan Footer) */}
+          <Link to="/cibc" className="flex flex-col items-start gap-2 mb-12 group">
+            <img
+              src="/CIBC-logo-white.png"
+              alt="CIBC Power Logo"
+              className="h-14 md:h-16 w-auto object-contain transition-all duration-300 transform-gpu"
+              style={{
+                filter: 'brightness(0)',
+                opacity: 0.9
+              }}
+            />
+            {/* <p className="font-body text-[10px] md:text-xs text-gray-500 font-semibold tracking-wider ml-1">
+              by KATH Event Organizer
+            </p> */}
           </Link>
 
-          {/* Tagline */}
-          <h2 className="text-4xl font-bold text-white mb-4 font-display">
+          <h2 className="text-4xl font-bold text-[#0F0F0F] mb-4 font-display leading-tight">
             Innovate for a<br />
-            <span className="text-cibc-primary">Sustainable Future</span>
+            <span className="text-[#FFB22C]">Sustainable Future</span>
           </h2>
-          <p className="text-cibc-textSecondary text-lg mb-12 max-w-md font-body">
+          <p className="text-gray-500 text-lg mb-12 max-w-md">
             Join thousands of innovators competing to solve real-world sustainability challenges.
           </p>
 
-          {/* Stats */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="stat-item flex items-center gap-4"
+                className="stat-item flex items-center gap-5 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-sm"
               >
-                <div className="w-14 h-14 bg-cibc-primary/10 rounded-xl flex items-center justify-center border border-cibc-primary/20">
-                  <stat.icon className="w-7 h-7 text-cibc-primary" />
+                <div className="w-12 h-12 bg-[#FFB22C]/10 rounded-xl flex items-center justify-center">
+                  <stat.icon className="w-6 h-6 text-[#FFB22C]" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white font-display">{stat.value}</p>
-                  <p className="text-cibc-textMuted text-sm font-body">{stat.label}</p>
+                  <p className="text-xl font-bold text-[#0F0F0F] font-display">{stat.value}</p>
+                  <p className="text-gray-500 text-sm">{stat.label}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Decorative Pattern */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cibc-primary to-transparent" />
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-cibc-bgCard">
-        <div className="login-card w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-cibc-primary rounded-xl flex items-center justify-center">
-              <span className="text-cibc-textDark font-bold text-lg font-display">K</span>
-            </div>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative">
+        <div className="login-card w-full max-w-md z-10">
+          {/* Mobile Logo Terupdate */}
+          <div className="lg:hidden flex flex-col items-center justify-center gap-2 mb-10">
+            <img
+              src="/CIBC-logo-white.png"
+              alt="CIBC Power Logo"
+              className="h-12 w-auto object-contain"
+              style={{
+                filter: 'brightness(0)',
+                opacity: 0.9
+              }}
+            />
+            {/* <p className="font-body text-[9px] text-gray-500 font-semibold tracking-wider">
+              by KATH Event Organizer
+            </p> */}
+          </div>
+
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0F0F0F] mb-3 font-display">Welcome Back</h2>
+            <p className="text-gray-500 font-medium text-sm sm:text-base">Sign in to access your competition dashboard</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <h1 className="text-xl font-bold text-white font-display">CIBC Power</h1>
-              <p className="text-cibc-primary text-xs font-body">by KATH</p>
-            </div>
-          </div>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2 font-display">Welcome Back</h2>
-            <p className="text-cibc-textSecondary font-body">Sign in to access your competition dashboard</p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-white font-body">
+              <Label htmlFor="email" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cibc-textMuted" />
-                <Input
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
                   id="email"
                   type="email"
                   placeholder="your@email.com"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className={`pl-10 bg-cibc-bgSection border-cibc-border text-white placeholder:text-cibc-textMuted focus:border-cibc-primary focus:ring-cibc-primary/20 ${
-                    errors.email ? 'border-red-500' : ''
-                  }`}
+                  className={`w-full bg-[#F4F6F8] pl-11 pr-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''}`}
                 />
               </div>
-              {errors.email && <p className="text-red-400 text-sm font-body">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-white font-body">
+            <div>
+              <Label htmlFor="password" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cibc-textMuted" />
-                <Input
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className={`pl-10 pr-10 bg-cibc-bgSection border-cibc-border text-white placeholder:text-cibc-textMuted focus:border-cibc-primary focus:ring-cibc-primary/20 ${
-                    errors.password ? 'border-red-500' : ''
-                  }`}
+                  className={`w-full bg-[#F4F6F8] pl-11 pr-12 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-cibc-textMuted hover:text-white transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0F0F0F] transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-red-400 text-sm font-body">{errors.password}</p>}
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1">
               <div className="flex items-center gap-2">
-                <Checkbox
+                <input
+                  type="checkbox"
                   id="remember"
                   checked={formData.rememberMe}
-                  onCheckedChange={checked =>
-                    setFormData({ ...formData, rememberMe: checked as boolean })
-                  }
-                  className="border-cibc-border data-[state=checked]:bg-cibc-primary data-[state=checked]:border-cibc-primary"
+                  onChange={e => setFormData({ ...formData, rememberMe: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 text-[#FFB22C] focus:ring-[#FFB22C] cursor-pointer"
                 />
-                <Label htmlFor="remember" className="text-cibc-textSecondary text-sm cursor-pointer font-body">
+                <Label htmlFor="remember" className="text-gray-500 text-sm cursor-pointer font-medium select-none">
                   Remember me
                 </Label>
               </div>
-              <Link
-                to="/cibc/forgot-password"
-                className="text-cibc-primary text-sm hover:text-cibc-primaryDark transition-colors font-body"
-              >
+              <Link to="/cibc/forgot-password" className="text-[#FFB22C] text-sm font-bold hover:text-[#FFB22C]/80 transition-colors">
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit Button */}
-            <Button
+            <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-cibc-primary hover:bg-cibc-primaryDark text-cibc-textDark font-semibold py-6 text-lg font-body"
+              className="w-full bg-[#FFB22C] text-[#0F0F0F] rounded-full font-bold py-3.5 text-sm hover:bg-[#FFB22C]/90 shadow-md shadow-[#FFB22C]/20 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2"
             >
               {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 border-2 border-cibc-textDark/30 border-t-cibc-textDark rounded-full animate-spin" />
+                <>
+                  <div className="w-5 h-5 border-2 border-[#0F0F0F]/30 border-t-[#0F0F0F] rounded-full animate-spin" />
                   Signing in...
-                </div>
+                </>
               ) : (
                 <>
                   Sign In
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
-            </Button>
+            </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-cibc-border" />
+              <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-cibc-bgCard text-cibc-textMuted font-body">New to CIBC?</span>
+              <span className="px-4 bg-white text-gray-400 font-medium">New to CIBC?</span>
             </div>
           </div>
 
-          {/* Register Link */}
           <Link
             to="/cibc/register"
-            className="block w-full text-center py-3 px-4 border border-cibc-primary/40 text-cibc-primary rounded-lg hover:bg-cibc-primary/10 transition-colors font-body"
+            className="flex items-center justify-center w-full py-3.5 px-4 border-2 border-[#F4F6F8] text-[#0F0F0F] font-bold text-sm rounded-xl hover:border-[#FFB22C] hover:bg-[#FFB22C]/5 transition-all"
           >
             Create Your Team Account
           </Link>
 
-          {/* Back to Landing */}
           <Link
             to="/cibc"
-            className="block w-full text-center mt-4 text-cibc-textMuted hover:text-white transition-colors text-sm font-body"
+            className="block w-full text-center mt-6 text-gray-400 hover:text-[#0F0F0F] transition-colors text-sm font-medium"
           >
             ← Back to Competition Info
           </Link>

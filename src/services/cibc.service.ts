@@ -48,6 +48,7 @@ export interface Stage {
 export interface Task {
   id: string;
   stage_id: string;
+  competition_id?: string;
   name: string;
   name_id?: string;
   description?: string;
@@ -57,6 +58,7 @@ export interface Task {
   max_file_size?: number;
   deadline?: string;
   max_score?: number;
+  is_required?: boolean;
   is_published: boolean;
   order_index: number;
   created_at: string;
@@ -105,12 +107,14 @@ export interface Submission {
   file_size?: number;
   content?: string;
   link_url?: string;
-  status: 'draft' | 'submitted' | 'late' | 'graded';
+  status: 'draft' | 'submitted' | 'late' | 'graded' | 'needs_revision' | 'under_review';
   submitted_at?: string;
   total_score?: number;
   feedback?: string;
   graded_by?: string;
   graded_at?: string;
+  is_late?: boolean;
+  criteria_scores?: Record<string, number>;
   created_at: string;
   updated_at: string;
 }
