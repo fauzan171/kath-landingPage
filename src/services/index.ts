@@ -41,7 +41,20 @@ export { portfolioService, getPortfolio, getPortfolioById, createPortfolio, upda
 export { newsService, getNews, getNewsBySlug, getNewsById, createNews, updateNews, deleteNews, getNewsCategories } from './news.service';
 export { competitionService, getCompetitions, getMainCompetition, getCompetitionById, createCompetition, updateCompetition, deleteCompetition, registerToCompetition } from './competition.service';
 export { featuredEventService, getFeaturedEvents, getFeaturedEventById, createFeaturedEvent, updateFeaturedEvent, deleteFeaturedEvent, reorderFeaturedEvents } from './featured-event.service';
-export { authService, login, logout, refreshToken, getCurrentUser, isAuthenticated } from './auth.service';
+export {
+  authService,
+  login,
+  logout,
+  refreshToken,
+  resetPassword,
+  updatePassword,
+  register,
+  getCurrentUser,
+  getCurrentUserAsync,
+  getSession,
+  isAuthenticated,
+  isAuthenticatedAsync,
+} from './auth.service';
 
 // Service Factory
 export { ServiceFactory, getService, isCIBCDashboardAvailable } from './service.factory';
@@ -84,7 +97,6 @@ export {
   signIn,
   signOut,
   getCurrentUser as getSupabaseUser,
-  getSession,
   uploadFileToDrive,
   type User,
   type UserRole,

@@ -5,6 +5,8 @@
  * mock, API, and Supabase implementations
  *
  * Architecture: Supabase + Google Drive + n8n (100% FREE)
+ *
+ * UPDATED: Auth service now uses Supabase directly (Issue #1 fixed)
  */
 
 import { env, isSupabaseConfigured } from '../config/environment';
@@ -27,7 +29,7 @@ export type ServiceType =
  * Service Factory Class
  *
  * Singleton pattern for service instances
- * Priority: Supabase > Mock > API
+ * Priority: Supabase > Mock > Legacy API (deprecated)
  */
 export class ServiceFactory {
   private static instance: ServiceFactory;
@@ -45,22 +47,40 @@ export class ServiceFactory {
    * Get service implementation based on environment
    *
    * Priority:
-   * 1. Supabase (if configured)
-   * 2. Mock data (if useMockData or fallback)
-   * 3. API (legacy)
+   * 1. Supabase (if configured) - ALWAYS preferred
+   * 2. Mock data (if useMockData)
+   * 3. Legacy API (deprecated - being phased out)
    */
   async getService(type: ServiceType) {
     const useMock = env.useMockData;
     const useSupabase = isSupabaseConfigured();
 
-    // Supabase services (CIBC Dashboard)
+    // ============================================
+    // AUTH SERVICE - Always uses Supabase
+    // ============================================
+    // FIXED: Issue #1 - Auth now uses Supabase Auth directly
+    if (type === 'auth') {
+      // Auth service always uses Supabase when configured
+      // This is the ONLY correct implementation for auth
+      if (useSupabase) {
+        const auth = await import('./auth.service');
+        return auth.authService;
+      }
+      // If Supabase not configured, still return auth service
+      // (it will handle the error gracefully)
+      const auth = await import('./auth.service');
+      return auth.authService;
+    }
+
+    // ============================================
+    // SUPABASE SERVICES (CIBC Dashboard)
+    // ============================================
+    // These services ONLY work with Supabase
     if (useSupabase && !useMock) {
       const supabase = await import('./supabase.service');
       const { supabaseServices } = supabase;
 
       switch (type) {
-        case 'auth':
-          return supabaseServices.auth;
         case 'competition':
           return supabaseServices.competition;
         case 'stage':
@@ -76,7 +96,11 @@ export class ServiceFactory {
       }
     }
 
-    // Legacy services (KATH Landing Page)
+    // ============================================
+    // LEGACY SERVICES (KATH Landing Page)
+    // ============================================
+    // These services are being phased out
+    // TODO: Move to Supabase implementation
     switch (type) {
       case 'competition':
         if (useMock) {
@@ -88,8 +112,6 @@ export class ServiceFactory {
         return (await import('./portfolio.service')).portfolioService;
       case 'news':
         return (await import('./news.service')).newsService;
-      case 'auth':
-        return (await import('./auth.service')).authService;
       case 'team':
         if (useMock) {
           const m = await import('./mockData');
