@@ -14,7 +14,7 @@ import { z } from 'zod';
 import {
   ChevronLeft, Check, Mail, User,
   Building2, GraduationCap, Briefcase,
-  Users, Leaf, Target
+  Users, Leaf, Target, CreditCard, Upload
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -22,7 +22,7 @@ import type { CompetitionCategory, SDG } from '../../types/cibc';
 import { isSupabaseConfigured } from '@/config/environment';
 import { supabase } from '@/lib/supabase';
 import { supabaseAuthService } from '@/services/supabase.service';
-import { competitionService, teamsService } from '@/services/cibc.service';
+import { competitionService, teamsService, paymentService } from '@/services/cibc.service';
 
 // Validation Schemas
 const step1Schema = z.object({
@@ -74,6 +74,13 @@ const step5Schema = z.object({
   sdgAlignment: z.array(z.string()).min(1, 'Select at least 1 SDG'),
 });
 
+const step6Schema = z.object({
+  paymentFile: z.any().optional(), // File handled separately
+  agreeToPayment: z.boolean().refine(val => val === true, {
+    message: 'You must confirm payment submission',
+  }),
+});
+
 // SDG Options
 const SDG_OPTIONS: { value: SDG; label: string; color: string }[] = [
   { value: 'clean_energy', label: 'Affordable & Clean Energy', color: '#FCC30B' },
@@ -102,6 +109,8 @@ const CIBCRegister = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSDGs, setSelectedSDGs] = useState<SDG[]>([]);
+  const [paymentFile, setPaymentFile] = useState<File | null>(null);
+  const [paymentUploaded, setPaymentUploaded] = useState<string | null>(null);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -152,6 +161,14 @@ const CIBCRegister = () => {
     },
   });
 
+  const step6Form = useForm({
+    resolver: zodResolver(step6Schema),
+    defaultValues: {
+      paymentFile: null,
+      agreeToPayment: false,
+    },
+  });
+
   const watchedCategory = step3Form.watch('category');
   const watchedHasTeam = step4Form.watch('hasTeam');
 
@@ -165,12 +182,13 @@ const CIBCRegister = () => {
       case 3: isValid = await step3Form.trigger(); break;
       case 4: isValid = await step4Form.trigger(); break;
       case 5: isValid = await step5Form.trigger(); break;
+      case 6: isValid = await step6Form.trigger(); break;
     }
 
-    if (isValid && currentStep < 5) {
+    if (isValid && currentStep < 6) {
       setCurrentStep(currentStep + 1);
     }
-  }, [currentStep, step1Form, step2Form, step3Form, step4Form, step5Form]);
+  }, [currentStep, step1Form, step2Form, step3Form, step4Form, step5Form, step6Form]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
@@ -196,9 +214,17 @@ const CIBCRegister = () => {
       const step3Data = step3Form.getValues();
       const step4Data = step4Form.getValues();
       const step5Data = step5Form.getValues();
+      const step6Data = step6Form.getValues();
+
+      // Validate payment confirmation
+      if (!step6Data.agreeToPayment) {
+        toast.error(language === 'id' ? 'Harap konfirmasi pembayaran' : 'Please confirm payment');
+        setIsSubmitting(false);
+        return;
+      }
 
       if (isSupabaseConfigured() && supabase) {
-        // ... (Logika Supabase tetap sama seperti original)
+        // Sign up user
         const { user } = await supabaseAuthService.signUp(
           step1Data.email, step1Data.password, { name: step2Data.fullName, category: step3Data.category }
         );
@@ -224,12 +250,41 @@ const CIBCRegister = () => {
         const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;
         const teamCategory: 'student' | 'open' = step3Data.category === 'student' ? 'student' : 'open';
 
-        await teamsService.create({
-          competition_id: competition.id, name: teamName, category: teamCategory, institution,
+        // Create team
+        const team = await teamsService.create({
+          competition_id: competition.id,
+          name: teamName,
+          category: teamCategory,
+          institution,
+          status: 'pending',
+          payment_status: 'pending',
         }, user.id);
 
-        // Don't store user session - they need to wait for approval
-        // localStorage.setItem('cibc_current_user', ...) - REMOVED
+        // Upload payment proof if provided
+        if (paymentFile) {
+          try {
+            const paymentResult = await paymentService.uploadProof(
+              paymentFile,
+              team.id,
+              competition.id
+            );
+
+            // Update team with payment proof
+            await paymentService.updateTeamPayment(
+              team.id,
+              paymentResult.fileUrl,
+              paymentResult.driveFileId
+            );
+
+            toast.success(language === 'id' ? 'Bukti pembayaran berhasil diupload' : 'Payment proof uploaded');
+          } catch (uploadError) {
+            console.error('Payment upload error:', uploadError);
+            toast.warning(
+              language === 'id' ? 'Gagal upload bukti pembayaran, tapi registrasi berhasil' : 'Payment upload failed, but registration successful',
+              { description: language === 'id' ? 'Anda dapat upload bukti pembayaran di dashboard' : 'You can upload payment proof in dashboard' }
+            );
+          }
+        }
 
         // Sign out the user - they need admin approval first
         await supabaseAuthService.signOut();
@@ -246,7 +301,7 @@ const CIBCRegister = () => {
         // Redirect to pending approval page
         navigate('/cibc/pending-approval');
       } else {
-        // Fallback to localStorage (mock mode) ... (Logika sama)
+        // Fallback to localStorage (mock mode)
         const userId = `user_${Date.now()}`;
         const teamId = `team_${Date.now()}`;
         const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
@@ -262,6 +317,8 @@ const CIBCRegister = () => {
           category: step3Data.category, leaderId: userId,
           members: [{ id: `mem_${Date.now()}`, name: step2Data.fullName, email: step1Data.email, role: 'leader' as const, status: 'active' as const, institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName, joinedAt: new Date().toISOString() }],
           maxMembers: step3Data.category === 'corporate' ? 10 : 5, createdAt: new Date().toISOString(), status: 'forming' as const,
+          paymentStatus: paymentUploaded ? 'pending' : 'not_uploaded',
+          paymentProof: paymentUploaded,
         };
 
         const newSubmission = {
@@ -276,9 +333,6 @@ const CIBCRegister = () => {
 
         const submissions = JSON.parse(localStorage.getItem('cibc_submissions') || '[]');
         submissions.push(newSubmission); localStorage.setItem('cibc_submissions', JSON.stringify(submissions));
-
-        // Don't auto-login - user needs admin approval
-        // localStorage.setItem('cibc_current_user', ...) - REMOVED
 
         toast.success(language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!', {
           description: language === 'id'
@@ -303,6 +357,7 @@ const CIBCRegister = () => {
     { number: 3, label: language === 'id' ? 'Kategori' : 'Category', icon: Target },
     { number: 4, label: language === 'id' ? 'Tim' : 'Team', icon: Users },
     { number: 5, label: language === 'id' ? 'Proyek' : 'Project', icon: Leaf },
+    { number: 6, label: language === 'id' ? 'Pembayaran' : 'Payment', icon: CreditCard },
   ];
 
   return (
@@ -347,7 +402,7 @@ const CIBCRegister = () => {
           {/* Active Line */}
           <div
             className="absolute top-[18px] left-[10%] h-[2px] bg-[#FFB22C] transition-all duration-500 -z-10"
-            style={{ width: `${((currentStep - 1) / 4) * 80}%` }}
+            style={{ width: `${((currentStep - 1) / 5) * 80}%` }}
           />
 
           <div className="flex justify-between">
@@ -368,6 +423,7 @@ const CIBCRegister = () => {
                   {step.number === 3 && (language === 'id' ? 'Kategori' : 'Category')}
                   {step.number === 4 && (language === 'id' ? 'Tim' : 'Team')}
                   {step.number === 5 && (language === 'id' ? 'Proyek' : 'Project')}
+                  {step.number === 6 && (language === 'id' ? 'Pembayaran' : 'Payment')}
                 </span>
               </div>
             ))}
@@ -774,6 +830,122 @@ const CIBCRegister = () => {
             </div>
           )}
 
+          {/* Step 6: Payment */}
+          {currentStep === 6 && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+                {language === 'id' ? 'Bukti Pembayaran' : 'Payment Proof'}
+              </h2>
+
+              {/* Payment Info */}
+              <div className="bg-amber-50 rounded-2xl p-6 mb-8 border border-amber-200">
+                <div className="flex items-start gap-4">
+                  <CreditCard className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-amber-800 mb-2">
+                      {language === 'id' ? 'Informasi Pembayaran' : 'Payment Information'}
+                    </h3>
+                    <p className="text-sm text-amber-700 mb-3">
+                      {language === 'id'
+                        ? 'Upload bukti pembayaran registrasi untuk menyelesaikan pendaftaran tim Anda.'
+                        : 'Upload your registration payment proof to complete your team registration.'}
+                    </p>
+                    <div className="space-y-2 text-sm text-amber-700">
+                      <p>• {language === 'id' ? 'Student Category: Rp 150.000' : 'Student Category: Rp 150.000'}</p>
+                      <p>• {language === 'id' ? 'Startup/Open Category: Rp 250.000' : 'Startup/Open Category: Rp 250.000'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Upload Component - Simple file selector for registration */}
+              <div className="mb-6">
+                <label className="block font-semibold text-sm text-[#0F0F0F] mb-3">
+                  {language === 'id' ? 'Upload Bukti Pembayaran (PDF)' : 'Upload Payment Proof (PDF)'}
+                </label>
+
+                {/* File drop zone */}
+                <div
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const droppedFile = e.dataTransfer.files[0];
+                    if (droppedFile && droppedFile.type === 'application/pdf') {
+                      if (droppedFile.size <= 10 * 1024 * 1024) {
+                        setPaymentFile(droppedFile);
+                        setPaymentUploaded(null);
+                        toast.success(language === 'id' ? 'File berhasil dipilih' : 'File selected');
+                      } else {
+                        toast.error(language === 'id' ? 'File maksimal 10MB' : 'File max 10MB');
+                      }
+                    } else {
+                      toast.error(language === 'id' ? 'Format file harus PDF' : 'File must be PDF');
+                    }
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all ${
+                    paymentFile ? 'border-[#FFB22C] bg-[#FFB22C]/5' : 'border-gray-200 bg-[#F4F6F8] hover:border-[#FFB22C]'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
+                          setPaymentFile(file);
+                          setPaymentUploaded(null);
+                        } else {
+                          toast.error(language === 'id' ? 'Format PDF, max 10MB' : 'PDF format, max 10MB');
+                        }
+                      }
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="flex flex-col items-center gap-3">
+                    <Upload className="w-10 h-10 text-gray-400" />
+                    {paymentFile ? (
+                      <div className="text-center">
+                        <p className="font-semibold text-[#0F0F0F]">{paymentFile.name}</p>
+                        <p className="text-sm text-gray-500">{(paymentFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                        <button
+                          onClick={() => setPaymentFile(null)}
+                          className="mt-2 text-sm text-red-500 hover:underline"
+                        >
+                          {language === 'id' ? 'Hapus file' : 'Remove file'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <p className="font-semibold text-[#0F0F0F]">
+                          {language === 'id' ? 'Drag & drop atau klik untuk upload' : 'Drag & drop or click to upload'}
+                        </p>
+                        <p className="text-sm text-gray-500">PDF, max 10MB</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Agreement */}
+              <div className="flex items-start gap-3 mt-6">
+                <input
+                  type="checkbox"
+                  {...step6Form.register('agreeToPayment')}
+                  className="mt-1 w-5 h-5 rounded border-gray-300 text-[#FFB22C] focus:ring-[#FFB22C] cursor-pointer"
+                />
+                <label className="text-sm text-gray-600 cursor-pointer">
+                  {language === 'id'
+                    ? 'Saya menyetujui bahwa bukti pembayaran yang saya upload adalah valid dan benar.'
+                    : 'I confirm that the payment proof I uploaded is valid and accurate.'}
+                </label>
+              </div>
+              {step6Form.formState.errors.agreeToPayment && (
+                <p className="mt-1 text-xs text-red-500">{step6Form.formState.errors.agreeToPayment.message}</p>
+              )}
+            </div>
+          )}
+
           {/* Bottom Centered Navigation Button */}
           <div className="flex justify-center items-center gap-4 mt-12">
             {currentStep > 1 && (
@@ -788,12 +960,12 @@ const CIBCRegister = () => {
 
             <button
               type="button"
-              onClick={currentStep < 5 ? nextStep : onSubmit}
+              onClick={currentStep < 6 ? nextStep : onSubmit}
               disabled={isSubmitting}
               className="px-10 py-3.5 bg-[#FFB22C] text-[#0F0F0F] rounded-full font-bold text-sm hover:bg-[#FFB22C]/90 shadow-md shadow-[#FFB22C]/20 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isSubmitting ? '...' : (
-                currentStep < 5
+                currentStep < 6
                   ? (language === 'id' ? 'Simpan & Lanjut' : 'Save & Continue')
                   : (language === 'id' ? 'Selesai' : 'Complete Registration')
               )}

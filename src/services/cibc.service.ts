@@ -73,12 +73,18 @@ export interface Team {
   category: 'student' | 'open';
   institution?: string;
   status: 'draft' | 'pending' | 'verified' | 'disqualified';
+  // Payment fields
   payment_proof?: string;
   payment_status: 'pending' | 'verified' | 'rejected';
+  payment_uploaded_at?: string;
+  payment_rejection_reason?: string;
+  payment_drive_id?: string;
   documents?: Record<string, unknown>;
   notes?: string;
   verified_by?: string;
   verified_at?: string;
+  rejected_by?: string;
+  rejected_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -830,6 +836,275 @@ export const cibcContentService = {
 };
 
 // ============================================
+// PAYMENT SERVICE
+// ============================================
+
+export interface PaymentUploadResult {
+  fileUrl: string;
+  driveFileId: string;
+  fileName: string;
+  fileSize: number;
+}
+
+/**
+ * Upload payment proof via n8n → Google Drive
+ */
+export async function uploadPaymentProof(
+  file: File,
+  teamId: string,
+  competitionId: string
+): Promise<PaymentUploadResult> {
+  const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+
+  if (!n8nWebhookUrl) {
+    // Mock mode for development
+    console.warn('N8N_WEBHOOK_URL not configured, using mock upload');
+    return {
+      fileUrl: `https://mock-drive-url.com/payments/${teamId}/${file.name}`,
+      driveFileId: `mock_file_${Date.now()}`,
+      fileName: file.name,
+      fileSize: file.size
+    };
+  }
+
+  // Create form data
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('teamId', teamId);
+  formData.append('competitionId', competitionId);
+  formData.append('uploadType', 'payment');
+  formData.append('fileName', file.name);
+  formData.append('fileSize', file.size.toString());
+
+  // Upload via n8n webhook
+  const response = await fetch(`${n8nWebhookUrl}/upload-payment`, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+    throw new Error(error.message || 'Failed to upload payment proof');
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || 'Upload failed');
+  }
+
+  return {
+    fileUrl: result.fileUrl,
+    driveFileId: result.driveFileId,
+    fileName: result.fileName,
+    fileSize: parseInt(result.fileSize, 10)
+  };
+}
+
+export const paymentService = {
+  /**
+   * Upload payment proof for a team
+   */
+  async uploadProof(
+    file: File,
+    teamId: string,
+    competitionId: string
+  ): Promise<PaymentUploadResult> {
+    return uploadPaymentProof(file, teamId, competitionId);
+  },
+
+  /**
+   * Update team payment info
+   */
+  async updateTeamPayment(
+    teamId: string,
+    paymentProofUrl: string,
+    driveFileId?: string
+  ): Promise<Team> {
+    if (!supabase) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_proof: paymentProofUrl,
+        payment_status: 'pending',
+        payment_uploaded_at: new Date().toISOString(),
+        documents: driveFileId ? { payment_drive_id: driveFileId } : undefined
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Get pending payments (admin)
+   */
+  async getPendingPayments(competitionId: string): Promise<(Team & { members: TeamMember[] })[]> {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('teams')
+      .select(`
+        *,
+        members:team_members(
+          id,
+          team_id,
+          user_id,
+          role,
+          joined_at,
+          user:users(id, name, email, institution)
+        )
+      `)
+      .eq('competition_id', competitionId)
+      .eq('payment_status', 'pending')
+      .not('payment_proof', 'is', null)
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Get all payments with filter (admin)
+   */
+  async getAllPayments(
+    competitionId: string,
+    status?: 'pending' | 'verified' | 'rejected'
+  ): Promise<(Team & { members: TeamMember[] })[]> {
+    if (!supabase) return [];
+    let query = supabase
+      .from('teams')
+      .select(`
+        *,
+        members:team_members(
+          id,
+          team_id,
+          user_id,
+          role,
+          joined_at,
+          user:users(id, name, email, institution)
+        )
+      `)
+      .eq('competition_id', competitionId)
+      .not('payment_proof', 'is', null);
+
+    if (status) {
+      query = query.eq('payment_status', status);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) return [];
+    return data || [];
+  },
+
+  /**
+   * Verify payment (admin)
+   */
+  async verifyPayment(teamId: string, adminId: string): Promise<Team> {
+    if (!supabase) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_status: 'verified',
+        status: 'verified',
+        verified_by: adminId,
+        verified_at: new Date().toISOString()
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    // Create notification for team members
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', teamId);
+
+    if (members && members.length > 0) {
+      const notifications = members.map(m => ({
+        user_id: m.user_id,
+        title: 'Pembayaran Diverifikasi',
+        message: 'Bukti pembayaran tim Anda telah diverifikasi. Anda dapat mulai mengakses dashboard.',
+        type: 'payment_verified',
+        link: '/dashboard',
+        is_read: false
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    }
+
+    return data;
+  },
+
+  /**
+   * Reject payment (admin)
+   */
+  async rejectPayment(teamId: string, reason: string, adminId: string): Promise<Team> {
+    if (!supabase) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('teams')
+      .update({
+        payment_status: 'rejected',
+        payment_rejection_reason: reason,
+        rejected_by: adminId,
+        rejected_at: new Date().toISOString()
+      })
+      .eq('id', teamId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    // Create notification for team members
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', teamId);
+
+    if (members && members.length > 0) {
+      const notifications = members.map(m => ({
+        user_id: m.user_id,
+        title: 'Pembayaran Ditolak',
+        message: `Bukti pembayaran ditolak: ${reason}. Silakan upload ulang bukti pembayaran yang valid.`,
+        type: 'payment_rejected',
+        link: '/dashboard/settings',
+        is_read: false
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    }
+
+    return data;
+  },
+
+  /**
+   * Get payment stats (admin)
+   */
+  async getPaymentStats(competitionId: string): Promise<{
+    total: number;
+    pending: number;
+    verified: number;
+    rejected: number;
+  }> {
+    if (!supabase) return { total: 0, pending: 0, verified: 0, rejected: 0 };
+
+    const { data, error } = await supabase
+      .from('teams')
+      .select('payment_status')
+      .eq('competition_id', competitionId)
+      .not('payment_proof', 'is', null);
+
+    if (error) return { total: 0, pending: 0, verified: 0, rejected: 0 };
+
+    return {
+      total: data?.length || 0,
+      pending: data?.filter(t => t.payment_status === 'pending').length || 0,
+      verified: data?.filter(t => t.payment_status === 'verified').length || 0,
+      rejected: data?.filter(t => t.payment_status === 'rejected').length || 0
+    };
+  }
+};
+
+// ============================================
 // EXPORT ALL
 // ============================================
 
@@ -842,6 +1117,7 @@ export const cibcService = {
   announcements: announcementsService,
   notifications: notificationsService,
   content: cibcContentService,
+  payment: paymentService,
 };
 
 export default cibcService;

@@ -61,6 +61,7 @@ import {
   AdminAnnouncements,
   AdminUsers,
   AdminUserApproval,
+  AdminPayments,
   AdminTasks,
   AdminGrading,
   AdminLeaderboard,
@@ -178,6 +179,7 @@ function App() {
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="user-approval" element={<AdminUserApproval />} />
+        <Route path="payments" element={<AdminPayments />} />
       </Route>
     </Routes>
   );

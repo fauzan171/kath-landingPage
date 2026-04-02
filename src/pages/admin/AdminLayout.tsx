@@ -7,7 +7,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Image, FileText, MessageSquare,
   HelpCircle, Phone, Settings, Menu, X, ChevronRight,
-  Users, Calendar, Megaphone, ClipboardList, ListChecks, Star, Trophy
+  Users, Calendar, Megaphone, ClipboardList, ListChecks, Star, Trophy, CreditCard
 } from 'lucide-react';
 
 const contentItems = [
@@ -31,6 +31,7 @@ const competitionItems = [
   { to: '/admin/leaderboard', label: 'Leaderboard', icon: Trophy },
   { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
   { to: '/admin/users', label: 'Users & Teams', icon: Users },
+  { to: '/admin/payments', label: 'Payments', icon: CreditCard },
 ];
 
 const AdminLayout = () => {
