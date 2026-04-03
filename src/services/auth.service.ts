@@ -7,8 +7,8 @@
 
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
-import type { AuthUser, LoginCredentials, LoginResponse } from './types';
-import type { ApiResponse } from './api';
+import { loginRateLimiter, registrationRateLimiter } from '@/utils/security';
+import type { AuthUser, LoginCredentials, LoginResponse, ApiResponse } from './types';
 
 // ============================================
 // Error Mapping - User-friendly messages
@@ -61,6 +61,17 @@ export async function login(
       };
     }
 
+    // Rate limit check - prevent brute force attacks
+    const rateLimit = loginRateLimiter.checkLimit(credentials.email);
+    if (!rateLimit.allowed) {
+      const retryMinutes = Math.ceil((rateLimit.retryAfter || 0) / 60);
+      return {
+        success: false,
+        data: {} as LoginResponse,
+        message: `Terlalu banyak percobaan login. Coba lagi dalam ${retryMinutes} menit.`,
+      };
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
@@ -82,6 +93,22 @@ export async function login(
         message: 'Login gagal. Data user tidak ditemukan.',
       };
     }
+
+    // Check if email is verified
+    // Note: This depends on Supabase email confirmation settings
+    // If email confirmation is disabled in Supabase, this check can be skipped
+    if (!data.user.email_confirmed_at && !data.user.confirmed_at) {
+      // Sign out the user immediately since email is not verified
+      await supabase.auth.signOut();
+      return {
+        success: false,
+        data: {} as LoginResponse,
+        message: 'Email belum dikonfirmasi. Silakan cek email Anda untuk link konfirmasi.',
+      };
+    }
+
+    // Successful login - reset rate limiter
+    loginRateLimiter.reset(credentials.email);
 
     // Build user object
     const user: AuthUser = {
@@ -128,6 +155,17 @@ export async function register(
         success: false,
         data: { user: {} as AuthUser },
         message: 'Supabase tidak dikonfigurasi.',
+      };
+    }
+
+    // Rate limit check - prevent registration spam/abuse
+    const rateLimit = registrationRateLimiter.checkLimit(email);
+    if (!rateLimit.allowed) {
+      const retryMinutes = Math.ceil((rateLimit.retryAfter || 0) / 60);
+      return {
+        success: false,
+        data: { user: {} as AuthUser },
+        message: `Terlalu banyak percobaan registrasi. Coba lagi dalam ${retryMinutes} menit.`,
       };
     }
 

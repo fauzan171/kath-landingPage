@@ -1,5 +1,40 @@
+/**
+ * ============================================
+ * DEPRECATED: AuthContext.tsx
+ * ============================================
+ *
+ * ⚠️ This context is DEPRECATED and will be removed in a future version.
+ *
+ * REASON: This context uses localStorage for authentication which:
+ * 1. Stores passwords in localStorage (SECURITY RISK)
+ * 2. Is not compatible with Supabase Auth
+ * 3. Creates confusion with dual auth systems
+ *
+ * MIGRATION GUIDE:
+ * - Use `auth.service.ts` for all authentication operations
+ * - Import `login`, `register`, `logout` from '@/services/auth.service'
+ * - Use Supabase Auth hooks: `useSupabaseAuth()` from '@/hooks/useAuth'
+ *
+ * NEW AUTH FLOW:
+ * 1. Login: `import { login } from '@/services/auth.service'`
+ * 2. Register: `import { register } from '@/services/auth.service'`
+ * 3. Get current user: `import { getCurrentUser } from '@/services/auth.service'`
+ *
+ * @deprecated Use auth.service.ts instead
+ * @see src/services/auth.service.ts
+ * @see src/hooks/useAuth.ts
+ */
+
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { hashPassword, verifyPassword, generateSecureId } from '../utils/security';
+
+// Log deprecation warning in development
+if (import.meta.env.DEV) {
+  console.warn(
+    '⚠️ AuthContext is DEPRECATED. Migrate to auth.service.ts for Supabase Auth.\n' +
+    'See src/services/auth.service.ts for the new authentication API.'
+  );
+}
 
 export interface User {
   id: string;

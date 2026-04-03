@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
+import { validatePassword } from '../utils/validate';
+import { useCSRFToken } from '../components/CSRFProtectedForm';
 import {
   ChevronLeft,
   Lock,
@@ -39,6 +41,7 @@ interface NotificationSettings {
 const Settings = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
   const [activeTab, setActiveTab] = useState<'password' | 'notifications' | 'privacy'>('password');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -72,29 +75,41 @@ const Settings = () => {
     e.preventDefault();
     setError('');
 
+    // CSRF validation for security
+    const formElement = e.target as HTMLFormElement;
+    const submittedToken = new FormData(formElement).get('csrfToken') as string;
+    if (!validateCSRF(submittedToken)) {
+      setError('Security validation failed. Please try again.');
+      return;
+    }
+
     // Validation
     if (!passwordForm.currentPassword) {
       setError('Password saat ini wajib diisi');
       return;
     }
-    if (passwordForm.newPassword.length < 8) {
-      setError('Password baru minimal 8 karakter');
+
+    // Use proper password validation
+    const passwordValidation = validatePassword(passwordForm.newPassword);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.errors[0]);
       return;
     }
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setError('Password baru dan konfirmasi tidak cocok');
       return;
     }
 
     setIsLoading(true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     setIsLoading(false);
     setIsSuccess(true);
     setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    
+
     setTimeout(() => setIsSuccess(false), 3000);
   };
 
@@ -118,7 +133,7 @@ const Settings = () => {
 
   const inputClasses = `
     w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white 
-    placeholder-white/30 focus:outline-none focus:border-kath-gold/50 transition-all
+    placeholder-white/50 focus:outline-none focus:border-kath-gold/50 transition-all
   `;
 
   const renderPasswordSection = () => (
@@ -134,13 +149,15 @@ const Settings = () => {
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+        <div id="password-error" className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl" role="alert">
+          <AlertCircle className="w-5 h-5 text-red-400" aria-hidden="true" />
           <p className="font-body text-red-400 text-sm">{error}</p>
         </div>
       )}
 
       <form onSubmit={handlePasswordSubmit} className="space-y-4">
+        {/* CSRF Protection Token */}
+        <input type="hidden" name="csrfToken" value={csrfToken} />
         <div>
           <label className="block font-body text-sm text-white/70 mb-2">Password Saat Ini</label>
           <div className="relative">
@@ -152,13 +169,17 @@ const Settings = () => {
               onChange={handlePasswordChange}
               className={`${inputClasses} pl-12 pr-12`}
               placeholder="Masukkan password saat ini"
+              aria-describedby={error ? 'password-error' : undefined}
+              aria-invalid={!!error}
             />
             <button
               type="button"
+              aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showCurrentPassword}
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
             >
-              {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showCurrentPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -174,13 +195,17 @@ const Settings = () => {
               onChange={handlePasswordChange}
               className={`${inputClasses} pl-12 pr-12`}
               placeholder="Minimal 8 karakter"
+              aria-describedby={error ? 'password-error' : undefined}
+              aria-invalid={!!error}
             />
             <button
               type="button"
+              aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showNewPassword}
               onClick={() => setShowNewPassword(!showNewPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
             >
-              {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showNewPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -196,13 +221,17 @@ const Settings = () => {
               onChange={handlePasswordChange}
               className={`${inputClasses} pl-12 pr-12`}
               placeholder="Ulangi password baru"
+              aria-describedby={error ? 'password-error' : undefined}
+              aria-invalid={!!error}
             />
             <button
               type="button"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showConfirmPassword}
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
             >
-              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showConfirmPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -301,12 +330,14 @@ const Settings = () => {
             </div>
             <button
               onClick={() => toggleNotification(item.key)}
+              aria-label={`Toggle ${item.label}`}
+              aria-pressed={notifications[item.key]}
               className={`transition-all ${notifications[item.key] ? 'text-kath-gold' : 'text-white/20'}`}
             >
               {notifications[item.key] ? (
-                <ToggleRight className="w-12 h-7" />
+                <ToggleRight className="w-12 h-7" aria-hidden="true" />
               ) : (
-                <ToggleLeft className="w-12 h-7" />
+                <ToggleLeft className="w-12 h-7" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -411,8 +442,8 @@ const Settings = () => {
               <p className="font-body text-white/50 text-sm">Keluar dari semua sesi aktif</p>
             </div>
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 navigate('/login');
               }}
               className="flex items-center gap-2 px-4 py-2 border border-white/10 text-white/70 hover:bg-white/5 rounded-lg font-body text-sm transition-all"
@@ -467,7 +498,7 @@ const Settings = () => {
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Section Tabs */}
-          <div className="flex items-center gap-2 mb-8 bg-white/[0.02] border border-white/5 rounded-xl p-1">
+          <div className="flex items-center gap-2 mb-8 bg-white/[0.02] border border-white/5 rounded-xl p-1" role="tablist" aria-label="Settings sections">
             {[
               { id: 'password', label: 'Password', icon: Lock },
               { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -475,6 +506,9 @@ const Settings = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                   activeTab === tab.id
@@ -482,14 +516,14 @@ const Settings = () => {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
 
           {/* Content */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8">
+          <div id={`tabpanel-${activeTab}`} role="tabpanel" className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8">
             {activeTab === 'password' && renderPasswordSection()}
             {activeTab === 'notifications' && renderNotificationsSection()}
             {activeTab === 'privacy' && renderPrivacySection()}

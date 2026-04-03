@@ -39,7 +39,7 @@ export const supabase = supabaseUrl && supabaseAnonKey
 // TYPE DEFINITIONS
 // ============================================
 
-export type UserRole = 'super_admin' | 'admin' | 'judge' | 'observer';
+export type UserRole = 'participant' | 'admin' | 'super_admin' | 'finance_admin' | 'judge';
 
 export interface User {
   id: string;
@@ -122,13 +122,18 @@ export interface Task {
   name: string;
   name_id?: string;
   description?: string;
+  description_id?: string;
   instructions?: string;
-  type: 'file_upload' | 'text_input' | 'link_submit' | 'quiz' | 'attendance';
+  type: 'file_upload' | 'text_input' | 'link_submit' | 'quiz' | 'attendance' | 'text' | 'link' | 'presentation';
   max_file_size_mb?: number;
+  max_file_size?: number;  // Alias, some code uses this
+  max_score?: number;
   allowed_extensions?: string[];
+  file_types?: string[];  // Alias for allowed_extensions
   deadline?: string;
   is_required: boolean;
   is_published: boolean;
+  order_index: number;
   rubric?: Array<{
     id: string;
     name: string;
@@ -145,20 +150,34 @@ export interface Task {
     placeholder?: string;
     options?: string[];
   }>;
-  order_index: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Team {
   id: string;
   competition_id: string;
   name: string;
+  team_code?: string;  // Alias for code, used by some components
   code?: string;
-  category?: 'startup' | 'student' | 'corporate';
-  status: 'draft' | 'pending_review' | 'registered' | 'active' | 'disqualified' | 'withdrawn';
+  category?: 'startup' | 'student' | 'corporate' | 'open';
+  status: 'draft' | 'pending' | 'verified' | 'rejected';
   institution?: string;
   country?: string;
   total_score?: number;
   rank?: number;
+  // Payment fields
+  payment_status?: 'unpaid' | 'pending' | 'verified' | 'rejected';
+  payment_proof?: string;
+  payment_uploaded_at?: string;
+  payment_drive_id?: string;
+  payment_rejection_reason?: string;
+  // Verification fields
+  notes?: string;
+  verified_by?: string;
+  verified_at?: string;
+  rejected_by?: string;
+  rejected_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -177,6 +196,13 @@ export interface TeamMember {
   role: 'leader' | 'member' | 'mentor';
   is_active: boolean;
   joined_at: string;
+  // Joined user data (from users table)
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    institution?: string;
+  };
 }
 
 export interface Submission {
@@ -193,13 +219,14 @@ export interface Submission {
   file_size?: number;       // bytes
   file_type?: string;       // MIME type
   drive_file_id?: string;   // Google Drive file ID
+  link_url?: string;        // For link submissions
 
   // Content
   content?: string;
   field_values?: Record<string, unknown>;
 
   // Status
-  status: 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final';
+  status: 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final' | 'late';
 
   // Grading
   total_score?: number;
@@ -209,7 +236,7 @@ export interface Submission {
   criteria_scores?: Record<string, number>;
 
   // Late submission
-  is_late: boolean;
+  is_late?: boolean;
   penalty_applied?: number;
 
   created_at: string;
@@ -223,11 +250,12 @@ export interface Announcement {
   title_id?: string;
   content: string;
   content_id?: string;
-  type: 'general' | 'urgent' | 'result' | 'reminder' | 'system';
+  type: 'general' | 'urgent' | 'result' | 'reminder' | 'system' | 'info' | 'warning' | 'success';
   is_published: boolean;
   published_at?: string;
   views_count: number;
   created_at: string;
+  updated_at?: string;
 }
 
 // ============================================

@@ -16,6 +16,7 @@ import SettingsSection from './sections/SettingsSection';
 // Import services
 import { supabase } from '@/lib/supabase';
 import { competitionService, stagesService, teamsService, submissionsService, announcementsService, notificationsService } from '@/services/cibc.service';
+import type { Competition } from '@/lib/supabase';
 
 // --- TYPE DEFINITIONS ---
 export type DashboardSection = 'overview' | 'team' | 'submission' | 'resources' | 'settings';
@@ -117,7 +118,7 @@ const CIBCDashboard = () => {
   const [submissions, setSubmissions] = useState<SubmissionData[]>([]);
   const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [competition, setCompetition] = useState<any>(null);
+  const [competition, setCompetition] = useState<Competition | null>(null);
 
   // --- LOAD ALL DATA ---
   const loadDashboardData = useCallback(async () => {
@@ -162,7 +163,7 @@ const CIBCDashboard = () => {
           category: (teamData.category || 'student') as 'student' | 'startup' | 'corporate' | 'open',
           institution: teamData.institution || '',
           status: teamData.status,
-          team_code: teamData.team_code,
+          team_code: teamData.team_code || teamData.code || '',
           total_score: (teamData as any).total_score,
         });
 
@@ -213,10 +214,11 @@ const CIBCDashboard = () => {
       const notifData = await notificationsService.getMy();
       setNotifications(notifData);
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error loading dashboard:', err);
-      setError(err.message || 'Gagal memuat data');
-      toast.error(err.message || 'Gagal memuat data dashboard');
+      const errorMessage = err instanceof Error ? err.message : 'Gagal memuat data';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

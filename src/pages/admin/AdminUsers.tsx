@@ -2,16 +2,82 @@
  * Admin Users & Teams Management
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Search, Users, Building2, Loader2, MoreVertical, CheckCircle, Ban } from 'lucide-react';
 import { toast } from 'sonner';
 import { teamsService, competitionService, type Team } from '@/services/cibc.service';
+
+// Memoized table row component for better performance
+interface TeamRowProps {
+  team: Team;
+  onDisqualify: (id: string) => void;
+  onReinstate: (id: string) => void;
+  getStatusBadge: (status: string) => React.ReactNode;
+}
+
+const TeamTableRow = memo(function TeamTableRow({ team, onDisqualify, onReinstate, getStatusBadge }: TeamRowProps) {
+  return (
+    <tr className="hover:bg-gray-50">
+      <td className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+            <Users className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">{team.name}</p>
+            <p className="text-xs text-gray-500 font-mono">{team.team_code}</p>
+          </div>
+        </div>
+      </td>
+      <td className="p-4">
+        <span className="capitalize text-gray-600">{team.category}</span>
+      </td>
+      <td className="p-4">
+        <div className="flex items-center gap-2 text-gray-600">
+          <Building2 className="w-4 h-4 text-gray-400" />
+          {team.institution || '-'}
+        </div>
+      </td>
+      <td className="p-4">
+        {getStatusBadge(team.status)}
+      </td>
+      <td className="p-4 text-sm text-gray-500">
+        {new Date(team.created_at).toLocaleDateString()}
+      </td>
+      <td className="p-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          {team.status === 'verified' && (
+            <button
+              onClick={() => onDisqualify(team.id)}
+              className="p-2 hover:bg-red-100 rounded-lg text-red-600"
+              title="Disqualify"
+            >
+              <Ban className="w-4 h-4" />
+            </button>
+          )}
+          {team.status === 'rejected' && (
+            <button
+              onClick={() => onReinstate(team.id)}
+              className="p-2 hover:bg-green-100 rounded-lg text-green-600"
+              title="Reinstate"
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          )}
+          <button className="p-2 hover:bg-gray-100 rounded-lg">
+            <MoreVertical className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 const AdminUsers = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'verified' | 'pending' | 'disqualified'>('all');
+  const [filter, setFilter] = useState<'all' | 'verified' | 'pending' | 'rejected'>('all');
 
   useEffect(() => { load(); }, []);
 
@@ -32,8 +98,8 @@ const AdminUsers = () => {
   const handleDisqualify = async (teamId: string) => {
     if (!confirm('Are you sure you want to disqualify this team?')) return;
     try {
-      await teamsService.update(teamId, { status: 'disqualified' });
-      toast.success('Team disqualified');
+      await teamsService.update(teamId, { status: 'rejected' });
+      toast.success('Team rejected');
       load();
     } catch (e) {
       toast.error('Failed to disqualify');
@@ -53,7 +119,7 @@ const AdminUsers = () => {
   const filteredTeams = teams.filter(team => {
     if (filter !== 'all' && team.status !== filter) return false;
     if (search && !team.name.toLowerCase().includes(search.toLowerCase()) &&
-        !team.team_code.toLowerCase().includes(search.toLowerCase())) return false;
+        !(team.team_code || '').toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -63,7 +129,7 @@ const AdminUsers = () => {
         return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">Verified</span>;
       case 'pending':
         return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">Pending</span>;
-      case 'disqualified':
+      case 'rejected':
         return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">Disqualified</span>;
       default:
         return <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">Draft</span>;
@@ -74,7 +140,7 @@ const AdminUsers = () => {
     total: teams.length,
     verified: teams.filter(t => t.status === 'verified').length,
     pending: teams.filter(t => t.status === 'pending').length,
-    disqualified: teams.filter(t => t.status === 'disqualified').length,
+    rejected: teams.filter(t => t.status === 'rejected').length,
     student: teams.filter(t => t.category === 'student').length,
     open: teams.filter(t => t.category === 'open').length,
   };
@@ -108,7 +174,7 @@ const AdminUsers = () => {
           <p className="text-xs text-gray-500">Pending</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">{stats.disqualified}</p>
+          <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
           <p className="text-xs text-gray-500">Disqualified</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
@@ -124,7 +190,7 @@ const AdminUsers = () => {
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex gap-2">
-          {(['all', 'verified', 'pending', 'disqualified'] as const).map(f => (
+          {(['all', 'verified', 'pending', 'rejected'] as const).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -161,61 +227,13 @@ const AdminUsers = () => {
           </thead>
           <tbody className="divide-y">
             {filteredTeams.map((team) => (
-              <tr key={team.id} className="hover:bg-gray-50">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <Users className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{team.name}</p>
-                      <p className="text-xs text-gray-500 font-mono">{team.team_code}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <span className="capitalize text-gray-600">{team.category}</span>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Building2 className="w-4 h-4 text-gray-400" />
-                    {team.institution || '-'}
-                  </div>
-                </td>
-                <td className="p-4">
-                  {getStatusBadge(team.status)}
-                </td>
-                <td className="p-4 text-sm text-gray-500">
-                  {new Date(team.created_at).toLocaleDateString()}
-                </td>
-                <td className="p-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {team.status === 'verified' && (
-                      <button
-                        onClick={() => handleDisqualify(team.id)}
-                        className="p-2 hover:bg-red-100 rounded-lg text-red-600"
-                        title="Disqualify"
-                      >
-                        <Ban className="w-4 h-4" />
-                      </button>
-                    )}
-                    {team.status === 'disqualified' && (
-                      <button
-                        onClick={() => handleReinstate(team.id)}
-                        className="p-2 hover:bg-green-100 rounded-lg text-green-600"
-                        title="Reinstate"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button
-                      className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
-                      <MoreVertical className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <TeamTableRow
+                key={team.id}
+                team={team}
+                onDisqualify={handleDisqualify}
+                onReinstate={handleReinstate}
+                getStatusBadge={getStatusBadge}
+              />
             ))}
           </tbody>
         </table>

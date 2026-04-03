@@ -54,7 +54,7 @@ const MyTeam = () => {
   }, []);
 
   const handleCopyCode = () => {
-    if (activeTeam) {
+    if (activeTeam && activeTeam.code) {
       navigator.clipboard.writeText(activeTeam.code);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
@@ -80,12 +80,16 @@ const MyTeam = () => {
       competitionName: comp.name,
       description: newTeamDesc,
       maxMembers: 4,
+      code: `TEAM-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
       members: [{
         id: 'usr_test_001',
+        team_id: 'team_test',
         name: 'Budi Santoso',
         email: 'test@kath.com',
         role: 'leader',
+        is_active: true,
         status: 'active',
+        joined_at: new Date().toISOString(),
         joinedAt: new Date().toISOString(),
       }],
     });
@@ -113,7 +117,11 @@ const MyTeam = () => {
       return;
     }
 
-    inviteMember(activeTeam.id, inviteEmail);
+    inviteMember(activeTeam.id, {
+      email: inviteEmail,
+      name: inviteEmail.split('@')[0],
+      role: 'member',
+    });
     setTeams(getTeams());
     setShowInviteModal(false);
     setInviteEmail('');
@@ -158,9 +166,9 @@ const MyTeam = () => {
     }
   };
 
-  const filteredTeams = teams.filter(t => 
+  const filteredTeams = teams.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.competitionName.toLowerCase().includes(searchQuery.toLowerCase())
+    (t.competitionName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
 
   return (
@@ -225,7 +233,7 @@ const MyTeam = () => {
                       placeholder="Search teams..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
+                      className="w-full pl-10 pr-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50"
                     />
                   </div>
                   
@@ -299,12 +307,12 @@ const MyTeam = () => {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-display text-lg text-white">Team Members</h3>
                         <span className="font-body text-white/50 text-sm">
-                          {activeTeam.members.length} / {activeTeam.maxMembers}
+                          {activeTeam.members?.length ?? 0} / {activeTeam.maxMembers ?? 4}
                         </span>
                       </div>
 
                       <div className="space-y-3">
-                        {activeTeam.members.map((member) => (
+                        {activeTeam.members?.map((member) => (
                           <div
                             key={member.id}
                             className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl"
@@ -312,7 +320,7 @@ const MyTeam = () => {
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-gold to-kath-gold-dark flex items-center justify-center">
                                 <span className="font-display text-kath-bg-dark text-sm">
-                                  {member.name.charAt(0).toUpperCase()}
+                                  {(member.name ?? member.full_name ?? 'U')?.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <div>
@@ -408,7 +416,7 @@ const MyTeam = () => {
                   type="text"
                   value={newTeamName}
                   onChange={(e) => setNewTeamName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
+                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50"
                   placeholder="Enter team name (min 3 chars)"
                 />
               </div>
@@ -431,7 +439,7 @@ const MyTeam = () => {
                   value={newTeamDesc}
                   onChange={(e) => setNewTeamDesc(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50 resize-none"
+                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50 resize-none"
                   placeholder="Describe your team..."
                 />
               </div>
@@ -481,7 +489,7 @@ const MyTeam = () => {
                     type="email"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50"
                     placeholder="member@example.com"
                   />
                 </div>

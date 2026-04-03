@@ -14,9 +14,8 @@ import { toast } from 'sonner';
 import { gsap } from 'gsap';
 import { paymentService, competitionService } from '@/services/cibc.service';
 import type { Team, TeamMember } from '@/services/cibc.service';
+import type { PaymentStatus } from '@/types';
 import { supabase } from '@/lib/supabase';
-
-type PaymentStatus = 'pending' | 'verified' | 'rejected';
 
 interface PaymentTeam extends Team {
   members: TeamMember[];
@@ -27,7 +26,7 @@ const AdminPayments: React.FC = () => {
   const [payments, setPayments] = useState<PaymentTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<PaymentStatus | 'all'>('pending');
+  const [statusFilter, setStatusFilter] = useState<'pending' | 'verified' | 'rejected' | 'all'>('pending');
   const [selectedPayment, setSelectedPayment] = useState<PaymentTeam | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -113,12 +112,12 @@ const AdminPayments: React.FC = () => {
     }
   };
 
-  const getCurrentAdminId = async (): Promise<string> => {
+  const getCurrentAdminId = async (): Promise<string | null> => {
     if (supabase) {
       const { data: { user } } = await supabase.auth.getUser();
-      return user?.id || 'admin';
+      return user?.id || null;
     }
-    return 'admin_mock';
+    return null;
   };
 
   const filteredPayments = payments.filter(team => {
@@ -149,6 +148,19 @@ const AdminPayments: React.FC = () => {
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
             <Clock className="w-3 h-3" />
             Pending
+          </span>
+        );
+      case 'unpaid':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+            <Clock className="w-3 h-3" />
+            Unpaid
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+            {status}
           </span>
         );
     }
@@ -244,7 +256,7 @@ const AdminPayments: React.FC = () => {
               <Filter className="w-4 h-4 text-gray-400" />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as PaymentStatus | 'all')}
+                onChange={(e) => setStatusFilter(e.target.value as 'pending' | 'verified' | 'rejected' | 'all')}
                 className="px-3 py-2.5 rounded-lg border border-gray-200 focus:border-[#FFB22C] outline-none"
               >
                 <option value="all">All Status</option>
@@ -284,7 +296,7 @@ const AdminPayments: React.FC = () => {
                           <h3 className="font-semibold text-[#0F0F0F]">{payment.name}</h3>
                           <p className="text-sm text-gray-500">{payment.institution || 'No institution'}</p>
                         </div>
-                        {getStatusBadge(payment.payment_status)}
+                        {getStatusBadge(payment.payment_status || 'pending')}
                       </div>
 
                       {/* Team Details */}

@@ -66,7 +66,13 @@ const AdminGrading = () => {
     setGradingId(selectedSubmission.id);
     try {
       const totalScore = calculateTotalScore();
-      const adminId = 'admin'; // TODO: Get from auth context
+
+      // Get current admin user ID from Supabase auth
+      let adminId: string | null = null;
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser();
+        adminId = user?.id || null;
+      }
 
       // Update submission with criteria scores
       if (supabase) {

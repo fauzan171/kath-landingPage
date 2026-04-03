@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import {
   Mail,
   Lock,
@@ -25,7 +25,7 @@ interface FormErrors {
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -50,13 +50,13 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    console.log('🔍 Checking auth status:', { isAuthenticated });
-    
-    if (isAuthenticated) {
+    console.log('🔍 Checking auth status:', { isAuthenticated, isLoading });
+
+    if (!isLoading && isAuthenticated) {
       console.log('✅ User authenticated, redirecting to dashboard...');
       navigate('/dashboard');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -108,7 +108,7 @@ const Login = () => {
     console.log('🔐 Login attempt:', { email: formData.email });
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login({ email: formData.email, password: formData.password });
 
       console.log('🔐 Login result:', result);
 

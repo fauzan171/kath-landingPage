@@ -8,6 +8,7 @@ import { Check, X, Clock, Search, Loader2, Users, Building2, Eye } from 'lucide-
 import { toast } from 'sonner';
 import { teamsService, type Team } from '@/services/cibc.service';
 import { competitionService } from '@/services/cibc.service';
+import { supabase } from '@/lib/supabase';
 
 interface TeamWithMembers extends Team {
   members?: {
@@ -52,8 +53,12 @@ const AdminRegistrations = () => {
   const handleVerify = async (teamId: string) => {
     setProcessing(teamId);
     try {
-      // Get current admin user ID from auth
-      const adminId = 'admin'; // TODO: Get from auth
+      // Get current admin user ID from Supabase auth
+      let adminId: string | null = null;
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser();
+        adminId = user?.id || null;
+      }
       await teamsService.verify(teamId, adminId);
       toast.success('Team verified successfully!');
       loadTeams();
@@ -80,7 +85,7 @@ const AdminRegistrations = () => {
   const filteredTeams = teams.filter(team => {
     if (filter !== 'all' && team.status !== filter) return false;
     if (search && !team.name.toLowerCase().includes(search.toLowerCase()) &&
-        !team.team_code.toLowerCase().includes(search.toLowerCase())) return false;
+        !(team.team_code || '').toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -204,7 +209,7 @@ const AdminRegistrations = () => {
                     {team.payment_proof && (
                       <div className="mt-2">
                         <span className="text-xs text-gray-500 mr-2">Payment:</span>
-                        {getPaymentBadge(team.payment_status)}
+                        {getPaymentBadge(team.payment_status || 'pending')}
                       </div>
                     )}
 
@@ -324,7 +329,7 @@ const AdminRegistrations = () => {
 
                 <div>
                   <label className="text-xs text-gray-500">Payment Status</label>
-                  <div className="mt-1">{getPaymentBadge(selectedTeam.payment_status)}</div>
+                  <div className="mt-1">{getPaymentBadge(selectedTeam.payment_status || 'pending')}</div>
                 </div>
 
                 {selectedTeam.payment_drive_id && (

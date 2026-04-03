@@ -3,8 +3,8 @@ import type {
   PortfolioItem,
   PortfolioFormData,
   PortfolioQueryParams,
+  ApiResponse,
 } from './types';
-import type { ApiResponse } from './api';
 
 const ENDPOINT = '/portfolio';
 

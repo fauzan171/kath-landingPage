@@ -7,6 +7,9 @@ import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
 import { initializeCIBCData } from './services/cibcMockData';
 
+// Route Protection
+import { AdminRoute, JudgeRoute, ParticipantRoute } from './components/ProtectedRoute';
+
 // Sections (Landing Page Utama)
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
@@ -42,10 +45,13 @@ import CIBCLogin from './pages/cibc/CIBCLogin';
 import CIBCDashboard from './pages/dashboard/CIBCDashboard';
 import PendingApproval from './pages/cibc/PendingApproval';
 import ForgotPassword from './pages/cibc/ForgotPassword';
+import VerifyEmail from './pages/cibc/VerifyEmail';
+import ResetPassword from './pages/cibc/ResetPassword';
 
 // Admin Pages
 import {
   AdminLayout,
+  AdminLogin,
   AdminDashboard,
   AdminHero,
   AdminServices,
@@ -160,16 +166,19 @@ function App() {
       <Route path="/my-teams" element={<MyTeam />} />
       <Route path="/bmc-competition" element={<BMCCompetition />} />
 
-      {/* CIBC Routes */}
+      {/* CIBC Routes - Protected */}
       <Route path="/cibc" element={<CIBCLanding />} />
       <Route path="/cibc/login" element={<CIBCLogin />} />
       <Route path="/cibc/register" element={<CIBCRegister />} />
       <Route path="/cibc/pending-approval" element={<PendingApproval />} />
       <Route path="/cibc/forgot-password" element={<ForgotPassword />} />
-      <Route path="/cibc/dashboard" element={<CIBCDashboard />} />
+      <Route path="/cibc/verify-email" element={<VerifyEmail />} />
+      <Route path="/cibc/reset-password" element={<ResetPassword />} />
+      <Route path="/cibc/dashboard" element={<ParticipantRoute><CIBCDashboard /></ParticipantRoute>} />
 
-      {/* Admin Routes */}
-      <Route path="/admin" element={<AdminLayout />}>
+      {/* Admin Routes - Protected */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route index element={<AdminDashboard />} />
         {/* Landing Page Content */}
         <Route path="hero" element={<AdminHero />} />
@@ -196,9 +205,9 @@ function App() {
         <Route path="judges" element={<AdminJudges />} />
       </Route>
 
-      {/* Judge Routes */}
+      {/* Judge Routes - Protected */}
       <Route path="/judge/login" element={<JudgeLogin />} />
-      <Route path="/judge" element={<JudgeLayout />}>
+      <Route path="/judge" element={<JudgeRoute><JudgeLayout /></JudgeRoute>}>
         <Route index element={<JudgeDashboard />} />
         <Route path="grading/:submissionId" element={<JudgeGrading />} />
       </Route>

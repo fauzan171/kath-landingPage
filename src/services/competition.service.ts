@@ -16,8 +16,8 @@ import type {
   CompetitionQueryParams,
   RegistrationFormData,
   CompetitionRegistration,
+  ApiResponse,
 } from './types';
-import type { ApiResponse } from './api';
 
 // ============================================
 // Storage Keys

@@ -51,12 +51,12 @@ const SubmissionForm = () => {
         const existing = getSubmissionByCompetition(id);
         if (existing) {
           setExistingSubmission(existing);
-          setDescription(existing.description);
-          setFiles(existing.files.map(f => ({
-            id: f.id,
+          setDescription(existing.description ?? '');
+          setFiles((existing.files ?? []).map(f => ({
+            id: f.id ?? `file_${Date.now()}`,
             name: f.name,
-            size: f.size,
-            type: f.type,
+            size: typeof f.size === 'number' ? formatFileSize(f.size) : '0 Bytes',
+            type: f.type ?? 'unknown',
             progress: 100,
             status: 'completed' as const
           })));
@@ -149,19 +149,12 @@ const SubmissionForm = () => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const submissionData = {
-      competitionId: id!,
-      competitionName: competition?.name || '',
-      userId: 'usr_test_001',
+    const submissionData: Partial<Submission> = {
+      competition_id: id!,
+      task_id: 'task_test',
+      team_id: 'team_test',
       description,
-      files: files.map((f) => ({
-        id: f.id,
-        name: f.name,
-        type: f.type,
-        size: f.size,
-        url: '#',
-      })),
-      status: 'submitted' as const,
+      status: 'submitted',
     };
 
     if (existingSubmission) {
@@ -332,7 +325,7 @@ const SubmissionForm = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50 resize-none"
+                className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50 resize-none"
                 placeholder="Describe your submission, concept, and any additional information..."
               />
               <p className="mt-2 font-body text-white/30 text-xs text-right">
@@ -349,19 +342,21 @@ const SubmissionForm = () => {
             )}
 
             {/* Requirements Checklist */}
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-              <h3 className="font-display text-lg text-white mb-4">Requirements Checklist</h3>
-              <ul className="space-y-3">
-                {competition.requirements.map((req, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded border border-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                    </div>
-                    <span className="font-body text-white/70 text-sm">{req}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {competition.requirements && competition.requirements.length > 0 && (
+              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                <h3 className="font-display text-lg text-white mb-4">Requirements Checklist</h3>
+                <ul className="space-y-3">
+                  {competition.requirements.map((req, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded border border-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      </div>
+                      <span className="font-body text-white/70 text-sm">{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4">

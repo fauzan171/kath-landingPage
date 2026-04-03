@@ -58,34 +58,46 @@ export const verifyPassword = async (password: string, hashed: string): Promise<
 /**
  * Rate Limiter for login attempts
  */
+interface RateLimitResult {
+  allowed: boolean;
+  retryAfter?: number; // milliseconds until limit resets
+  remainingAttempts?: number;
+}
+
 class RateLimiter {
   private attempts = new Map<string, { count: number; lastAttempt: number }>();
-  private maxAttempts = 5;
-  private windowMs = 5 * 60 * 1000; // 5 minutes
+  private maxAttempts: number;
+  private windowMs: number;
 
-  checkLimit(key: string): boolean {
+  constructor(maxAttempts: number = 5, windowMs: number = 5 * 60 * 1000) {
+    this.maxAttempts = maxAttempts;
+    this.windowMs = windowMs;
+  }
+
+  checkLimit(key: string): RateLimitResult {
     const now = Date.now();
     const attempt = this.attempts.get(key);
 
     if (!attempt) {
       this.attempts.set(key, { count: 1, lastAttempt: now });
-      return true;
+      return { allowed: true, remainingAttempts: this.maxAttempts - 1 };
     }
 
     // Reset if window expired
     if (now - attempt.lastAttempt > this.windowMs) {
       this.attempts.set(key, { count: 1, lastAttempt: now });
-      return true;
+      return { allowed: true, remainingAttempts: this.maxAttempts - 1 };
     }
 
     // Block if max attempts exceeded
     if (attempt.count >= this.maxAttempts) {
-      return false;
+      const retryAfter = this.windowMs - (now - attempt.lastAttempt);
+      return { allowed: false, retryAfter };
     }
 
     // Increment counter
     this.attempts.set(key, { count: attempt.count + 1, lastAttempt: now });
-    return true;
+    return { allowed: true, remainingAttempts: this.maxAttempts - attempt.count - 1 };
   }
 
   reset(key: string) {
@@ -100,6 +112,12 @@ class RateLimiter {
 }
 
 export const loginRateLimiter = new RateLimiter();
+
+/**
+ * Registration rate limiter
+ * Limits registration attempts to prevent spam/abuse
+ */
+export const registrationRateLimiter = new RateLimiter(5, 300000); // 5 attempts per 5 minutes
 
 /**
  * Session timeout utilities
@@ -135,14 +153,110 @@ export const validateCSRFToken = (token: string, storedToken: string): boolean =
 
 /**
  * Sanitize user input to prevent XSS
+ * Escapes HTML entities
  */
 export const sanitizeInput = (input: string): string => {
+  if (!input || typeof input !== 'string') return '';
   return input
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replace(/'/g, '&#x27;')
+    .trim();
+};
+
+/**
+ * Sanitize email address
+ * Lowercase and trim
+ */
+export const sanitizeEmail = (email: string): string => {
+  if (!email || typeof email !== 'string') return '';
+  return email.toLowerCase().trim();
+};
+
+/**
+ * Sanitize phone number
+ * Keep only digits, +, and -
+ */
+export const sanitizePhone = (phone: string): string => {
+  if (!phone || typeof phone !== 'string') return '';
+  return phone.replace(/[^0-9+\- ]/g, '').trim();
+};
+
+/**
+ * Sanitize URL
+ * Only allow safe protocols
+ */
+export const sanitizeUrl = (url: string): string => {
+  if (!url || typeof url !== 'string') return '';
+
+  // Trim whitespace
+  const trimmed = url.trim();
+
+  // Check for safe protocols
+  const safeProtocols = ['http://', 'https://', 'mailto:', 'tel:'];
+  const hasSafeProtocol = safeProtocols.some(p => trimmed.toLowerCase().startsWith(p));
+
+  // If no protocol, assume https
+  if (!hasSafeProtocol && trimmed.length > 0) {
+    return 'https://' + trimmed;
+  }
+
+  return trimmed;
+};
+
+/**
+ * Sanitize object - applies sanitization to all string fields
+ */
+export const sanitizeObject = <T extends Record<string, unknown>>(obj: T): T => {
+  if (!obj || typeof obj !== 'object') return obj;
+
+  const sanitized = { ...obj } as T;
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === 'string') {
+      // Special handling for known fields
+      if (key.toLowerCase().includes('email')) {
+        (sanitized as Record<string, unknown>)[key] = sanitizeEmail(value);
+      } else if (key.toLowerCase().includes('phone') || key.toLowerCase().includes('tel')) {
+        (sanitized as Record<string, unknown>)[key] = sanitizePhone(value);
+      } else if (key.toLowerCase().includes('url') || key.toLowerCase().includes('link') || key.toLowerCase().includes('website')) {
+        (sanitized as Record<string, unknown>)[key] = sanitizeUrl(value);
+      } else {
+        (sanitized as Record<string, unknown>)[key] = sanitizeInput(value);
+      }
+    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      // Recursively sanitize nested objects
+      (sanitized as Record<string, unknown>)[key] = sanitizeObject(value as Record<string, unknown>);
+    }
+  }
+  return sanitized;
+};
+
+/**
+ * Validate password strength
+ * Returns error message if weak, null if strong
+ */
+export const validatePasswordStrength = (password: string): string | null => {
+  if (!password || password.length < 8) {
+    return 'Password minimal 8 karakter';
+  }
+  if (!/[A-Z]/.test(password)) {
+    return 'Password harus mengandung huruf kapital';
+  }
+  if (!/[a-z]/.test(password)) {
+    return 'Password harus mengandung huruf kecil';
+  }
+  if (!/[0-9]/.test(password)) {
+    return 'Password harus mengandung angka';
+  }
+  // Check for common patterns
+  const commonPatterns = ['password', '123456', 'qwerty', 'abc123', 'admin'];
+  const lowerPassword = password.toLowerCase();
+  if (commonPatterns.some(p => lowerPassword.includes(p))) {
+    return 'Password mengandung pola yang umum digunakan';
+  }
+  return null;
 };
 
 /**

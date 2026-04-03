@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import {
   ChevronLeft,
   Camera,
@@ -42,26 +42,29 @@ interface FormErrors {
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<'personal' | 'education' | 'social'>('personal');
 
+  // Use available user fields with fallbacks
+  const displayName = user?.name || user?.email?.split('@')[0] || '';
+
   const [formData, setFormData] = useState<FormData>({
-    fullName: user?.fullName || '',
+    fullName: displayName,
     email: user?.email || '',
-    phone: user?.phone || '',
-    birthDate: user?.birthDate || '',
-    address: user?.address || '',
-    city: user?.city || '',
-    institution: user?.institution || '',
-    institutionType: user?.institutionType || '',
-    major: user?.major || '',
-    nim: user?.nim || '',
+    phone: '',
+    birthDate: '',
+    address: '',
+    city: '',
+    institution: '',
+    institutionType: '',
+    major: '',
+    nim: '',
     bio: '',
     linkedin: '',
     website: '',
@@ -141,25 +144,17 @@ const EditProfile = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    // Simulate API call
+
+    // TODO: Implement profile update via Supabase
+    // For now, simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Update user data
-    updateUser({
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      city: formData.city,
-      institution: formData.institution,
-      institutionType: formData.institutionType,
-      major: formData.major,
-      nim: formData.nim,
-    });
+    // Refresh user data from Supabase
+    await refreshUser();
 
     setIsLoading(false);
     setIsSuccess(true);
-    
+
     setTimeout(() => {
       setIsSuccess(false);
       navigate('/dashboard');
@@ -168,7 +163,7 @@ const EditProfile = () => {
 
   const inputClasses = (fieldName: string) => `
     w-full px-4 py-3 bg-white/[0.02] border rounded-xl font-body text-white
-    placeholder-white/30 focus:outline-none focus:border-kath-gold/50 transition-all
+    placeholder-white/50 focus:outline-none focus:border-kath-gold/50 transition-all
     ${errors[fieldName] ? 'border-red-500/50' : 'border-white/5'}
   `;
 

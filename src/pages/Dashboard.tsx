@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import {
   Mail,
-  Phone,
-  MapPin,
   Calendar,
-  Building2,
-  GraduationCap,
   Users,
   Trophy,
   Award,
@@ -85,8 +81,8 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -214,7 +210,9 @@ const Dashboard = () => {
     );
   }
 
-  const statusConfig = getStatusConfig(user.status);
+  // Use name from AuthUser (could be from user_metadata)
+  const displayName = user.name || user.email?.split('@')[0] || 'User';
+  const statusConfig = getStatusConfig('active'); // Default to active for Supabase auth users
 
   return (
     <div className="min-h-screen bg-kath-bg-main">
@@ -273,15 +271,15 @@ const Dashboard = () => {
               {/* User Menu */}
               <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-kath-bg-section">
                 <div className="text-right">
-                  <p className="font-body text-kath-text-primary text-sm font-medium">{user.fullName}</p>
-                  <p className="font-body text-kath-text-muted text-xs">{user.competitionCategory}</p>
+                  <p className="font-body text-kath-text-primary text-sm font-medium">{displayName}</p>
+                  <p className="font-body text-kath-text-muted text-xs">{user.role || 'Participant'}</p>
                 </div>
                 <div
                   onClick={() => navigate('/edit-profile')}
                   className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
                 >
                   <span className="font-display text-white text-lg">
-                    {user.fullName.charAt(0).toUpperCase()}
+                    {displayName.charAt(0).toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -353,7 +351,7 @@ const Dashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="font-display text-3xl sm:text-4xl text-kath-text-primary mb-2">
-                  Selamat Datang, <span className="text-kath-primary">{user.fullName.split(' ')[0]}</span>
+                  Selamat Datang, <span className="text-kath-primary">{displayName.split(' ')[0]}</span>
                 </h1>
                 <p className="font-body text-kath-text-secondary">
                   Kelola pendaftaran dan persiapan kompetisi Anda di sini
@@ -629,12 +627,12 @@ const Dashboard = () => {
                     className="w-16 h-16 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
                   >
                     <span className="font-display text-white text-2xl">
-                      {user.fullName.charAt(0).toUpperCase()}
+                      {displayName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-display text-lg text-kath-text-primary">{user.fullName}</h3>
-                    <p className="font-body text-kath-primary text-sm">{user.competitionCategory}</p>
+                    <h3 className="font-display text-lg text-kath-text-primary">{displayName}</h3>
+                    <p className="font-body text-kath-primary text-sm">{user.role || 'Participant'}</p>
                   </div>
                 </div>
 
@@ -643,24 +641,6 @@ const Dashboard = () => {
                     <Mail className="w-4 h-4 text-kath-text-muted" />
                     <span className="font-body text-kath-text-secondary">{user.email}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Phone className="w-4 h-4 text-kath-text-muted" />
-                    <span className="font-body text-kath-text-secondary">{user.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <MapPin className="w-4 h-4 text-kath-text-muted" />
-                    <span className="font-body text-kath-text-secondary">{user.city}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Building2 className="w-4 h-4 text-kath-text-muted" />
-                    <span className="font-body text-kath-text-secondary">{user.institution}</span>
-                  </div>
-                  {user.major && (
-                    <div className="flex items-center gap-3 text-sm">
-                      <GraduationCap className="w-4 h-4 text-kath-text-muted" />
-                      <span className="font-body text-kath-text-secondary">{user.major}</span>
-                    </div>
-                  )}
                 </div>
 
                 <button

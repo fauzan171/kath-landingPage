@@ -3,8 +3,8 @@ import type {
   NewsItem,
   NewsFormData,
   NewsQueryParams,
+  ApiResponse,
 } from './types';
-import type { ApiResponse } from './api';
 
 const ENDPOINT = '/news';
 

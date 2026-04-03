@@ -61,8 +61,8 @@ const MyCompetitions = () => {
       const query = searchQuery.toLowerCase();
       return (
         comp.name.toLowerCase().includes(query) ||
-        comp.category.toLowerCase().includes(query) ||
-        comp.organizer.toLowerCase().includes(query)
+        (comp.category?.toLowerCase().includes(query) ?? false) ||
+        (comp.organizer?.toLowerCase().includes(query) ?? false)
       );
     }
     return true;
@@ -261,7 +261,7 @@ const MyCompetitions = () => {
                   placeholder="Search competitions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/30 focus:outline-none focus:border-kath-gold/50"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50"
                 />
               </div>
               <button
@@ -298,7 +298,7 @@ const MyCompetitions = () => {
                       </span>
                     </div>
                     {comp.status === 'finished' && (
-                      <div className="absolute top-4 right-4">{getResultBadge(comp.result)}</div>
+                      <div className="absolute top-4 right-4">{getResultBadge(typeof comp.result === 'string' ? comp.result : undefined)}</div>
                     )}
                     <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
@@ -330,9 +330,9 @@ const MyCompetitions = () => {
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="w-4 h-4 text-white/40" />
                         <span className="font-body text-white/60">
-                          {new Date(comp.startDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
+                          {comp.startDate ? new Date(comp.startDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' }) : ''}
                           {' - '}
-                          {new Date(comp.endDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {comp.endDate ? new Date(comp.endDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
@@ -457,28 +457,32 @@ const MyCompetitions = () => {
                 <h3 className="font-body text-white/50 text-sm mb-2">Description</h3>
                 <p className="font-body text-white">{selectedCompetition.description}</p>
               </div>
-              <div>
-                <h3 className="font-body text-white/50 text-sm mb-2">Requirements</h3>
-                <ul className="space-y-2">
-                  {selectedCompetition.requirements.map((req, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-kath-gold mt-0.5" />
-                      <span className="font-body text-white/70 text-sm">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-body text-white/50 text-sm mb-2">Rules</h3>
-                <ul className="space-y-2">
-                  {selectedCompetition.rules.map((rule, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
-                      <span className="font-body text-white/70 text-sm">{rule}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {selectedCompetition.requirements && selectedCompetition.requirements.length > 0 && (
+                <div>
+                  <h3 className="font-body text-white/50 text-sm mb-2">Requirements</h3>
+                  <ul className="space-y-2">
+                    {selectedCompetition.requirements.map((req, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-kath-gold mt-0.5" />
+                        <span className="font-body text-white/70 text-sm">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {selectedCompetition.rules && selectedCompetition.rules.length > 0 && (
+                <div>
+                  <h3 className="font-body text-white/50 text-sm mb-2">Rules</h3>
+                  <ul className="space-y-2">
+                    {selectedCompetition.rules.map((rule, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
+                        <span className="font-body text-white/70 text-sm">{rule}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="p-6 border-t border-white/10 flex gap-3">
               <button

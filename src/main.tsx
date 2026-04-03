@@ -4,18 +4,21 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { LanguageProvider } from './contexts/LanguageContext.tsx'
-import { AuthProvider } from './contexts/AuthContext.tsx'
 import { SessionProvider } from './components/SessionProvider.tsx'
+
+/**
+ * Note: AuthProvider from AuthContext.tsx has been removed.
+ * Authentication now uses Supabase Auth via useAuth hook from '@/hooks/useAuth'.
+ * The AuthContext.tsx is deprecated and will be removed in a future version.
+ */
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <LanguageProvider>
-        <AuthProvider>
-          <SessionProvider>
-            <App />
-          </SessionProvider>
-        </AuthProvider>
+        <SessionProvider>
+          <App />
+        </SessionProvider>
       </LanguageProvider>
     </BrowserRouter>
   </StrictMode>,

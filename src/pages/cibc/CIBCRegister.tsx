@@ -24,10 +24,30 @@ import { supabase } from '@/lib/supabase';
 import { supabaseAuthService } from '@/services/supabase.service';
 import { competitionService, teamsService, paymentService } from '@/services/cibc.service';
 
+// Password strength validation regex
+const passwordRegex = {
+  uppercase: /[A-Z]/,
+  lowercase: /[a-z]/,
+  number: /[0-9]/,
+};
+
+// Custom password validation
+const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .refine(val => passwordRegex.uppercase.test(val), {
+    message: 'Password must contain at least one uppercase letter',
+  })
+  .refine(val => passwordRegex.lowercase.test(val), {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  .refine(val => passwordRegex.number.test(val), {
+    message: 'Password must contain at least one number',
+  });
+
 // Validation Schemas
 const step1Schema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   confirmPassword: z.string(),
   agreeToTerms: z.boolean().refine(val => val === true, {
     message: 'You must agree to the terms',
@@ -254,30 +274,44 @@ const CIBCRegister = () => {
         navigate('/cibc/pending-approval');
       } else {
         // Fallback to localStorage (mock mode)
+        // SECURITY: Do NOT store passwords in localStorage
         const userId = `user_${Date.now()}`;
         const teamId = `team_${Date.now()}`;
         const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
 
         const newUser = {
-          id: userId, email: step1Data.email, password: step1Data.password, fullName: step2Data.fullName,
-          category: step3Data.category, teamId: teamId, createdAt: new Date().toISOString(),
+          id: userId,
+          email: step1Data.email,
+          // Password is NOT stored - authentication is handled by Supabase
+          // For mock mode, we use simple email-based lookup
+          fullName: step2Data.fullName,
+          category: step3Data.category,
+          teamId: teamId,
+          createdAt: new Date().toISOString(),
           status: 'pending', // PENDING - needs admin approval
         };
 
         const newTeam = {
-          id: teamId, name: step4Data.teamName || `${step2Data.fullName}'s Team`, code: teamCode,
-          category: step3Data.category, leaderId: userId,
+          id: teamId,
+          name: step4Data.teamName || `${step2Data.fullName}'s Team`,
+          code: teamCode,
+          category: step3Data.category,
+          leaderId: userId,
           members: [{ id: `mem_${Date.now()}`, name: step2Data.fullName, email: step1Data.email, role: 'leader' as const, status: 'active' as const, institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName, joinedAt: new Date().toISOString() }],
-          maxMembers: step3Data.category === 'corporate' ? 10 : 5, createdAt: new Date().toISOString(), status: 'forming' as const,
+          maxMembers: step3Data.category === 'corporate' ? 10 : 5,
+          createdAt: new Date().toISOString(),
+          status: 'forming' as const,
           paymentStatus: paymentUploaded ? 'pending' : 'not_uploaded',
           paymentProof: paymentUploaded,
         };
 
         const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
-        users.push(newUser); localStorage.setItem('cibc_users', JSON.stringify(users));
+        users.push(newUser);
+        localStorage.setItem('cibc_users', JSON.stringify(users));
 
         const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
-        teams.push(newTeam); localStorage.setItem('cibc_teams', JSON.stringify(teams));
+        teams.push(newTeam);
+        localStorage.setItem('cibc_teams', JSON.stringify(teams));
 
         toast.success(language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!', {
           description: language === 'id'

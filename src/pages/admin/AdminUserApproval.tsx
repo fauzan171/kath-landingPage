@@ -78,7 +78,6 @@ const AdminUserApproval = () => {
         .from('users')
         .update({
           status: 'approved',
-          is_verified: true,
         })
         .eq('id', userId);
 

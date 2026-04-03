@@ -165,7 +165,7 @@ const CompetitionDetail = () => {
                 <div className="flex items-center gap-2 text-text-white/60">
                   <Calendar className="w-4 h-4" />
                   <span className="font-body text-sm">
-                    {new Date(competition.startDate).toLocaleDateString('id-ID')} - {new Date(competition.endDate).toLocaleDateString('id-ID')}
+                    {new Date(competition.startDate || '').toLocaleDateString('id-ID')} - {new Date(competition.endDate || '').toLocaleDateString('id-ID')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-text-white/60">
@@ -298,7 +298,7 @@ const CompetitionDetail = () => {
                 <div className="relative">
                   <div className="absolute left-5 top-0 bottom-0 w-px bg-white/10" />
                   <div className="space-y-6">
-                    {competition.timeline.map((event, index) => (
+                    {(competition.timeline || []).map((event, index) => (
                       <div key={index} className="relative flex gap-4">
                         <div
                           className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
@@ -329,7 +329,7 @@ const CompetitionDetail = () => {
                 <div>
                   <h3 className="font-display text-lg text-white mb-4">Submission Requirements</h3>
                   <ul className="space-y-3">
-                    {competition.requirements.map((req, index) => (
+                    {(competition.requirements || []).map((req, index) => (
                       <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
                         <CheckCircle2 className="w-5 h-5 text-kath-gold mt-0.5 flex-shrink-0" />
                         <span className="font-body text-white/70">{req}</span>
@@ -341,7 +341,7 @@ const CompetitionDetail = () => {
                 <div>
                   <h3 className="font-display text-lg text-white mb-4">Rules & Regulations</h3>
                   <ul className="space-y-3">
-                    {competition.rules.map((rule, index) => (
+                    {(competition.rules || []).map((rule, index) => (
                       <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
                         <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
                         <span className="font-body text-white/70">{rule}</span>
@@ -363,14 +363,14 @@ const CompetitionDetail = () => {
                         <span className="font-body text-emerald-400 font-medium">Submitted</span>
                       </div>
                       <p className="font-body text-text-white/60 text-sm">
-                        Submitted on {new Date(submission.submittedAt).toLocaleDateString('id-ID')}
+                        Submitted on {new Date(submission.submittedAt || submission.submitted_at || '').toLocaleDateString('id-ID')}
                       </p>
                     </div>
 
                     <div>
                       <h4 className="font-body text-white/50 text-sm mb-3">Files</h4>
                       <div className="space-y-2">
-                        {submission.files.map((file) => (
+                        {(submission.files || []).map((file) => (
                           <div
                             key={file.id}
                             className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl"

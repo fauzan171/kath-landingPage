@@ -11,6 +11,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Award } from 'lucide-react
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
+import { useCSRFToken } from '@/components/CSRFProtectedForm';
 
 const JudgeLogin = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const JudgeLogin = () => {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,14 +44,14 @@ const JudgeLogin = () => {
     try {
       const { data: { user } } = await supabase!.auth.getUser();
       if (user) {
-        // Check if user is a judge
-        const { data: roleData } = await supabase!
-          .from('user_roles')
+        // Check if user is a judge - get role from users table
+        const { data: userData } = await supabase!
+          .from('users')
           .select('role')
-          .eq('user_id', user.id)
-          .single();
+          .eq('id', user.id)
+          .maybeSingle();
 
-        if (roleData?.role === 'judge') {
+        if (userData?.role === 'judge') {
           navigate('/judge');
         }
       }
@@ -77,6 +79,16 @@ const JudgeLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // CSRF Token validation
+    const formElement = e.target as HTMLFormElement;
+    const submittedToken = new FormData(formElement).get('csrfToken') as string;
+    if (!validateCSRF(submittedToken)) {
+      toast.error('Security validation failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -97,14 +109,14 @@ const JudgeLogin = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Check if user is a judge
-        const { data: roleData } = await supabase!
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id)
-          .single();
+        // Check if user is a judge - get role from users table
+        const { data: userData } = await supabase!
+          .from('users')
+          .select('role, name')
+          .eq('id', data.user.id)
+          .maybeSingle();
 
-        const role = roleData?.role;
+        const role = userData?.role;
 
         if (role !== 'judge') {
           await supabase!.auth.signOut();
@@ -115,14 +127,7 @@ const JudgeLogin = () => {
           return;
         }
 
-        // Get user info
-        const { data: userData } = await supabase!
-          .from('users')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
-        // Store session
+        // Store session - use userData we already fetched
         localStorage.setItem('cibc_current_user', JSON.stringify({
           id: data.user.id,
           email: data.user.email,
@@ -175,6 +180,7 @@ const JudgeLogin = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            <input type="hidden" name="csrfToken" value={csrfToken} />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address

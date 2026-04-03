@@ -1,6 +1,5 @@
 import { get, post, put, del } from './api';
-import type { FeaturedEvent, FeaturedEventFormData } from './types';
-import type { ApiResponse } from './api';
+import type { FeaturedEvent, FeaturedEventFormData, ApiResponse } from './types';
 
 const ENDPOINT = '/featured-events';
 

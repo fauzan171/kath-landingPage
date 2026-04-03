@@ -35,8 +35,8 @@ const AdminSubmissions = () => {
     if (!selectedSubmission) return;
     setGradingId(selectedSubmission.id);
     try {
-      const adminId = 'admin'; // TODO: Get from auth
-      await submissionsService.grade(selectedSubmission.id, gradeForm.score, gradeForm.feedback, adminId);
+      // TODO: Get admin ID from auth context
+      await submissionsService.grade(selectedSubmission.id, gradeForm.score, undefined, gradeForm.feedback);
       toast.success('Submission graded!');
       load();
       setSelectedSubmission(null);

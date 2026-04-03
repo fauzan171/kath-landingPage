@@ -74,9 +74,11 @@ export const isSupabaseConfigured = (): boolean => {
 
 /**
  * Check if n8n webhook is configured
+ * Returns false if URL is empty or contains placeholder values
  */
 export const isN8nConfigured = (): boolean => {
-  return Boolean(env.n8nWebhookUrl);
+  const url = env.n8nWebhookUrl;
+  return Boolean(url && !url.includes('your-n8n-instance') && !url.includes('example.com'));
 };
 
 /**

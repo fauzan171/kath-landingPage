@@ -16,6 +16,12 @@ import { Label } from '@/components/ui/label';
 // import { Checkbox } from '@/components/ui/checkbox';
 import { supabaseAuthService } from '@/services/supabase.service';
 import { isSupabaseConfigured, env } from '@/config/environment';
+import { useCSRFToken } from '@/components/CSRFProtectedForm';
+import { verifyPassword } from '@/utils/security';
+
+// Fixed test password for mock mode development only
+// SECURITY: This must NEVER be used in production
+const MOCK_TEST_PASSWORD = 'TestPass123!';
 
 const CIBCLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +33,7 @@ const CIBCLogin: React.FC = () => {
     rememberMe: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
 
   // Scroll to top on mount
   useEffect(() => {
@@ -88,6 +95,15 @@ const CIBCLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // CSRF Token validation
+    const formElement = e.target as HTMLFormElement;
+    const submittedToken = new FormData(formElement).get('csrfToken') as string;
+    if (!validateCSRF(submittedToken)) {
+      toast.error('Security validation failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -95,7 +111,7 @@ const CIBCLogin: React.FC = () => {
     try {
       // Try mock login first if useMockData is true
       if (env.useMockData) {
-        const mockUser = mockLogin(formData.email, formData.password);
+        const mockUser = await mockLogin(formData.email, formData.password);
         if (mockUser) {
           toast.success('Welcome back!', {
             description: 'Login successful. Redirecting to dashboard...',
@@ -120,29 +136,51 @@ const CIBCLogin: React.FC = () => {
         // Get user details from users table
         const { supabase } = await import('@/lib/supabase');
         if (supabase) {
-          const { data: userData } = await supabase
+          const { data: userData, error: userError } = await supabase
             .from('users')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
-          // Get user role
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('*')
-            .eq('user_id', user.id)
-            .single();
+          // Log for debugging (only errors, not user data)
+          if (userError) {
+            console.error('[Login] Error fetching user data');
+          }
 
-          const userRole = roleData?.role || 'participant';
+          // Get user role from users table (role column exists in users table)
+          const userRole = userData?.role || 'participant';
 
           // ============================================
           // ADMIN APPROVAL CHECK
           // ============================================
           // Admins can always login
           if (userRole !== 'admin' && userRole !== 'super_admin') {
+            // Check if user record exists
+            if (!userData) {
+              console.warn('[Login] No user record found in users table for:', user.id);
+              // User record doesn't exist - this might happen if trigger didn't fire
+              // Create the user record now
+              await supabase
+                .from('users')
+                .insert({
+                  id: user.id,
+                  email: user.email,
+                  name: user.user_metadata?.name || user.email?.split('@')[0],
+                  status: 'pending',
+                  role: 'participant',
+                });
+
+              toast.warning('Account Pending Approval', {
+                description: 'Your account is waiting for admin approval. Please check your email for confirmation.',
+              });
+              await supabaseAuthService.signOut();
+              navigate('/cibc/pending-approval');
+              return;
+            }
+
             // Check if user is approved
             // Status: 'pending' = waiting approval, 'approved' = can login, 'rejected' = blocked
-            const userStatus = userData?.status || 'pending';
+            const userStatus = userData.status || 'pending';
 
             if (userStatus === 'pending') {
               // Sign out the user immediately
@@ -201,29 +239,72 @@ const CIBCLogin: React.FC = () => {
     }
   };
 
-  // Mock login for testing
-  const mockLogin = (email: string, password: string) => {
+  /**
+   * Mock login for development/testing ONLY
+   * SECURITY FIX P0-001: Prevents password bypass vulnerability
+   *
+   * This function:
+   * 1. BLOCKS execution in production environment
+   * 2. Requires password validation even in mock mode
+   * 3. Logs clear warnings when mock mode is active
+   */
+  const mockLogin = async (email: string, password: string): Promise<{ id: string; email: string; fullName: string; category: string; teamId?: string; teamName?: string } | null> => {
+    // SECURITY: Block mock login in production environment
+    if (env.environment === 'production') {
+      console.error('[SECURITY] Mock login attempted in production environment. This is blocked.');
+      throw new Error('Mock login is disabled in production environment');
+    }
+
+    // SECURITY: Warn developers that mock mode is active
+    console.warn('=============================================');
+    console.warn('MOCK LOGIN ACTIVE - DO NOT USE IN PRODUCTION');
+    console.warn('Environment:', env.environment);
+    console.warn('=============================================');
+
     const USERS_KEY = 'cibc_users';
     const stored = localStorage.getItem(USERS_KEY);
     const users = stored ? JSON.parse(stored) : [];
 
-    const user = users.find((u: { email: string; password: string }) =>
-      u.email === email && u.password === password
+    // Find user by email (case-insensitive)
+    const user = users.find((u: { email: string }) =>
+      u.email.toLowerCase() === email.toLowerCase()
     );
 
-    if (user) {
-      localStorage.setItem('cibc_current_user', JSON.stringify({
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        category: user.category,
-        role: 'participant',
-        teamId: user.teamId,
-        teamName: user.teamName,
-      }));
-      return user;
+    if (!user) {
+      return null;
     }
-    return null;
+
+    // SECURITY: Password validation is REQUIRED even in mock mode
+    // Option 1: If user has a stored password hash, verify against it
+    if (user.passwordHash) {
+      const isValid = await verifyPassword(password, user.passwordHash);
+      if (!isValid) {
+        console.warn('[Mock Login] Invalid password for user:', email);
+        return null;
+      }
+    } else {
+      // Option 2: If no stored hash, require the fixed test password
+      // This ensures mock login still requires password knowledge
+      if (password !== MOCK_TEST_PASSWORD) {
+        console.warn('[Mock Login] Invalid test password. Hint: Check MOCK_TEST_PASSWORD constant');
+        return null;
+      }
+      console.info('[Mock Login] Using test password for user without stored hash');
+    }
+
+    // Login successful - store session info
+    localStorage.setItem('cibc_current_user', JSON.stringify({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      category: user.category,
+      role: user.role || 'participant',
+      teamId: user.teamId,
+      teamName: user.teamName,
+    }));
+
+    console.info('[Mock Login] Successful login for:', email);
+    return user;
   };
 
   const stats = [
@@ -310,6 +391,7 @@ const CIBCLogin: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            <input type="hidden" name="csrfToken" value={csrfToken} />
             <div>
               <Label htmlFor="email" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                 Email Address

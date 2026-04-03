@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import {
   User,
   Mail,
@@ -203,22 +203,21 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await register({
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        birthDate: formData.birthDate,
-        address: formData.address,
-        city: formData.city,
-        institution: formData.institution,
-        institutionType: formData.institutionType,
-        major: formData.major || undefined,
-        nim: formData.nim || undefined,
-        competitionCategory: formData.competitionCategory,
-        teamName: formData.teamName || undefined,
-        teamMembers: formData.teamMembers || undefined,
-      });
+      // Register with Supabase Auth
+      const result = await register(
+        formData.email,
+        formData.password,
+        {
+          name: formData.fullName,
+          phone: formData.phone,
+          institution: formData.institution,
+          institutionType: formData.institutionType,
+          major: formData.major,
+          nim: formData.nim,
+          competitionCategory: formData.competitionCategory,
+          teamName: formData.teamName,
+        }
+      );
 
       if (result.success) {
         setSubmitSuccess(true);
