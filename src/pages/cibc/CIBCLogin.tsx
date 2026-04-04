@@ -40,19 +40,38 @@ const CIBCLogin: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Check if already logged in
+  // Check if already logged in — also checks approval status to prevent loop
   useEffect(() => {
     const checkSession = async () => {
       if (!isSupabaseConfigured()) return;
 
       try {
         const user = await supabaseAuthService.getCurrentUser();
-        if (user) {
-          // Already logged in, redirect to dashboard
+        if (!user) return;
+
+        // Check status in users table before redirecting
+        const { supabase } = await import('@/lib/supabase');
+        if (!supabase) return;
+
+        const { data: userData } = await supabase
+          .from('users')
+          .select('status, role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        const userStatus = userData?.status || 'pending';
+        const userRole = userData?.role || 'participant';
+
+        if (userStatus === 'pending') {
+          // Don't loop — user is pending, stay on login or go to pending page
+          navigate('/cibc/pending-approval');
+        } else if (userRole === 'admin' || userRole === 'super_admin') {
+          navigate('/admin');
+        } else {
           navigate('/cibc/dashboard');
         }
-      } catch (error) {
-        console.log('No active session');
+      } catch {
+        // No active session — stay on login page
       }
     };
     checkSession();
@@ -130,7 +149,7 @@ const CIBCLogin: React.FC = () => {
       }
 
       // Sign in with Supabase Auth
-      const { user } = await supabaseAuthService.signIn(formData.email, formData.password);
+      const { user } = await supabaseAuthService.signIn(formData.email.trim(), formData.password);
 
       if (user) {
         // Get user details from users table
@@ -179,29 +198,38 @@ const CIBCLogin: React.FC = () => {
             }
 
             // Check if user is approved
-            // Status: 'pending' = waiting approval, 'approved' = can login, 'rejected' = blocked
             const userStatus = userData.status || 'pending';
 
             if (userStatus === 'pending') {
-              // Sign out the user immediately
               await supabaseAuthService.signOut();
-
               toast.warning('Account Pending Approval', {
-                description: 'Your account is waiting for admin approval. Please check your email for confirmation.',
+                description: 'Akun Anda sedang menunggu persetujuan admin.',
               });
-
-              // Redirect to pending approval page
               navigate('/cibc/pending-approval');
               return;
             }
 
             if (userStatus === 'rejected') {
-              // Sign out the user immediately
               await supabaseAuthService.signOut();
-
               toast.error('Account Rejected', {
-                description: userData?.rejection_reason || 'Your registration was not approved. Contact support for more information.',
+                description: userData?.rejection_reason || 'Registrasi Anda tidak disetujui. Hubungi panitia.',
               });
+              return;
+            }
+
+            // ✅ Cek force_password_change — user pakai password sementara dari admin
+            if (userData?.force_password_change === true) {
+              localStorage.setItem('cibc_current_user', JSON.stringify({
+                id: user.id,
+                email: user.email,
+                fullName: userData?.name || user.email?.split('@')[0],
+                category: userData?.category || 'student',
+                role: userRole,
+              }));
+              toast.warning('Ganti Password', {
+                description: 'Anda login dengan password sementara. Harap buat password permanen Anda.',
+              });
+              navigate('/cibc/change-password');
               return;
             }
           }

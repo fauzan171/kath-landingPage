@@ -511,7 +511,7 @@ VALUES (
 
 -- ============================================
 -- SELESAI!
--- ============================================
+-- ============================================l
 -- Setelah menjalankan SQL ini:
 -- 1. Set admin: UPDATE users SET role = 'super_admin', status = 'approved' WHERE email = 'email-admin';
 -- 2. Test: Register user baru -> Login admin -> Approve -> Login user

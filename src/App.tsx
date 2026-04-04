@@ -47,6 +47,7 @@ import PendingApproval from './pages/cibc/PendingApproval';
 import ForgotPassword from './pages/cibc/ForgotPassword';
 import VerifyEmail from './pages/cibc/VerifyEmail';
 import ResetPassword from './pages/cibc/ResetPassword';
+import ChangePassword from './pages/cibc/ChangePassword';
 
 // Admin Pages
 import {
@@ -75,6 +76,11 @@ import {
   AdminLeaderboard,
   AdminJudges,
 } from './pages/admin';
+import AdminRegistrationsHub from './pages/admin/AdminRegistrationsHub';
+import AdminCompetitionSetup from './pages/admin/AdminCompetitionSetup';
+import AdminJudgingHub from './pages/admin/AdminJudgingHub';
+import AdminUsersHub from './pages/admin/AdminUsersHub';
+import AdminCommunicationsHub from './pages/admin/AdminCommunicationsHub';
 
 // Judge Pages
 import {
@@ -174,6 +180,7 @@ function App() {
       <Route path="/cibc/forgot-password" element={<ForgotPassword />} />
       <Route path="/cibc/verify-email" element={<VerifyEmail />} />
       <Route path="/cibc/reset-password" element={<ResetPassword />} />
+      <Route path="/cibc/change-password" element={<ChangePassword />} />
       <Route path="/cibc/dashboard" element={<ParticipantRoute><CIBCDashboard /></ParticipantRoute>} />
 
       {/* Admin Routes - Protected */}
@@ -191,6 +198,13 @@ function App() {
         <Route path="contact" element={<AdminContact />} />
         <Route path="settings" element={<AdminSettings />} />
         {/* Competition Management */}
+        {/* Hub Routes (merged pages with tabs) */}
+        <Route path="registrations-hub" element={<AdminRegistrationsHub />} />
+        <Route path="competition-setup" element={<AdminCompetitionSetup />} />
+        <Route path="judging" element={<AdminJudgingHub />} />
+        <Route path="users-hub" element={<AdminUsersHub />} />
+        <Route path="communications" element={<AdminCommunicationsHub />} />
+        {/* Individual routes (kept for backward compat) */}
         <Route path="registrations" element={<AdminRegistrations />} />
         <Route path="stages" element={<AdminStages />} />
         <Route path="tasks" element={<AdminTasks />} />

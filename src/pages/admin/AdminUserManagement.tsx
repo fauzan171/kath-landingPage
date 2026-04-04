@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import {
   Search, Users, Mail, Building, Loader2, Key, Copy, CheckCircle,
-  AlertCircle, RefreshCw, Eye, EyeOff, Shield, UserX
+  RefreshCw, Eye, EyeOff, Shield, UserX
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -54,6 +54,9 @@ const AdminUserManagement = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [customPassword, setCustomPassword] = useState('');
   const [useCustomPassword, setUseCustomPassword] = useState(false);
+  // Mode: 'email' = kirim link reset ke user | 'generate' = generate password manual
+  const [resetMode, setResetMode] = useState<'email' | 'generate'>('email');
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -130,51 +133,127 @@ const AdminUserManagement = () => {
     setCustomPassword('');
     setUseCustomPassword(false);
     setResetResult(null);
+    setResetMode('email');
+    setEmailSent(false);
     setShowResetModal(true);
   };
 
   // ============================================
-  // Reset Password
+  // Set Temp Password via Admin API
   // ============================================
 
-  const handleResetPassword = async () => {
-    if (!selectedUser) return;
-
+  const handleSetTempPassword = async () => {
+    if (!selectedUser || !supabase) return;
     const passwordToUse = useCustomPassword ? customPassword : newPassword;
-
     if (!passwordToUse || passwordToUse.length < 8) {
-      toast.error('Password must be at least 8 characters');
+      toast.error('Password minimal 8 karakter');
       return;
     }
-
     setIsResetting(true);
-
     try {
-      if (!supabase) throw new Error('Supabase not configured');
+      const { supabaseAdmin, isAdminClientConfigured } = await import('@/lib/supabaseAdmin');
 
-      // In production, this should call a Supabase Edge Function with service_role key
-      // to update the user's password via admin API.
-      // For now, we generate and display the password for the admin to give to the user.
+      if (!isAdminClientConfigured() || !supabaseAdmin) {
+        // Fallback: tampilkan saja tanpa update Auth
+        toast.warning('Service Role Key belum dikonfigurasi. Sampaikan password ke user secara manual.', { duration: 6000 });
+        setResetResult({ userId: selectedUser.id, email: selectedUser.email, newPassword: passwordToUse });
+        setIsResetting(false);
+        return;
+      }
 
-      // TODO: Call Edge Function like:
-      // const { error } = await supabase.functions.invoke('reset-user-password', {
-      //   body: { userId: selectedUser.id, newPassword: passwordToUse }
-      // });
+      let authUserId = selectedUser.id;
 
-      // For development - just show the password
-      // In production, the Edge Function would handle the actual password reset
+      // Coba update password via Admin API
+      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+        selectedUser.id,
+        { password: passwordToUse }
+      );
 
-      // Store reset result
+      if (updateError) {
+        if (updateError.message?.includes('User not found') || (updateError as { code?: string }).code === 'user_not_found') {
+          // User tidak ada di auth.users — buat akun baru di Auth
+          toast.loading('User belum terdaftar di Auth. Membuat akun...', { id: 'creating-auth' });
+
+          const { data: newAuthUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email: selectedUser.email,
+            password: passwordToUse,
+            email_confirm: true,   // langsung verified, tanpa perlu konfirmasi email
+          });
+
+          toast.dismiss('creating-auth');
+          if (createError) throw createError;
+          if (!newAuthUser?.user) throw new Error('Gagal membuat akun Auth');
+
+          authUserId = newAuthUser.user.id;
+
+          // Sinkronkan ID baru ke public.users
+          if (authUserId !== selectedUser.id) {
+            // Jika ID berbeda, update public.users (jarang terjadi tapi aman)
+            await supabase.from('users').update({ id: authUserId }).eq('id', selectedUser.id);
+          }
+
+          toast.success('Akun Auth berhasil dibuat untuk user ini.');
+        } else {
+          throw updateError;
+        }
+      }
+
+      // Tandai force_password_change = true
+      await supabase
+        .from('users')
+        .update({
+          force_password_change: true,
+          temp_password_set_at: new Date().toISOString(),
+        })
+        .eq('id', authUserId);
+
+      // Update status request (jika ada)
+      await supabase
+        .from('password_reset_requests')
+        .update({ status: 'processed', processed_at: new Date().toISOString() })
+        .eq('user_id', authUserId)
+        .eq('status', 'pending');
+
+      setResetResult({
+        userId: authUserId,
+        email: selectedUser.email,
+        newPassword: passwordToUse,
+      });
+
+      toast.success(`Password sementara berhasil diset untuk ${selectedUser.email}`);
+    } catch (err) {
+      console.error('Error setting temp password:', err);
+      const msg = err instanceof Error ? err.message : 'Gagal set password.';
+      toast.error(msg);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  // ============================================
+  // Generate & Show Password (manual delivery)
+  // ============================================
+
+  const handleGeneratePassword = async () => {
+    if (!selectedUser) return;
+    const passwordToUse = useCustomPassword ? customPassword : newPassword;
+    if (!passwordToUse || passwordToUse.length < 8) {
+      toast.error('Password minimal 8 karakter');
+      return;
+    }
+    setIsResetting(true);
+    try {
+      // Store for display — admin must manually share this with the user
+      // The user then uses Forgot Password flow or admin can use service_role
       setResetResult({
         userId: selectedUser.id,
         email: selectedUser.email,
         newPassword: passwordToUse,
       });
-
-      toast.success('Password generated! Give this to the user.');
-    } catch (error) {
-      console.error('Error resetting password:', error);
-      toast.error('Failed to reset password');
+      toast.success('Password siap, berikan ke user secara manual.');
+    } catch (err) {
+      console.error('Error generating password:', err);
+      toast.error('Gagal generate password.');
     } finally {
       setIsResetting(false);
     }
@@ -200,6 +279,8 @@ const AdminUserManagement = () => {
     setNewPassword('');
     setCustomPassword('');
     setUseCustomPassword(false);
+    setResetMode('email');
+    setEmailSent(false);
   };
 
   // ============================================
@@ -428,88 +509,106 @@ const AdminUserManagement = () => {
       {showResetModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
                 <Key className="w-6 h-6 text-amber-600" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900">Reset Password</h3>
-                <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                <h3 className="font-bold text-gray-900">Reset Password User</h3>
+                <p className="text-sm text-gray-500 break-all">{selectedUser.email}</p>
               </div>
             </div>
 
-            {resetResult ? (
-              // Success Result
+            {/* Mode Tabs */}
+            {!resetResult && !emailSent && (
+              <div className="flex gap-1 p-1 bg-gray-100 rounded-xl mb-5">
+                <button
+                  onClick={() => setResetMode('email')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    resetMode === 'email' ? 'bg-white text-amber-600 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  📧 Kirim Email Link
+                </button>
+                <button
+                  onClick={() => setResetMode('generate')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    resetMode === 'generate' ? 'bg-white text-amber-600 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  ✏️ Custom Password
+                </button>
+              </div>
+            )}
+
+            {/* SET TEMP PASSWORD MODE — auto generate */}
+            {resetMode === 'email' && !resetResult && (
               <div className="space-y-4">
-                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-green-800">Password Reset Successful!</span>
-                  </div>
-                  <p className="text-sm text-green-700 mb-4">
-                    Berikan password baru ini kepada user:
-                  </p>
-                  <div className="bg-white rounded-lg p-3 border border-green-200">
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="text-lg font-mono font-bold text-gray-800 break-all">
-                        {resetResult.newPassword}
-                      </code>
-                      <button
-                        onClick={() => copyToClipboard(resetResult.newPassword)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-                      >
-                        <Copy className="w-5 h-5 text-gray-600" />
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                  <p className="text-sm text-blue-800 font-semibold mb-1">Cara Kerja:</p>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>1. Admin set password sementara untuk user</li>
+                    <li>2. Admin sampaikan password ke user (WA/chat)</li>
+                    <li>3. User login → wajib buat password permanen</li>
+                  </ul>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password Sementara (Auto-Generated)</label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        readOnly
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-mono text-sm pr-12"
+                      />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
+                    <button onClick={() => setNewPassword(generateRandomPassword())}
+                      className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors" title="Generate Ulang">
+                      <RefreshCw className="w-5 h-5 text-gray-600" />
+                    </button>
                   </div>
                 </div>
-
-                <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-amber-800 font-medium">Important:</p>
-                      <ul className="text-sm text-amber-700 mt-1 space-y-1">
-                        <li>• User harus segera mengganti password setelah login</li>
-                        <li>• Password ini hanya ditampilkan sekali</li>
-                        <li>• Simpan dengan aman sebelum menutup modal ini</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => copyToClipboard(resetResult.newPassword)}
-                    className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Copy className="w-4 h-4" />
-                    Copy Password
+                <div className="flex gap-3 pt-1">
+                  <button onClick={closeModal} className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Batal
                   </button>
                   <button
-                    onClick={closeModal}
-                    className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    onClick={handleSetTempPassword}
+                    disabled={isResetting}
+                    className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Close
+                    {isResetting ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Proses...</>
+                    ) : (
+                      <><Key className="w-4 h-4" /> Set Password Sementara</>
+                    )}
                   </button>
                 </div>
               </div>
-            ) : (
-              // Reset Form
-              <div className="space-y-4">
-                <p className="text-gray-600">
-                  Generate password baru untuk user ini atau masukkan password custom.
-                </p>
+            )}
 
-                {/* Password Type Toggle */}
-                <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+            {/* GENERATE PASSWORD MODE */}
+            {resetMode === 'generate' && !resetResult && (
+              <div className="space-y-4">
+                <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                  <p className="text-sm text-amber-800">
+                    ⚠️ Password ini <strong>hanya ditampilkan sekali</strong>. Admin harus menyampaikan password baru ini ke user secara manual (via WhatsApp/email/chat).
+                  </p>
+                </div>
+
+                {/* Toggle auto/custom */}
+                <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
                   <button
                     onClick={() => setUseCustomPassword(false)}
                     className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                      !useCustomPassword
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
+                      !useCustomPassword ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
                     }`}
                   >
                     Auto Generate
@@ -517,21 +616,16 @@ const AdminUserManagement = () => {
                   <button
                     onClick={() => setUseCustomPassword(true)}
                     className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                      useCustomPassword
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
+                      useCustomPassword ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
                     }`}
                   >
-                    Custom Password
+                    Custom
                   </button>
                 </div>
 
                 {!useCustomPassword ? (
-                  // Auto Generated Password
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Generated Password
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Generated Password</label>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <input
@@ -540,75 +634,88 @@ const AdminUserManagement = () => {
                           readOnly
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-mono text-sm pr-12"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
+                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
-                      <button
-                        onClick={() => setNewPassword(generateRandomPassword())}
-                        className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-                        title="Generate New"
-                      >
+                      <button onClick={() => setNewPassword(generateRandomPassword())}
+                        className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors" title="Generate New">
                         <RefreshCw className="w-5 h-5 text-gray-600" />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  // Custom Password Input
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Custom Password
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Custom Password</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={customPassword}
                         onChange={(e) => setCustomPassword(e.target.value)}
-                        placeholder="Min 8 characters"
+                        placeholder="Min 8 karakter"
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono text-sm pr-12"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                     {customPassword && customPassword.length < 8 && (
-                      <p className="text-xs text-red-500 mt-1">Password must be at least 8 characters</p>
+                      <p className="text-xs text-red-500 mt-1">Password minimal 8 karakter</p>
                     )}
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={closeModal}
-                    className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
+                <div className="flex gap-3 pt-1">
+                  <button onClick={closeModal} className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Batal
                   </button>
                   <button
-                    onClick={handleResetPassword}
+                    onClick={handleGeneratePassword}
                     disabled={isResetting || (useCustomPassword && customPassword.length < 8)}
-                    className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isResetting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Resetting...
-                      </>
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Proses...</>
                     ) : (
-                      <>
-                        <Key className="w-4 h-4" />
-                        Reset Password
-                      </>
+                      <><Key className="w-4 h-4" /> Tampilkan Password</>
                     )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* GENERATE PASSWORD RESULT */}
+            {resetResult && (
+              <div className="space-y-4">
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span className="font-semibold text-green-800">Password Berhasil Dibuat</span>
+                  </div>
+                  <p className="text-sm text-green-700 mb-3">Salin dan sampaikan ke user via WhatsApp/email:</p>
+                  <div className="bg-white rounded-lg p-3 border border-green-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <code className="text-base font-mono font-bold text-gray-800 break-all">{resetResult.newPassword}</code>
+                      <button onClick={() => copyToClipboard(resetResult.newPassword)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+                        <Copy className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-xl p-3 border border-red-100">
+                  <p className="text-xs text-red-700">⚠️ <strong>Catatan:</strong> Fitur ini hanya menampilkan password. Admin perlu menyampaikannya ke user, dan user harus masuk ke Supabase Dashboard untuk mengupdate password mereka — ATAU gunakan mode "Kirim Email Link" untuk reset yang lebih aman dan otomatis.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => copyToClipboard(resetResult.newPassword)}
+                    className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
+                    <Copy className="w-4 h-4" /> Copy Password
+                  </button>
+                  <button onClick={closeModal}
+                    className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Tutup
                   </button>
                 </div>
               </div>

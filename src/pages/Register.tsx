@@ -72,6 +72,7 @@ const Register = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [emailExists, setEmailExists] = useState(false); // Track if email already exists
   const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, setFormData] = useState<FormData>({
@@ -201,6 +202,7 @@ const Register = () => {
     }
 
     setIsSubmitting(true);
+    setEmailExists(false);
 
     try {
       // Register with Supabase Auth
@@ -226,6 +228,10 @@ const Register = () => {
         }, 2000);
       } else {
         setSubmitError(result.message);
+        // Check if error is about email already exists
+        if (result.message.includes('sudah terdaftar') || result.message.includes('already')) {
+          setEmailExists(true);
+        }
       }
     } catch (error) {
       setSubmitError('Terjadi kesalahan. Silakan coba lagi.');
@@ -326,9 +332,22 @@ const Register = () => {
         {/* Form Card */}
         <div className="bg-white border border-kath-bg-section rounded-3xl p-6 md:p-8 shadow-xl shadow-kath-primary/5">
           {submitError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <p className="font-body text-red-600 text-sm">{submitError}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-body text-red-600 text-sm">{submitError}</p>
+                  {emailExists && (
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center gap-1 mt-2 text-sm font-medium text-kath-primary hover:text-kath-primary-dark transition-colors"
+                    >
+                      Klik di sini untuk login
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

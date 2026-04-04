@@ -42,7 +42,13 @@ export const supabaseAuthService = {
       },
     });
 
-    if (error) throw error;
+    if (error) {
+      // Handle specific error codes
+      if (error.message?.includes('user_already_exists') || error.code === 'user_already_exists') {
+        throw new Error('Email sudah terdaftar. Silakan login dengan akun Anda.');
+      }
+      throw error;
+    }
     return data;
   },
 

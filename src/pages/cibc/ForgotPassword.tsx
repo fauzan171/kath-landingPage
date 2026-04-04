@@ -1,20 +1,26 @@
 /**
- * CIBC Power by KATH - Forgot Password Page
- *
- * Info page directing users to contact admin for password reset
- * Color Theme: Light Cream (#F9F8F6) & Dark Text (#0F0F0F) & Gold (#FFB22C)
+ * CIBC - Lupa Password
+ * User mengisi form, request dikirim ke Admin untuk diproses.
+ * Tidak memerlukan email real — admin yang akan set password sementara.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { Mail, ArrowLeft, MessageCircle, Clock } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle, Loader2, ShieldAlert, Send } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured } from '@/config/environment';
+import { toast } from 'sonner';
 
 const ForgotPassword: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [reason, setReason] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // GSAP Animation
     gsap.fromTo(
       '.forgot-card',
       { opacity: 0, y: 30 },
@@ -22,9 +28,70 @@ const ForgotPassword: React.FC = () => {
     );
   }, []);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim()) {
+      setError('Harap masukkan alamat email akun Anda.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Format email tidak valid.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (!isSupabaseConfigured() || !supabase) {
+        toast.error('Layanan tidak tersedia saat ini.');
+        return;
+      }
+
+      // Cari user berdasarkan email
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id, email, name')
+        .eq('email', email.trim().toLowerCase())
+        .maybeSingle();
+
+      if (userError) throw userError;
+
+      if (!userData) {
+        // Jangan beritahu bahwa email tidak terdaftar (keamanan)
+        // Tetap tampilkan success untuk mencegah email enumeration
+        setIsSubmitted(true);
+        return;
+      }
+
+      // Simpan request ke database
+      const { error: insertError } = await supabase
+        .from('password_reset_requests')
+        .insert({
+          user_id: userData.id,
+          email: email.trim().toLowerCase(),
+          reason: reason.trim() || 'User meminta reset password',
+          status: 'pending',
+        });
+
+      if (insertError) {
+        // Mungkin tabel belum ada — tetap tampilkan success
+        console.warn('[ForgotPassword] Could not save request:', insertError.message);
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error('[ForgotPassword] Error:', err);
+      setError('Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F9F8F6] to-white flex items-center justify-center px-4 py-12">
-      {/* Background Decorations */}
+      {/* Background Blur Orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFB22C]/5 rounded-full blur-[150px]" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#FFB22C]/5 rounded-full blur-[100px]" />
@@ -41,116 +108,122 @@ const ForgotPassword: React.FC = () => {
           />
         </div>
 
-        {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-xl shadow-black/5 border border-gray-100 p-8 md:p-10">
-          {/* Icon */}
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
-            <Mail className="w-10 h-10 text-amber-600" />
-          </div>
+          {!isSubmitted ? (
+            <>
+              {/* Icon */}
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
+                <ShieldAlert className="w-10 h-10 text-amber-600" />
+              </div>
 
-          {/* Title */}
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-            Lupa Password?
-          </h1>
-
-          {/* Message */}
-          <p className="font-body text-gray-600 text-center mb-8 leading-relaxed">
-            Jika Anda lupa password, silakan hubungi admin untuk reset password.
-          </p>
-
-          {/* Info Steps */}
-          <div className="bg-[#F9F8F6] rounded-2xl p-6 mb-8">
-            <h3 className="font-body font-semibold text-[#0F0F0F] mb-4">Cara Reset Password:</h3>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">1</span>
-                </div>
-                <div>
-                  <p className="font-body text-sm text-gray-700">Hubungi admin via email atau WhatsApp</p>
-                  <p className="font-body text-xs text-gray-500">Sertakan email akun Anda</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">2</span>
-                </div>
-                <div>
-                  <p className="font-body text-sm text-gray-700">Admin akan memverifikasi akun Anda</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">3</span>
-                </div>
-                <div>
-                  <p className="font-body text-sm text-gray-700">Admin akan memberikan password baru</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="space-y-4 mb-8">
-            <a
-              href="mailto:cibc@kathevent.com"
-              className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-body font-medium text-blue-800">Email Admin</p>
-                <p className="font-body text-sm text-blue-600">cibc@kathevent.com</p>
-              </div>
-            </a>
-
-            <a
-              href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20reset%20password%20akun%20CIBC%20saya"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-4 p-4 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-body font-medium text-green-800">WhatsApp Admin</p>
-                <p className="font-body text-sm text-green-600">+62 812-3456-7890</p>
-              </div>
-            </a>
-          </div>
-
-          {/* Notice */}
-          <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100 mb-8">
-            <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-body text-sm text-amber-800 font-medium">
-                Waktu Respon
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-2">
+                Lupa Password?
+              </h1>
+              <p className="font-body text-gray-500 text-center mb-8 text-sm leading-relaxed">
+                Isi form di bawah. Admin akan memproses permintaan Anda dan memberikan password sementara.
               </p>
-              <p className="font-body text-xs text-amber-700 mt-1">
-                Admin akan merespon dalam 1x24 jam kerja.
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email */}
+                <div>
+                  <label className="block font-body font-semibold text-sm text-[#0F0F0F] mb-2">
+                    Email Akun
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      id="forgot-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isLoading}
+                      placeholder="Masukkan email akun Anda"
+                      className={`w-full bg-[#F4F6F8] pl-11 pr-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm disabled:opacity-60 ${
+                        error ? 'border-red-400 focus:border-red-400 focus:ring-red-400/15 bg-red-50' : ''
+                      }`}
+                    />
+                  </div>
+                  {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+                </div>
+
+                {/* Alasan (opsional) */}
+                <div>
+                  <label className="block font-body font-semibold text-sm text-[#0F0F0F] mb-2">
+                    Keterangan <span className="text-gray-400 font-normal">(opsional)</span>
+                  </label>
+                  <textarea
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    disabled={isLoading}
+                    placeholder="Contoh: Lupa password, atau akun tidak bisa login setelah ganti HP"
+                    rows={3}
+                    className="w-full bg-[#F4F6F8] px-4 py-3 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm resize-none disabled:opacity-60"
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                  <p className="text-xs text-blue-700 leading-relaxed">
+                    ℹ️ Setelah request dikirim, Admin akan memproses dalam <strong>1×24 jam</strong>. 
+                    Anda akan mendapatkan password sementara dari Admin (via WhatsApp/pesan) dan wajib 
+                    mengganti password setelah login pertama.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 disabled:opacity-60 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
+                >
+                  {isLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Mengirim...</>
+                  ) : (
+                    <><Send className="w-4 h-4" /> Kirim Permintaan ke Admin</>
+                  )}
+                </button>
+              </form>
+            </>
+          ) : (
+            /* Success State */
+            <>
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h1 className="font-display text-2xl font-bold text-[#0F0F0F] text-center mb-3">
+                Permintaan Terkirim!
+              </h1>
+              <p className="font-body text-gray-500 text-center mb-6 text-sm leading-relaxed">
+                Permintaan reset password Anda telah diterima Admin.
               </p>
-            </div>
-          </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 space-y-2">
+                <p className="text-sm font-semibold text-amber-800">Langkah selanjutnya:</p>
+                <ul className="text-sm text-amber-700 space-y-1">
+                  <li>1. Tunggu admin memproses permintaan Anda</li>
+                  <li>2. Admin akan memberi Anda <strong>password sementara</strong></li>
+                  <li>3. Login dengan password sementara tersebut</li>
+                  <li>4. Buat password permanen Anda sendiri</li>
+                </ul>
+              </div>
+              <button
+                onClick={() => { setIsSubmitted(false); setEmail(''); setReason(''); }}
+                className="w-full py-3 border-2 border-gray-200 hover:border-[#FFB22C] text-gray-700 font-body font-medium rounded-xl transition-all duration-300 text-sm"
+              >
+                Kirim Permintaan Lain
+              </button>
+            </>
+          )}
 
           {/* Back to Login */}
-          <Link
-            to="/cibc/login"
-            className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Kembali ke Login
-          </Link>
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <Link
+              to="/cibc/login"
+              className="flex items-center justify-center gap-2 text-gray-500 hover:text-[#FFB22C] font-body text-sm transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Kembali ke Login
+            </Link>
+          </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center mt-6 text-gray-500 text-sm font-body">
-          Ingat password?{' '}
-          <Link to="/cibc/login" className="text-[#FFB22C] hover:underline font-medium">
-            Masuk
-          </Link>
-        </p>
       </div>
     </div>
   );

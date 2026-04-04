@@ -5,11 +5,14 @@
  */
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Clock, Mail, ArrowLeft } from 'lucide-react';
 import { gsap } from 'gsap';
+import { supabaseAuthService } from '@/services/supabase.service';
 
 const PendingApproval: React.FC = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -20,6 +23,12 @@ const PendingApproval: React.FC = () => {
       { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
     );
   }, []);
+
+  const handleBackToLogin = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await supabaseAuthService.signOut();
+    navigate('/cibc/login');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F9F8F6] to-white flex items-center justify-center px-4 py-12">
@@ -105,13 +114,13 @@ const PendingApproval: React.FC = () => {
 
           {/* Actions */}
           <div className="space-y-3">
-            <Link
-              to="/cibc/login"
+            <button
+              onClick={handleBackToLogin}
               className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
             >
               <ArrowLeft className="w-4 h-4" />
               Kembali ke Login
-            </Link>
+            </button>
 
             <a
               href="mailto:cibc@kathevent.com"

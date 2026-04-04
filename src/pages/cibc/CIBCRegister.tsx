@@ -230,7 +230,26 @@ const CIBCRegister = () => {
           institution,
           status: 'pending',
           payment_status: 'pending',
-        }, user.id);
+        });
+
+        // Add user as team leader to team_members
+        const { error: memberError } = await supabase
+          .from('team_members')
+          .insert({
+            team_id: team.id,
+            user_id: user.id,
+            full_name: step2Data.fullName,
+            email: step1Data.email,
+            phone: step2Data.phone,
+            institution: institution,
+            role: 'leader',
+            is_active: true,
+          });
+
+        if (memberError) {
+          console.error('Error adding team member:', memberError);
+          // Continue anyway - team is created
+        }
 
         // Upload payment proof if provided
         if (paymentFile) {
@@ -323,7 +342,24 @@ const CIBCRegister = () => {
     } catch (error) {
       console.error('Registration error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(language === 'id' ? 'Registrasi gagal. Silakan coba lagi.' : 'Registration failed. Please try again.', { description: errorMessage });
+
+      // Check if user already exists - redirect to login
+      if (errorMessage.includes('sudah terdaftar') || errorMessage.includes('already')) {
+        toast.error(
+          language === 'id' ? 'Email sudah terdaftar!' : 'Email already registered!',
+          {
+            description: language === 'id'
+              ? 'Silakan login dengan akun Anda.'
+              : 'Please login with your existing account.',
+            action: {
+              label: language === 'id' ? 'Login' : 'Login',
+              onClick: () => navigate('/cibc/login'),
+            },
+          }
+        );
+      } else {
+        toast.error(language === 'id' ? 'Registrasi gagal. Silakan coba lagi.' : 'Registration failed. Please try again.', { description: errorMessage });
+      }
     } finally {
       setIsSubmitting(false);
     }

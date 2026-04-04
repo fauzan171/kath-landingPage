@@ -18,6 +18,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'Invalid login credentials': 'Email atau password salah',
   'Email not confirmed': 'Email belum dikonfirmasi. Silakan cek email Anda.',
   'User already registered': 'Email sudah terdaftar. Silakan login.',
+  'user_already_exists': 'Email sudah terdaftar. Silakan login.',
   'Password should be at least 6 characters': 'Password minimal 6 karakter',
   'Unable to validate email address: invalid format': 'Format email tidak valid',
   'Signups not allowed for this instance': 'Registrasi tidak diizinkan',
@@ -26,10 +27,20 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'AuthSessionMissingError': 'Sesi tidak ditemukan. Silakan login kembali.',
 };
 
-function mapAuthError(error: Error | { message: string }): string {
+function mapAuthError(error: Error | { message: string; code?: string }): string {
   const errorMessage = error.message || 'Unknown error';
+  const errorCode = (error as { code?: string }).code || '';
 
-  // Check for known error patterns
+  // Check for known error codes first (more reliable)
+  if (errorCode) {
+    for (const [key, value] of Object.entries(AUTH_ERROR_MESSAGES)) {
+      if (errorCode === key || errorCode.includes(key)) {
+        return value;
+      }
+    }
+  }
+
+  // Check for known error patterns in message
   for (const [key, value] of Object.entries(AUTH_ERROR_MESSAGES)) {
     if (errorMessage.includes(key)) {
       return value;

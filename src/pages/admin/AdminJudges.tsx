@@ -66,38 +66,40 @@ const AdminJudges = () => {
     try {
       if (!supabase) return;
 
-      // Load judges (users with role 'judge')
-      const { data: judgeRoles } = await supabase
-        .from('user_roles')
-        .select('user_id, role, users(id, name, email)')
+      // Load judges from users table (role = 'judge')
+      const { data: judgeUsers, error: judgeError } = await supabase
+        .from('users')
+        .select('id, name, email')
         .eq('role', 'judge');
+
+      if (judgeError) {
+        console.error('Error loading judges:', judgeError.message);
+      }
 
       // Load assignment counts for each judge
       const judgesWithCounts = await Promise.all(
-        (judgeRoles || []).map(async (jr) => {
-          const userData = Array.isArray(jr.users) ? jr.users[0] : jr.users;
-
+        (judgeUsers || []).map(async (u) => {
           const { count: total } = await supabase!
             .from('judge_assignments')
             .select('*', { count: 'exact', head: true })
-            .eq('judge_id', jr.user_id);
+            .eq('judge_id', u.id);
 
           const { count: pending } = await supabase!
             .from('judge_assignments')
             .select('*', { count: 'exact', head: true })
-            .eq('judge_id', jr.user_id)
+            .eq('judge_id', u.id)
             .eq('status', 'pending');
 
           const { count: completed } = await supabase!
             .from('judge_assignments')
             .select('*', { count: 'exact', head: true })
-            .eq('judge_id', jr.user_id)
+            .eq('judge_id', u.id)
             .eq('status', 'completed');
 
           return {
-            id: jr.user_id,
-            name: userData?.name || 'Unknown',
-            email: userData?.email || '',
+            id: u.id,
+            name: u.name || 'Unknown',
+            email: u.email || '',
             assignments_count: total || 0,
             pending_count: pending || 0,
             completed_count: completed || 0,

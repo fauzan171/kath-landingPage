@@ -7,7 +7,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Image, FileText, MessageSquare,
   HelpCircle, Phone, Settings, Menu, X, ChevronRight,
-  Users, Calendar, Megaphone, ClipboardList, ListChecks, Star, Trophy, CreditCard, Key, Scale
+  Users, Calendar, Megaphone, ClipboardList, Star
 } from 'lucide-react';
 
 const contentItems = [
@@ -23,18 +23,11 @@ const contentItems = [
 ];
 
 const competitionItems = [
-  { to: '/admin/registrations', label: 'Registrations', icon: ClipboardList },
-  { to: '/admin/stages', label: 'Timeline', icon: Calendar },
-  { to: '/admin/tasks', label: 'Tasks', icon: ListChecks },
-  { to: '/admin/submissions', label: 'Submissions', icon: FileText },
-  { to: '/admin/grading', label: 'Grading', icon: Star },
-  { to: '/admin/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-  { to: '/admin/user-approval', label: 'User Approval', icon: Users },
-  { to: '/admin/user-management', label: 'User Management', icon: Key },
-  { to: '/admin/judges', label: 'Judge Assignments', icon: Scale },
-  { to: '/admin/users', label: 'Teams', icon: Users },
-  { to: '/admin/payments', label: 'Payments', icon: CreditCard },
+  { to: '/admin/registrations-hub', label: 'Registrations & Teams', icon: ClipboardList },
+  { to: '/admin/competition-setup', label: 'Competition Setup', icon: Calendar },
+  { to: '/admin/judging', label: 'Judging', icon: Star },
+  { to: '/admin/users-hub', label: 'Users', icon: Users },
+  { to: '/admin/communications', label: 'Communications', icon: Megaphone },
 ];
 
 const AdminLayout = () => {

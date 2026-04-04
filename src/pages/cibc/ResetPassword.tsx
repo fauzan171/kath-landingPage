@@ -29,49 +29,46 @@ const ResetPassword: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // GSAP Animation
     gsap.fromTo(
       '.reset-card',
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
     );
 
-    // Check if we have a valid session from the reset link
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
     if (!isSupabaseConfigured() || !supabase) {
       setStatus('error');
       setMessage('Password reset is not available at this time.');
       return;
     }
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        // User has a valid session from the reset link
+    // Supabase kirim token via URL hash (#access_token=...&type=recovery)
+    // onAuthStateChange akan otomatis mendeteksi sesi dari hash tersebut
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // Token valid, tampilkan form reset
         setStatus('form');
-      } else {
-        // Check if there's an error in the URL
-        const error = searchParams.get('error');
-        const errorDescription = searchParams.get('error_description');
-
-        if (error) {
+      } else if (event === 'SIGNED_IN' && session) {
+        // Sudah ada sesi aktif (bisa dari link reset)
+        setStatus('form');
+      } else if (event === 'SIGNED_OUT' || (!session && status === 'loading')) {
+        // Tidak ada sesi, cek apakah ada error di URL
+        const urlError = searchParams.get('error');
+        const errorDesc = searchParams.get('error_description');
+        if (urlError) {
           setStatus('error');
-          setMessage(errorDescription || 'Invalid or expired reset link.');
+          setMessage(errorDesc || 'Link reset tidak valid atau sudah kedaluwarsa.');
         } else {
-          // Might be from email link - Supabase will handle the token
-          setStatus('form');
+          // Tunggu sebentar — hash mungkin belum diproses
+          setTimeout(() => {
+            setStatus((prev) => prev === 'loading' ? 'error' : prev);
+            setMessage('Link reset tidak valid atau sudah kedaluwarsa. Silakan minta link baru.');
+          }, 2000);
         }
       }
-    } catch (err) {
-      setStatus('error');
-      setMessage('Failed to verify reset session.');
-    }
-  };
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -120,7 +117,7 @@ const ResetPassword: React.FC = () => {
           navigate('/cibc/login');
         }, 3000);
       }
-    } catch (err) {
+    } catch {
       setStatus('error');
       setMessage('Failed to reset password. Please try again.');
     } finally {
