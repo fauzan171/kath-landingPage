@@ -452,171 +452,183 @@ const AdminGrading = () => {
 
       {/* Grading Modal */}
       {selectedSubmission && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-3xl w-full p-6 my-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">Grade Submission</h2>
-              {selectedSubmission.file_url && (
-                <a
-                  href={selectedSubmission.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
-                >
-                  <Download className="w-4 h-4" />
-                  Open PDF
-                </a>
-              )}
-            </div>
-
-            {/* Team Info */}
-            <div className="p-4 bg-gray-50 rounded-lg mb-6">
-              <div className="flex items-center gap-4 mb-3">
-                <Users className="w-8 h-8 text-gray-400" />
-                <div>
-                  <p className="font-medium">
-                    {blindMode ? 'Team #XXXX (Blind Mode)' : selectedSubmission.team?.name}
-                  </p>
-                  {!blindMode && selectedSubmission.team?.institution && (
-                    <p className="text-sm text-gray-500">{selectedSubmission.team.institution}</p>
-                  )}
-                </div>
-              </div>
-              {/* Detailed Team Info */}
-              {!blindMode && selectedSubmission.team && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 pt-3 border-t border-gray-200">
-                  {selectedSubmission.team.leader_name && (
-                    <div className="p-2 bg-white rounded-lg">
-                      <p className="text-xs text-gray-500">Team Leader</p>
-                      <p className="font-medium text-sm">{selectedSubmission.team.leader_name}</p>
-                    </div>
-                  )}
-                  {selectedSubmission.team.leader_email && (
-                    <div className="p-2 bg-white rounded-lg">
-                      <p className="text-xs text-gray-500">Email</p>
-                      <p className="font-medium text-sm text-gray-700">{selectedSubmission.team.leader_email}</p>
-                    </div>
-                  )}
-                  {selectedSubmission.team.member_count !== undefined && (
-                    <div className="p-2 bg-white rounded-lg">
-                      <p className="text-xs text-gray-500">Members</p>
-                      <p className="font-medium text-sm">{selectedSubmission.team.member_count} orang</p>
-                    </div>
-                  )}
-                  {selectedSubmission.submitted_at && (
-                    <div className="p-2 bg-white rounded-lg">
-                      <p className="text-xs text-gray-500">Submitted At</p>
-                      <p className="font-medium text-sm">
-                        {new Date(selectedSubmission.submitted_at).toLocaleString('id-ID', {
-                          day: 'numeric', month: 'short', year: 'numeric',
-                          hour: '2-digit', minute: '2-digit',
-                        })}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-              {/* Payment Proof */}
-              {!blindMode && selectedSubmission.team?.payment_proof && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3">
+          <div className="bg-white rounded-xl max-w-xl w-full max-h-[90vh] flex flex-col">
+            {/* Header - fixed */}
+            <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
+              <h2 className="text-base font-bold">Grade Submission</h2>
+              <div className="flex items-center gap-2">
+                {selectedSubmission.file_url && (
                   <a
-                    href={selectedSubmission.team.payment_proof}
+                    href={selectedSubmission.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 text-xs"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    Lihat Bukti Pembayaran
-                    <ExternalLink className="w-3 h-3" />
+                    <Download className="w-3.5 h-3.5" />
+                    Open PDF
                   </a>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => { setSelectedSubmission(null); setCriteriaScores({}); setFeedback(''); }}
+                  className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
             </div>
 
-            {/* Rubric Grading */}
-            <div className="mb-6">
-              <h3 className="font-semibold text-gray-800 mb-3">Rubric Criteria</h3>
-              <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
-                {DEFAULT_RUBRIC.map((criteria) => (
-                  <div key={criteria.id} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div>
-                        <p className="font-medium text-sm">{criteria.name}</p>
-                        <p className="text-xs text-gray-400">{criteria.nameId}</p>
+            {/* Content - scrollable */}
+            <div className="overflow-y-auto p-4 space-y-4">
+              {/* Team Info */}
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="w-6 h-6 text-gray-400" />
+                  <div>
+                    <p className="font-medium text-sm">
+                      {blindMode ? 'Team #XXXX (Blind Mode)' : selectedSubmission.team?.name}
+                    </p>
+                    {!blindMode && selectedSubmission.team?.institution && (
+                      <p className="text-xs text-gray-500">{selectedSubmission.team.institution}</p>
+                    )}
+                  </div>
+                </div>
+                {/* Detailed Team Info */}
+                {!blindMode && selectedSubmission.team && (
+                  <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200">
+                    {selectedSubmission.team.leader_name && (
+                      <div className="p-1.5 bg-white rounded">
+                        <p className="text-[10px] text-gray-400">Leader</p>
+                        <p className="font-medium text-xs">{selectedSubmission.team.leader_name}</p>
+                      </div>
+                    )}
+                    {selectedSubmission.team.leader_email && (
+                      <div className="p-1.5 bg-white rounded">
+                        <p className="text-[10px] text-gray-400">Email</p>
+                        <p className="font-medium text-xs text-gray-700 truncate">{selectedSubmission.team.leader_email}</p>
+                      </div>
+                    )}
+                    {selectedSubmission.team.member_count !== undefined && (
+                      <div className="p-1.5 bg-white rounded">
+                        <p className="text-[10px] text-gray-400">Members</p>
+                        <p className="font-medium text-xs">{selectedSubmission.team.member_count} orang</p>
+                      </div>
+                    )}
+                    {selectedSubmission.submitted_at && (
+                      <div className="p-1.5 bg-white rounded">
+                        <p className="text-[10px] text-gray-400">Submitted</p>
+                        <p className="font-medium text-xs">
+                          {new Date(selectedSubmission.submitted_at).toLocaleString('id-ID', {
+                            day: 'numeric', month: 'short', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* Payment Proof */}
+                {!blindMode && selectedSubmission.team?.payment_proof && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <a
+                      href={selectedSubmission.team.payment_proof}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-2 py-1 bg-green-50 text-green-700 rounded-md hover:bg-green-100 text-xs"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      Bukti Pembayaran
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Rubric Grading */}
+              <div>
+                <h3 className="font-semibold text-gray-800 text-sm mb-2">Rubric Criteria</h3>
+                <div className="space-y-2">
+                  {DEFAULT_RUBRIC.map((criteria) => (
+                    <div key={criteria.id} className="p-2.5 border rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
+                        <div>
+                          <p className="font-medium text-xs">{criteria.name}</p>
+                          <p className="text-[10px] text-gray-400">{criteria.nameId}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-gray-500 bg-gray-50 px-1 py-0.5 rounded">{(criteria.weight * 100)}%</span>
+                          <span className="text-[10px] text-gray-400">/ {criteria.maxScore}</span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{(criteria.weight * 100)}%</span>
-                        <span className="text-xs text-gray-400">/ {criteria.maxScore}</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={criteria.maxScore}
+                          value={criteriaScores[criteria.id] || 0}
+                          onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Number(e.target.value) })}
+                          className="w-full accent-amber-500 h-1"
+                        />
+                        <input
+                          type="number"
+                          min={0}
+                          max={criteria.maxScore}
+                          value={criteriaScores[criteria.id] || 0}
+                          onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Math.min(criteria.maxScore, Math.max(0, Number(e.target.value))) })}
+                          className="w-12 px-1 py-0.5 border rounded text-center text-xs"
+                        />
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={0}
-                        max={criteria.maxScore}
-                        value={criteriaScores[criteria.id] || 0}
-                        onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Number(e.target.value) })}
-                        className="w-full accent-amber-500 h-1.5"
-                      />
-                      <input
-                        type="number"
-                        min={0}
-                        max={criteria.maxScore}
-                        value={criteriaScores[criteria.id] || 0}
-                        onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Math.min(criteria.maxScore, Math.max(0, Number(e.target.value))) })}
-                        className="w-14 px-1.5 py-0.5 border rounded text-center text-sm"
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Total Score */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-amber-800 text-sm">Total Score</span>
+                  <span className="text-lg font-bold text-amber-700">{calculateTotalScore()}/100</span>
+                </div>
+              </div>
+
+              {/* Feedback */}
+              <div>
+                <label className="text-xs font-medium text-gray-700">Feedback for Team</label>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="w-full px-2.5 py-1.5 border rounded-lg mt-1 text-sm"
+                  rows={3}
+                  placeholder="Provide constructive feedback..."
+                />
               </div>
             </div>
 
-            {/* Total Score */}
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-6">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-amber-800">Total Score</span>
-                <span className="text-2xl font-bold text-amber-700">{calculateTotalScore()}/100</span>
-              </div>
-            </div>
-
-            {/* Feedback */}
-            <div className="mb-6">
-              <label className="text-sm font-medium text-gray-700">Feedback for Team</label>
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg mt-1"
-                rows={4}
-                placeholder="Provide constructive feedback..."
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2 pt-4 border-t">
+            {/* Actions - fixed at bottom */}
+            <div className="flex gap-2 p-4 border-t flex-shrink-0">
               {selectedSubmission.status === 'submitted' && (
                 <>
                   <button
                     onClick={handleGrade}
                     disabled={gradingId === selectedSubmission.id}
-                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 text-sm"
                   >
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="w-3.5 h-3.5" />
                     {gradingId === selectedSubmission.id ? 'Saving...' : 'Submit Grade'}
                   </button>
                   <button
                     onClick={handleNeedsRevision}
                     disabled={gradingId === selectedSubmission.id || !feedback}
-                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm"
                   >
-                    <Send className="w-4 h-4" />
-                    Request Revision
+                    <Send className="w-3.5 h-3.5" />
+                    Revision
                   </button>
                 </>
               )}
               <button
                 onClick={() => { setSelectedSubmission(null); setCriteriaScores({}); setFeedback(''); }}
-                className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
               >
                 Close
               </button>
