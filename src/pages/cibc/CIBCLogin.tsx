@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 // import { Checkbox } from '@/components/ui/checkbox';
 import { supabaseAuthService } from '@/services/supabase.service';
-import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
 import { useCSRFToken } from '@/components/CSRFProtectedForm';
 
