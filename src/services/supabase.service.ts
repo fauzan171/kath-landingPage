@@ -986,6 +986,18 @@ export const supabaseTeamService = {
 // Submission Service (Supabase + n8n)
 // ============================================
 
+/**
+ * Strip columns that may not exist in DB yet (before migration v6.6.0)
+ */
+function stripMissingSubmissionColumns(payload: Record<string, unknown>): Record<string, unknown> {
+  const missingColumns = ['is_late', 'file_type', 'field_values', 'penalty_applied', 'criteria_scores', 'graded_by', 'submitted_by'];
+  const cleaned = { ...payload };
+  for (const col of missingColumns) {
+    delete cleaned[col];
+  }
+  return cleaned;
+}
+
 export const supabaseSubmissionService = {
   /**
    * Get submission for current user by competition
@@ -1084,7 +1096,21 @@ export const supabaseSubmissionService = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without columns that may not exist yet (migration v6.6.0)
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const stripped = stripMissingSubmissionColumns(updateData);
+        const { data: retryData, error: retryError } = await supabase
+          .from('submissions')
+          .update(stripped)
+          .eq('id', id)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -1209,25 +1235,40 @@ export const supabaseSubmissionService = {
     const uploadResult = await uploadFileToDrive(file, taskId, teamId);
 
     // 2. Save metadata to Supabase
+    const payload: Record<string, unknown> = {
+      task_id: taskId,
+      team_id: teamId,
+      competition_id: competitionId,
+      file_url: uploadResult.fileUrl,
+      file_name: uploadResult.fileName,
+      file_size: uploadResult.fileSize,
+      file_type: file.type,
+      drive_file_id: uploadResult.driveFileId,
+      status: 'submitted',
+      submitted_at: new Date().toISOString(),
+      is_late: false,
+    };
+
     const { data, error } = await supabase
       .from('submissions')
-      .insert({
-        task_id: taskId,
-        team_id: teamId,
-        competition_id: competitionId,
-        file_url: uploadResult.fileUrl,
-        file_name: uploadResult.fileName,
-        file_size: uploadResult.fileSize,
-        file_type: file.type,
-        drive_file_id: uploadResult.driveFileId,
-        status: 'submitted',
-        submitted_at: new Date().toISOString(),
-        is_late: false,
-      })
+      .insert(payload)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without columns that may not exist yet (migration v6.6.0)
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const stripped = stripMissingSubmissionColumns(payload);
+        const { data: retryData, error: retryError } = await supabase
+          .from('submissions')
+          .insert(stripped)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -1241,22 +1282,37 @@ export const supabaseSubmissionService = {
     content: string,
     fieldValues?: Record<string, unknown>
   ): Promise<Submission> => {
+    const payload: Record<string, unknown> = {
+      task_id: taskId,
+      team_id: teamId,
+      competition_id: competitionId,
+      content,
+      field_values: fieldValues,
+      status: 'submitted',
+      submitted_at: new Date().toISOString(),
+      is_late: false,
+    };
+
     const { data, error } = await supabase
       .from('submissions')
-      .insert({
-        task_id: taskId,
-        team_id: teamId,
-        competition_id: competitionId,
-        content,
-        field_values: fieldValues,
-        status: 'submitted',
-        submitted_at: new Date().toISOString(),
-        is_late: false,
-      })
+      .insert(payload)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without columns that may not exist yet (migration v6.6.0)
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const stripped = stripMissingSubmissionColumns(payload);
+        const { data: retryData, error: retryError } = await supabase
+          .from('submissions')
+          .insert(stripped)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -1264,13 +1320,28 @@ export const supabaseSubmissionService = {
    * Create or update submission
    */
   upsert: async (submission: Partial<Submission>): Promise<Submission> => {
+    const payload = { ...submission } as Record<string, unknown>;
+
     const { data, error } = await supabase
       .from('submissions')
-      .upsert(submission, { onConflict: 'task_id,team_id' })
+      .upsert(payload, { onConflict: 'task_id,team_id' })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without columns that may not exist yet (migration v6.6.0)
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const stripped = stripMissingSubmissionColumns(payload);
+        const { data: retryData, error: retryError } = await supabase
+          .from('submissions')
+          .upsert(stripped, { onConflict: 'task_id,team_id' })
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
