@@ -6,9 +6,10 @@
  */
 
 import React, { useEffect } from 'react';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { MessageCircle, ArrowLeft } from 'lucide-react';
 import { gsap } from 'gsap';
 import { supabaseAuthService } from '@/services/supabase.service';
+import { appContactConfig } from '@/config';
 
 const PendingApproval: React.FC = () => {
   useEffect(() => {
@@ -54,17 +55,17 @@ const PendingApproval: React.FC = () => {
           Terima kasih telah mendaftar! Akun Anda sedang dalam proses verifikasi oleh tim panitia.
         </p>
 
-        {/* Info Steps - Dikembalikan menjadi 3 langkah */}
+        {/* Info Steps */}
         <div className="bg-[#F9F8F6] rounded-xl p-4 mb-4 border border-gray-50">
           <h3 className="font-body text-[13px] font-bold text-[#0F0F0F] mb-3">Langkah Selanjutnya:</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Tunggu email dari admin (1-3 hari kerja)</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">Tunggu konfirmasi via WhatsApp dari panitia (1-3 hari kerja)</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Cek folder Spam jika email tidak masuk</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">Cek WhatsApp secara berkala untuk update status</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</div>
@@ -73,16 +74,25 @@ const PendingApproval: React.FC = () => {
           </div>
         </div>
 
-        {/* Email Notice - Warna Merah */}
-        <div className="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100 mb-6">
-          <Mail className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+        {/* WhatsApp Notice - Hijau WA */}
+        <div className="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-100 mb-6">
+          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-body text-xs text-red-800 font-bold">
-              Penting: Konfirmasi Email
+            <p className="font-body text-xs text-green-800 font-bold">
+              Konfirmasi via WhatsApp
             </p>
-            <p className="font-body text-[10px] text-red-600 mt-1 leading-relaxed">
-              Pastikan email Anda aktif dan dapat menerima pesan dari panitia.
+            <p className="font-body text-[10px] text-green-600 mt-1 leading-relaxed">
+              Pastikan nomor WhatsApp Anda aktif. Panitia akan menghubungi via WhatsApp untuk konfirmasi pendaftaran dan pembayaran.
             </p>
+            <a
+              href={`${appContactConfig.whatsappUrl}?text=${encodeURIComponent('Halo panitia CIBC, saya sudah mendaftar dan ingin mengonfirmasi status pendaftaran saya.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold rounded-lg transition-colors"
+            >
+              <MessageCircle className="w-3 h-3" />
+              Chat Panitia via WA
+            </a>
           </div>
         </div>
 

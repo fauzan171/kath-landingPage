@@ -284,8 +284,8 @@ const CIBCRegister = () => {
           language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!',
           {
             description: language === 'id'
-              ? 'Akun Anda sedang menunggu persetujuan admin. Anda akan menerima email setelah disetujui.'
-              : 'Your account is pending admin approval. You will receive an email once approved.'
+              ? 'Akun Anda sedang menunggu persetujuan admin. Konfirmasi akan dikirim via WhatsApp.'
+              : 'Your account is pending admin approval. Confirmation will be sent via WhatsApp.'
           }
         );
 
