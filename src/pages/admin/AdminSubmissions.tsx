@@ -75,27 +75,27 @@ const AdminSubmissions = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Submissions</h1>
-          <p className="text-gray-600">Review and grade team submissions</p>
+          <h1 className="text-lg font-bold text-gray-800">Submissions</h1>
+          <p className="text-sm text-gray-500">Review and grade team submissions</p>
         </div>
         <div className="flex gap-2">
           {submissions.filter(s => s.status === 'submitted').length > 0 && (
-            <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">
-              {submissions.filter(s => s.status === 'submitted').length} Pending Review
+            <div className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+              {submissions.filter(s => s.status === 'submitted').length} Pending
             </div>
           )}
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-1.5 mb-4">
         {(['all', 'submitted', 'graded', 'draft'] as const).map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm capitalize ${filter === f ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+            className={`px-3 py-1.5 rounded-md text-xs capitalize ${filter === f ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-700'}`}
           >
             {f}
           </button>
@@ -103,57 +103,59 @@ const AdminSubmissions = () => {
       </div>
 
       {/* Submissions List */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {filteredSubmissions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <p className="text-gray-500">No submissions found</p>
+          <div className="text-center py-8 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-500">No submissions found</p>
           </div>
         ) : (
           filteredSubmissions.map((submission) => (
-            <div key={submission.id} className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+            <div key={submission.id} className="bg-white rounded-lg border border-gray-200 px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center ${
                     submission.status === 'graded' ? 'bg-green-100 text-green-600' :
                     submission.status === 'submitted' ? 'bg-blue-100 text-blue-600' :
                     'bg-gray-100 text-gray-400'
                   }`}>
-                    {submission.status === 'graded' ? <CheckCircle className="w-6 h-6" /> :
-                     submission.status === 'submitted' ? <Clock className="w-6 h-6" /> :
-                     <Star className="w-6 h-6" />}
+                    {submission.status === 'graded' ? <CheckCircle className="w-4 h-4" /> :
+                     submission.status === 'submitted' ? <Clock className="w-4 h-4" /> :
+                     <Star className="w-4 h-4" />}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-800">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-gray-800 truncate">
                         {submission.team?.name || 'Unknown Team'}
-                      </h3>
+                      </span>
                       {getStatusBadge(submission.status)}
                     </div>
-                    {submission.file_name && (
-                      <p className="text-sm text-gray-500">{submission.file_name}</p>
-                    )}
-                    {submission.submitted_at && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Submitted: {new Date(submission.submitted_at).toLocaleString()}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                      {submission.file_name && (
+                        <span className="truncate">{submission.file_name}</span>
+                      )}
+                      {submission.submitted_at && (
+                        <span className="flex-shrink-0">
+                          {new Date(submission.submitted_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {submission.total_score !== undefined && (
-                    <div className="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg font-bold">
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-bold">
                       {submission.total_score}/100
-                    </div>
+                    </span>
                   )}
                   {submission.file_url && (
                     <a
                       href={submission.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 hover:bg-gray-100 rounded-lg"
+                      className="p-1.5 hover:bg-gray-100 rounded-md"
                     >
-                      <Download className="w-5 h-5 text-gray-500" />
+                      <Download className="w-4 h-4 text-gray-400" />
                     </a>
                   )}
                   {submission.status === 'submitted' && (
@@ -162,7 +164,7 @@ const AdminSubmissions = () => {
                         setSelectedSubmission(submission);
                         setGradeForm({ score: submission.total_score || 0, feedback: submission.feedback || '' });
                       }}
-                      className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm"
+                      className="px-3 py-1.5 bg-amber-500 text-white rounded-md text-xs font-medium"
                     >
                       Grade
                     </button>
@@ -173,7 +175,7 @@ const AdminSubmissions = () => {
                         setSelectedSubmission(submission);
                         setGradeForm({ score: submission.total_score || 0, feedback: submission.feedback || '' });
                       }}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm"
+                      className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-xs"
                     >
                       View
                     </button>
@@ -188,13 +190,13 @@ const AdminSubmissions = () => {
       {/* Grading Modal */}
       {selectedSubmission && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">Grade Submission</h2>
+          <div className="bg-white rounded-xl max-w-md w-full p-5">
+            <h2 className="text-lg font-bold mb-3">Grade Submission</h2>
 
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Team</p>
-                <p className="font-medium">{selectedSubmission.team?.name}</p>
+            <div className="space-y-3">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500">Team</p>
+                <p className="font-medium text-sm">{selectedSubmission.team?.name}</p>
               </div>
 
               {selectedSubmission.file_url && (
@@ -202,47 +204,47 @@ const AdminSubmissions = () => {
                   href={selectedSubmission.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 p-4 bg-blue-50 text-blue-700 rounded-lg"
+                  className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm"
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="w-4 h-4" />
                   Download Submission
                 </a>
               )}
 
               <div>
-                <label className="text-sm text-gray-600">Score (0-100)</label>
+                <label className="text-xs text-gray-600">Score (0-100)</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={gradeForm.score}
                   onChange={(e) => setGradeForm({ ...gradeForm, score: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border rounded-lg mt-1"
+                  className="w-full px-3 py-1.5 border rounded-lg mt-1 text-sm"
                 />
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Feedback</label>
+                <label className="text-xs text-gray-600">Feedback</label>
                 <textarea
                   value={gradeForm.feedback}
                   onChange={(e) => setGradeForm({ ...gradeForm, feedback: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg mt-1"
-                  rows={4}
+                  className="w-full px-3 py-1.5 border rounded-lg mt-1 text-sm"
+                  rows={3}
                   placeholder="Provide feedback for the team..."
                 />
               </div>
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-2 pt-3 border-t">
                 <button
                   onClick={handleGrade}
                   disabled={gradingId === selectedSubmission.id}
-                  className="flex-1 py-2 bg-amber-500 text-white rounded-lg disabled:opacity-50"
+                  className="flex-1 py-2 bg-amber-500 text-white rounded-lg text-sm disabled:opacity-50"
                 >
                   {gradingId === selectedSubmission.id ? 'Saving...' : 'Save Grade'}
                 </button>
                 <button
                   onClick={() => { setSelectedSubmission(null); setGradeForm({ score: 0, feedback: '' }); }}
-                  className="flex-1 py-2 bg-gray-100 rounded-lg"
+                  className="flex-1 py-2 bg-gray-100 rounded-lg text-sm"
                 >
                   Cancel
                 </button>
