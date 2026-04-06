@@ -57,13 +57,39 @@ const CIBCLogin: React.FC = () => {
         const userStatus = userData?.status || 'pending';
         const userRole = userData?.role || 'participant';
 
-        if (userStatus === 'pending') {
-          // Don't loop — user is pending, stay on login or go to pending page
-          navigate('/cibc/pending-approval');
-        } else if (userRole === 'admin' || userRole === 'super_admin') {
+        // Admins go straight to admin dashboard
+        if (userRole === 'admin' || userRole === 'super_admin') {
           navigate('/admin');
+          return;
+        }
+
+        // For participants, check team payment status
+        const { data: teamMember } = await supabase
+          .from('team_members')
+          .select('team_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (teamMember?.team_id) {
+          const { data: teamData } = await supabase
+            .from('teams')
+            .select('payment_status, status')
+            .eq('id', teamMember.team_id)
+            .maybeSingle();
+
+          const teamPaymentStatus = teamData?.payment_status;
+
+          if (teamPaymentStatus === 'verified') {
+            navigate('/cibc/dashboard');
+          } else {
+            // Payment not verified yet
+            navigate('/cibc/pending-approval');
+          }
+        } else if (userStatus === 'rejected') {
+          // User rejected — stay on login
         } else {
-          navigate('/cibc/dashboard');
+          // No team or pending
+          navigate('/cibc/pending-approval');
         }
       } catch {
         // No active session — stay on login page
@@ -179,24 +205,68 @@ const CIBCLogin: React.FC = () => {
               return;
             }
 
-            // Check if user is approved
+            // Check if user is rejected
             const userStatus = userData.status || 'pending';
-
-            if (userStatus === 'pending') {
-              await supabaseAuthService.signOut();
-              toast.warning('Account Pending Approval', {
-                description: 'Akun Anda sedang menunggu persetujuan admin.',
-              });
-              navigate('/cibc/pending-approval');
-              return;
-            }
-
             if (userStatus === 'rejected') {
               await supabaseAuthService.signOut();
               toast.error('Account Rejected', {
                 description: userData?.rejection_reason || 'Registrasi Anda tidak disetujui. Hubungi panitia.',
               });
               return;
+            }
+
+            // ✅ Check team payment status — user can only login after payment is verified
+            const { data: teamMember } = await supabase
+              .from('team_members')
+              .select('team_id')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (teamMember?.team_id) {
+              const { data: teamData } = await supabase
+                .from('teams')
+                .select('payment_status, status')
+                .eq('id', teamMember.team_id)
+                .maybeSingle();
+
+              const teamPaymentStatus = teamData?.payment_status;
+              const teamStatus = teamData?.status;
+
+              if (teamPaymentStatus === 'pending' || (!teamPaymentStatus && teamStatus !== 'verified')) {
+                // Payment not yet verified — user must wait
+                await supabaseAuthService.signOut();
+                toast.warning('Pembayaran Belum Diverifikasi', {
+                  description: 'Bukti pembayaran Anda sedang diverifikasi oleh panitia. Silakan coba lagi nanti.',
+                });
+                navigate('/cibc/pending-approval');
+                return;
+              }
+
+              if (teamPaymentStatus === 'rejected') {
+                await supabaseAuthService.signOut();
+                toast.error('Pembayaran Ditolak', {
+                  description: 'Bukti pembayaran Anda ditolak. Silakan upload ulang bukti pembayaran yang valid.',
+                });
+                return;
+              }
+
+              // Update user status to approved if team is verified
+              if (teamPaymentStatus === 'verified' && userStatus === 'pending') {
+                await supabase
+                  .from('users')
+                  .update({ status: 'approved' })
+                  .eq('id', user.id);
+              }
+            } else {
+              // No team yet — check user status
+              if (userStatus === 'pending') {
+                await supabaseAuthService.signOut();
+                toast.warning('Account Pending Approval', {
+                  description: 'Akun Anda sedang menunggu persetujuan admin.',
+                });
+                navigate('/cibc/pending-approval');
+                return;
+              }
             }
 
             // ✅ Cek force_password_change — user pakai password sementara dari admin

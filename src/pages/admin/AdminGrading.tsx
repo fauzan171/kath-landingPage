@@ -151,6 +151,32 @@ const AdminGrading = () => {
       }
 
       toast.success(`Graded! Score: ${totalScore}/100`);
+
+      // Create notification for team members about grading result
+      if (supabase && selectedSubmission.team_id) {
+        try {
+          const { data: members } = await supabase
+            .from('team_members')
+            .select('user_id')
+            .eq('team_id', selectedSubmission.team_id);
+
+          if (members && members.length > 0) {
+            const notifications = members.map((m: { user_id: string }) => ({
+              user_id: m.user_id,
+              title: 'Submission Dinilai',
+              message: `Submission Anda telah dinilai. Skor: ${totalScore}/100.${feedback ? ` Feedback: ${feedback.substring(0, 100)}${feedback.length > 100 ? '...' : ''}` : ''}`,
+              type: 'submission_graded',
+              link: '/cibc/dashboard',
+              is_read: false,
+            }));
+            await supabase.from('notifications').insert(notifications);
+          }
+        } catch (notifErr) {
+          console.error('Failed to create grading notification:', notifErr);
+          // Don't fail the grading if notification fails
+        }
+      }
+
       load();
       setSelectedSubmission(null);
       setCriteriaScores({});
@@ -181,6 +207,30 @@ const AdminGrading = () => {
           .eq('id', selectedSubmission.id);
 
         if (error) throw error;
+
+        // Create notification for the team
+        try {
+          const teamId = selectedSubmission.team_id;
+          const { data: members } = await supabase
+            .from('team_members')
+            .select('user_id')
+            .eq('team_id', teamId);
+
+          if (members && members.length > 0) {
+            const notifications = members.map((m: { user_id: string }) => ({
+              user_id: m.user_id,
+              title: 'Submission Perlu Revisi',
+              message: `Submission Anda perlu direvisi. Silakan cek feedback dan submit ulang.${feedback ? ` Feedback: ${feedback.substring(0, 100)}${feedback.length > 100 ? '...' : ''}` : ''}`,
+              type: 'warning',
+              link: '/cibc/dashboard',
+              is_read: false,
+            }));
+
+            await supabase.from('notifications').insert(notifications);
+          }
+        } catch (notifErr) {
+          console.warn('Failed to create revision notification:', notifErr);
+        }
       }
 
       toast.success('Marked for revision');
