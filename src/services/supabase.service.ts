@@ -1081,7 +1081,13 @@ export const supabaseSubmissionService = {
   }): Promise<Submission> => {
     const updateData: Record<string, unknown> = {};
     if (params.content !== undefined) updateData.content = params.content;
-    if (params.status !== undefined) updateData.status = params.status;
+    if (params.status !== undefined) {
+      updateData.status = params.status;
+      // When resubmitting, also update the submitted_at timestamp
+      if (params.status === 'submitted') {
+        updateData.submitted_at = new Date().toISOString();
+      }
+    }
     if (params.file_url !== undefined) updateData.file_url = params.file_url;
     if (params.file_name !== undefined) updateData.file_name = params.file_name;
     if (params.file_size !== undefined) updateData.file_size = params.file_size;

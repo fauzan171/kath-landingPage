@@ -215,15 +215,13 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
       const isLate = selectedTask.deadline ? new Date() > new Date(selectedTask.deadline) : false;
 
       if (existingSubmission && existingSubmission.status === 'needs_revision') {
-        // Resubmit: update existing submission
+        // Resubmit: update existing submission with new file and reset status
         await submissionsService.update(existingSubmission.id, {
           file_url: uploadResult.fileUrl,
           file_name: uploadResult.fileName,
           file_size: uploadResult.fileSize,
           status: 'submitted',
         });
-        // Also update submitted_at timestamp
-        await submissionsService.submit(existingSubmission.id);
       } else {
         // New submission
         await submissionsService.upsert({
