@@ -26,6 +26,7 @@ const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadSettings(); }, []);
 
   const loadSettings = async () => {
@@ -46,7 +47,7 @@ const AdminSettings = () => {
         Object.entries(settings).map(([key, value]) => siteSettingsService.set(key, value))
       );
       toast.success('Settings saved!');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to save settings');
     } finally {
       setSaving(false);

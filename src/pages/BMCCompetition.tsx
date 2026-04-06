@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useCountdownDeadline } from '../hooks/useCountdownDeadline';
+import { useLanguage } from '../contexts/LanguageContext';
+import { appContactConfig } from '../config';
 import {
-  Trophy,
-  Users,
-  ArrowRight,
   ChevronLeft,
   FileText,
   Download,
@@ -19,9 +19,11 @@ import {
   Mail,
   Phone,
   Heart,
-  Building2
+  Building2,
+  Trophy,
+  Users,
+  ArrowRight,
 } from '../icons';
-import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -59,30 +61,8 @@ const BMCCompetition = () => {
   }, []);
 
   // Countdown timer
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  
-  useEffect(() => {
-    const deadline = new Date('2025-12-31T23:59:59');
-    
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const diff = deadline.getTime() - now.getTime();
-      
-      if (diff > 0) {
-        setTimeLeft({
-          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((diff / 1000 / 60) % 60),
-          seconds: Math.floor((diff / 1000) % 60),
-        });
-      }
-    };
-    
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
+  // Countdown timer - reads deadline from Supabase (admin controlled via stage end_date)
+  const { timeLeft } = useCountdownDeadline();
   const stats = [
     { value: '$100K+', label: language === 'id' ? 'Total Hadiah' : 'Total Prize', icon: Trophy },
     { value: '50+', label: language === 'id' ? 'Negara' : 'Countries', icon: Globe },
@@ -370,7 +350,7 @@ const BMCCompetition = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'overview' | 'guidelines' | 'timeline' | 'resources')}
                 className={`px-6 py-3 font-body text-sm rounded-full transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-kath-primary text-white'
@@ -782,7 +762,7 @@ const BMCCompetition = () => {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
-                  onClick={() => window.open('mailto:competition@kath.com', '_blank')}
+                  onClick={() => window.open(appContactConfig.emailUrl, '_blank')}
                   className="px-10 py-4 border border-kath-primary/30 hover:border-kath-primary text-kath-primary font-body font-medium rounded-full transition-all"
                 >
                   {language === 'id' ? 'Hubungi Kami' : 'Contact Us'}
@@ -819,7 +799,7 @@ const BMCCompetition = () => {
               <ul className="space-y-2 font-body text-sm text-white/60">
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  competition@kath.com
+                  {appContactConfig.email}
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />

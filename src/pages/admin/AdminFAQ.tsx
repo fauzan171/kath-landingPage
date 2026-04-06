@@ -16,6 +16,7 @@ const AdminFAQ = () => {
   const [editForm, setEditForm] = useState<Partial<FAQ>>({});
   const [filter, setFilter] = useState<string>('all');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
@@ -48,7 +49,7 @@ const AdminFAQ = () => {
       }
       setEditingId(null);
       setEditForm({});
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to save');
     }
   };
@@ -59,7 +60,7 @@ const AdminFAQ = () => {
       await faqService.delete(id);
       setItems(items.filter(i => i.id !== id));
       toast.success('Deleted');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to delete');
     }
   };
@@ -78,7 +79,7 @@ const AdminFAQ = () => {
       await faqService.update(id, { order_index: swapIndex });
       await faqService.update(items[swapIndex].id, { order_index: index });
       setItems(newItems);
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to reorder');
     }
   };

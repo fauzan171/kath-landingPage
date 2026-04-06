@@ -50,10 +50,7 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    console.log('🔍 Checking auth status:', { isAuthenticated, isLoading });
-
     if (!isLoading && isAuthenticated) {
-      console.log('✅ User authenticated, redirecting to dashboard...');
       navigate('/dashboard');
     }
   }, [isAuthenticated, isLoading, navigate]);
@@ -105,22 +102,16 @@ const Login = () => {
 
     setIsSubmitting(true);
 
-    console.log('🔐 Login attempt:', { email: formData.email });
-
     try {
       const result = await login({ email: formData.email, password: formData.password });
 
-      console.log('🔐 Login result:', result);
-
       if (result.success) {
-        console.log('✅ Login success! Navigating to dashboard...');
         navigate('/dashboard');
       } else {
-        console.log('❌ Login failed:', result.message);
         setSubmitError(result.message);
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
+      console.error('[Login] Error:', error);
       setSubmitError('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);

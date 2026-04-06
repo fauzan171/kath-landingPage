@@ -91,14 +91,11 @@ export class ServiceFactory {
         return supabaseServices.submission;
       case 'notification':
         return supabaseServices.notification;
-      case 'profile':
-        // Profile is handled by auth service
-        const auth = await import('./auth.service');
-        return auth.authService;
+      case 'profile':        // Profile is handled by auth service
+        { const auth = await import('./auth.service'); return auth.authService; }
       case 'settings':
         // Settings is handled by auth service
-        const authService = await import('./auth.service');
-        return authService.authService;
+        { const authService = await import('./auth.service'); return authService.authService; }
       default:
         throw new Error(`Unknown service type: ${type}`);
     }

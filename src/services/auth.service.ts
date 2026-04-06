@@ -8,7 +8,10 @@
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
 import { loginRateLimiter, registrationRateLimiter } from '@/utils/security';
+import { createLogger } from '@/utils/logger';
 import type { AuthUser, LoginCredentials, LoginResponse, ApiResponse } from './types';
+
+const log = createLogger('AuthService');
 
 // ============================================
 // Error Mapping - User-friendly messages
@@ -89,7 +92,7 @@ export async function login(
     });
 
     if (error) {
-      console.error('[AuthService.login]', error);
+      log.error('Login failed', error);
       return {
         success: false,
         data: {} as LoginResponse,
@@ -142,7 +145,7 @@ export async function login(
       message: 'Login berhasil',
     };
   } catch (err) {
-    console.error('[AuthService.login] Unexpected error:', err);
+    log.error('Unexpected login error', err);
     return {
       success: false,
       data: {} as LoginResponse,
@@ -189,7 +192,7 @@ export async function register(
     });
 
     if (error) {
-      console.error('[AuthService.register]', error);
+      log.error('Register failed', error);
       return {
         success: false,
         data: { user: {} as AuthUser },
@@ -218,7 +221,7 @@ export async function register(
       message: 'Registrasi berhasil. Silakan cek email untuk konfirmasi.',
     };
   } catch (err) {
-    console.error('[AuthService.register] Unexpected error:', err);
+    log.error('Unexpected register error', err);
     return {
       success: false,
       data: { user: {} as AuthUser },
@@ -235,7 +238,7 @@ export async function logout(): Promise<ApiResponse<void>> {
     if (supabase) {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('[AuthService.logout]', error);
+        log.error('Logout error', error);
       }
     }
 
@@ -250,7 +253,7 @@ export async function logout(): Promise<ApiResponse<void>> {
       message: 'Logout berhasil',
     };
   } catch (err) {
-    console.error('[AuthService.logout] Unexpected error:', err);
+    log.error('Unexpected logout error', err);
 
     // Still clear localStorage even if Supabase fails
     localStorage.removeItem('user');
@@ -281,7 +284,7 @@ export async function refreshToken(): Promise<ApiResponse<{ accessToken: string 
     const { data, error } = await supabase.auth.refreshSession();
 
     if (error) {
-      console.error('[AuthService.refreshToken]', error);
+      log.error('Refresh token failed', error);
       return {
         success: false,
         data: { accessToken: '' },
@@ -303,7 +306,7 @@ export async function refreshToken(): Promise<ApiResponse<{ accessToken: string 
       message: 'Token berhasil diperbarui',
     };
   } catch (err) {
-    console.error('[AuthService.refreshToken] Unexpected error:', err);
+    log.error('Unexpected refresh token error', err);
     return {
       success: false,
       data: { accessToken: '' },
@@ -328,7 +331,7 @@ export async function resetPassword(email: string): Promise<ApiResponse<void>> {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
 
     if (error) {
-      console.error('[AuthService.resetPassword]', error);
+      log.error('Reset password failed', error);
       return {
         success: false,
         data: undefined as void,
@@ -342,7 +345,7 @@ export async function resetPassword(email: string): Promise<ApiResponse<void>> {
       message: 'Email reset password telah dikirim.',
     };
   } catch (err) {
-    console.error('[AuthService.resetPassword] Unexpected error:', err);
+    log.error('Unexpected reset password error', err);
     return {
       success: false,
       data: undefined as void,
@@ -369,7 +372,7 @@ export async function updatePassword(newPassword: string): Promise<ApiResponse<v
     });
 
     if (error) {
-      console.error('[AuthService.updatePassword]', error);
+      log.error('Update password failed', error);
       return {
         success: false,
         data: undefined as void,
@@ -383,7 +386,7 @@ export async function updatePassword(newPassword: string): Promise<ApiResponse<v
       message: 'Password berhasil diperbarui.',
     };
   } catch (err) {
-    console.error('[AuthService.updatePassword] Unexpected error:', err);
+    log.error('Unexpected update password error', err);
     return {
       success: false,
       data: undefined as void,
@@ -434,7 +437,7 @@ export async function getCurrentUserAsync(): Promise<AuthUser | null> {
 
     return authUser;
   } catch (err) {
-    console.error('[AuthService.getCurrentUserAsync]', err);
+    log.error('Get current user async failed', err);
     return null;
   }
 }
@@ -455,7 +458,7 @@ export async function getSession(): Promise<{ accessToken: string; refreshToken:
       refreshToken: session.refresh_token,
     };
   } catch (err) {
-    console.error('[AuthService.getSession]', err);
+    log.error('Get session failed', err);
     return null;
   }
 }

@@ -1,6 +1,16 @@
 // Helper function for bilingual text
 const t = (id: string, en: string) => ({ id, en });
 
+// ============================================
+// CONTACT CONFIGURATION (from env vars with fallbacks)
+// ============================================
+export const appContactConfig = {
+  email: import.meta.env.VITE_CONTACT_EMAIL || 'competition@kath.com',
+  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER || '622112345678',
+  get whatsappUrl() { return `https://wa.me/${this.whatsappNumber}`; },
+  get emailUrl() { return `mailto:${this.email}`; },
+};
+
 // Site-wide configuration
 export interface SiteConfig {
   language: string;

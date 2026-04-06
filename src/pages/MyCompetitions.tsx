@@ -1,39 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Trophy,
-  Search,
-  Filter,
-  Clock,
-  CheckCircle2,
-  Award,
-  Calendar,
-  Users,
-  Plus,
-  MoreHorizontal,
-  Eye,
-  Edit3,
-  FileText,
-  Target,
-  TrendingUp,
-  Star,
-  Bookmark,
-  Share2,
-  MapPin,
-  Building2,
-  Upload,
-  ChevronLeft,
-  X,
-  Trash2,
-  AlertCircle
+  Trophy, Search, Filter, Clock, CheckCircle2, Award, Calendar, Users, Plus,
+  MoreHorizontal, Eye, FileText, Target, TrendingUp, Bookmark,
+  Share2, Upload, ChevronLeft, X, Trash2, AlertCircle
 } from '../icons';
 import {
-  getCompetitions,
-  getTeams,
-  addNotification,
-  type Competition,
-  type Team
-} from '../services/mockData';
+  supabaseCompetitionService,
+  supabaseTeamService,
+} from '../services/supabase.service';
+import type { Competition, Team } from '../types';
 
 const MyCompetitions = () => {
   const navigate = useNavigate();
@@ -45,24 +21,55 @@ const MyCompetitions = () => {
   const [selectedCompetition, setSelectedCompetition] = useState<Competition | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Load data
-  useEffect(() => {
-    setCompetitions(getCompetitions());
-    setTeams(getTeams());
+  // Load data from Supabase
+  const loadData = useCallback(async () => {
+    setIsLoadingData(true);
+    try {
+      // Load competition
+      const competition = await supabaseCompetitionService.getActive();
+      if (competition) {
+        setCompetitions([competition]);
+      }
+
+      // Load teams for this competition
+      if (competition) {
+        const teamData = await supabaseTeamService.getByCompetition(competition.id);
+        setTeams(teamData);
+      }
+    } catch (e) {
+      console.error('Error loading competitions data:', e);
+    } finally {
+      setIsLoadingData(false);
+    }
   }, []);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Map competition status for display
+  const getDisplayStatus = (comp: Competition): string => {
+    if (comp.is_active) return 'in_progress';
+    const status = comp.status;
+    if (status === 'active') return 'in_progress';
+    if (status === 'completed') return 'finished';
+    if (status === 'upcoming') return 'upcoming';
+    return status;
+  };
+
   const filteredCompetitions = competitions.filter((comp) => {
-    if (activeTab === 'active' && (comp.status === 'finished' || comp.status === 'upcoming')) return false;
-    if (activeTab === 'past' && comp.status !== 'finished') return false;
-    if (activeTab === 'upcoming' && comp.status !== 'upcoming') return false;
+    const displayStatus = getDisplayStatus(comp);
+    if (activeTab === 'active' && (displayStatus === 'finished' || displayStatus === 'upcoming')) return false;
+    if (activeTab === 'past' && displayStatus !== 'finished') return false;
+    if (activeTab === 'upcoming' && displayStatus !== 'upcoming') return false;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
         comp.name.toLowerCase().includes(query) ||
-        (comp.category?.toLowerCase().includes(query) ?? false) ||
-        (comp.organizer?.toLowerCase().includes(query) ?? false)
+        (comp.description?.toLowerCase().includes(query) ?? false)
       );
     }
     return true;
@@ -103,32 +110,6 @@ const MyCompetitions = () => {
     }
   };
 
-  const getResultBadge = (result?: string) => {
-    switch (result) {
-      case 'winner':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-gold/20 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/30">
-            <Trophy className="w-4 h-4" />
-            Champion
-          </span>
-        );
-      case 'runner_up':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-400/20 text-slate-300 rounded-full text-sm font-medium border border-slate-400/30">
-            <Award className="w-4 h-4" />
-            Runner Up
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 text-white/50 rounded-full text-sm font-medium border border-white/10">
-            <Star className="w-4 h-4" />
-            Participant
-          </span>
-        );
-    }
-  };
-
   const handleViewDetail = (comp: Competition) => {
     setSelectedCompetition(comp);
     setShowDetailModal(true);
@@ -138,24 +119,10 @@ const MyCompetitions = () => {
     navigate(`/competition/${compId}/submit`);
   };
 
-  const handleEditSubmission = (compId: string) => {
-    navigate(`/competition/${compId}/edit`);
-  };
-
   const handleDelete = (compId: string) => {
-    const updated = competitions.filter(c => c.id !== compId);
-    setCompetitions(updated);
-    localStorage.setItem('kath_competitions', JSON.stringify(updated));
+    setCompetitions(prev => prev.filter(c => c.id !== compId));
     setShowDeleteConfirm(false);
     setShowDetailModal(false);
-    
-    // Add notification
-    addNotification({
-      type: 'info',
-      title: 'Competition Removed',
-      message: 'Kompetisi telah dihapus dari daftar Anda',
-      read: false,
-    });
   };
 
   const handleShare = (comp: Competition) => {
@@ -172,9 +139,9 @@ const MyCompetitions = () => {
 
   const stats = [
     { label: 'Total Competitions', value: competitions.length.toString(), icon: Trophy, trend: '+3' },
-    { label: 'Active', value: competitions.filter(c => c.status === 'in_progress' || c.status === 'registered').length.toString(), icon: Target, trend: '2' },
-    { label: 'Wins', value: competitions.filter(c => c.result === 'winner').length.toString(), icon: Award, trend: '+1' },
-    { label: 'Certificates', value: competitions.filter(c => c.status === 'finished').length.toString(), icon: FileText, trend: '5' },
+    { label: 'Active', value: competitions.filter(c => getDisplayStatus(c) === 'in_progress').length.toString(), icon: Target, trend: '2' },
+    { label: 'Wins', value: '0', icon: Award, trend: '+1' },
+    { label: 'Certificates', value: competitions.filter(c => getDisplayStatus(c) === 'finished').length.toString(), icon: FileText, trend: '5' },
   ];
 
   return (
@@ -232,13 +199,13 @@ const MyCompetitions = () => {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-xl p-1">
               {[
-                { id: 'active', label: 'Active', count: competitions.filter(c => c.status === 'in_progress' || c.status === 'registered').length },
-                { id: 'past', label: 'Past', count: competitions.filter(c => c.status === 'finished').length },
-                { id: 'upcoming', label: 'Upcoming', count: competitions.filter(c => c.status === 'upcoming').length },
+                { id: 'active', label: 'Active', count: competitions.filter(c => getDisplayStatus(c) === 'in_progress').length },
+                { id: 'past', label: 'Past', count: competitions.filter(c => getDisplayStatus(c) === 'finished').length },
+                { id: 'upcoming', label: 'Upcoming', count: competitions.filter(c => getDisplayStatus(c) === 'upcoming').length },
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'active' | 'past' | 'upcoming')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                     activeTab === tab.id
                       ? 'bg-kath-gold/20 text-kath-gold'
@@ -273,166 +240,121 @@ const MyCompetitions = () => {
             </div>
           </div>
 
-          {/* Competition Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredCompetitions.map((comp) => {
-              const status = getStatusConfig(comp.status);
-              const team = teams.find(t => t.competitionId === comp.id);
-              
-              return (
-                <div
-                  key={comp.id}
-                  className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:border-kath-gold/30 transition-all"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={comp.image}
-                      alt={comp.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-kath-bg-dark via-kath-bg-dark/50 to-transparent" />
-                    <div className="absolute top-4 left-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${status.badge}`}>
-                        {status.icon}
-                        {status.label}
-                      </span>
-                    </div>
-                    {comp.status === 'finished' && (
-                      <div className="absolute top-4 right-4">{getResultBadge(typeof comp.result === 'string' ? comp.result : undefined)}</div>
-                    )}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => handleShare(comp)}
-                        className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg backdrop-blur-sm transition-all"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-6">
-                    <div className="mb-4">
-                      <h3 className="font-display text-lg text-white mb-1 group-hover:text-kath-gold transition-colors">
-                        {comp.name}
-                      </h3>
-                      <p className="font-body text-white/50 text-sm">{comp.category}</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Building2 className="w-4 h-4 text-white/40" />
-                        <span className="font-body text-white/60">{comp.organizer}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-white/40" />
-                        <span className="font-body text-white/60">{comp.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-white/40" />
-                        <span className="font-body text-white/60">
-                          {comp.startDate ? new Date(comp.startDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' }) : ''}
-                          {' - '}
-                          {comp.endDate ? new Date(comp.endDate).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="w-4 h-4 text-white/40" />
-                        <span className="font-body text-white/60">
-                          {team?.name || 'Individual'} ({comp.teamSize}/{team?.maxMembers || '-'})
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-body text-white/50 text-sm">Progress</span>
-                        <span className="font-body text-kath-gold text-sm">{comp.progress}%</span>
-                      </div>
-                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-kath-gold to-kath-gold-light rounded-full transition-all"
-                          style={{ width: `${comp.progress}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {comp.status === 'in_progress' && (
-                      <div className="flex items-center gap-2 mb-4 p-3 bg-white/[0.02] rounded-xl">
-                        {comp.hasSubmitted ? (
-                          <>
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                            <span className="font-body text-emerald-400 text-sm">
-                              Submitted on {new Date(comp.submissionDate!).toLocaleDateString('id-ID')}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-5 h-5 text-amber-400" />
-                            <span className="font-body text-amber-400 text-sm">
-                              Deadline: {new Date(comp.deadline).toLocaleDateString('id-ID')}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {comp.prize && (
-                      <div className="flex items-center gap-2 mb-4 p-3 bg-kath-gold/10 border border-kath-gold/20 rounded-xl">
-                        <Trophy className="w-5 h-5 text-kath-gold" />
-                        <span className="font-body text-kath-gold text-sm font-medium">Prize: {comp.prize}</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => handleViewDetail(comp)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-xl transition-all"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </button>
-                      {comp.status === 'in_progress' && !comp.hasSubmitted && (
-                        <button
-                          onClick={() => handleSubmit(comp.id)}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 font-body text-sm font-medium rounded-xl transition-all"
-                        >
-                          <Upload className="w-4 h-4" />
-                          Submit
-                        </button>
-                      )}
-                      {comp.status === 'in_progress' && comp.hasSubmitted && (
-                        <button
-                          onClick={() => handleEditSubmission(comp.id)}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 text-white/70 hover:bg-white/5 font-body text-sm font-medium rounded-xl transition-all"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {filteredCompetitions.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/[0.02] flex items-center justify-center">
-                <Trophy className="w-10 h-10 text-white/20" />
-              </div>
-              <h3 className="font-display text-xl text-white mb-2">No competitions found</h3>
-              <p className="font-body text-white/50 mb-6">
-                {searchQuery ? 'Try adjusting your search query' : 'Start your journey by joining a competition'}
-              </p>
-              <button
-                onClick={() => navigate('/competition')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
-              >
-                <Plus className="w-5 h-5" />
-                Browse Competitions
-              </button>
+          {/* Loading State */}
+          {isLoadingData ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-2 border-kath-gold/30 border-t-kath-gold rounded-full animate-spin" />
             </div>
+          ) : (
+            <>
+              {/* Competition Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredCompetitions.map((comp) => {
+                  const displayStatus = getDisplayStatus(comp);
+                  const status = getStatusConfig(displayStatus);
+                  const team = teams.find(t => t.competition_id === comp.id);
+
+                  return (
+                    <div
+                      key={comp.id}
+                      className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:border-kath-gold/30 transition-all"
+                    >
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={comp.registration_start ? '/competition-placeholder.jpg' : '/competition-placeholder.jpg'}
+                          alt={comp.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q29tcGV0aXRpb248L3RleHQ+PC9zdmc+';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-kath-bg-dark via-kath-bg-dark/50 to-transparent" />
+                        <div className="absolute top-4 left-4">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${status.badge}`}>
+                            {status.icon}
+                            {status.label}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleShare(comp)}
+                            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg backdrop-blur-sm transition-all"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-6">
+                        <div className="mb-4">
+                          <h3 className="font-display text-lg text-white mb-1 group-hover:text-kath-gold transition-colors">
+                            {comp.name}
+                          </h3>
+                          <p className="font-body text-white/50 text-sm">{comp.description?.substring(0, 100)}{comp.description && comp.description.length > 100 ? '...' : ''}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          {comp.registration_start && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Calendar className="w-4 h-4 text-white/40" />
+                              <span className="font-body text-white/60">
+                                {new Date(comp.registration_start).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
+                                {' - '}
+                                {new Date(comp.competition_end || '').toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 text-sm">
+                            <Users className="w-4 h-4 text-white/40" />
+                            <span className="font-body text-white/60">
+                              {team?.name || 'No Team'} ({teams.length} teams)
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleViewDetail(comp)}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body text-sm font-medium rounded-xl transition-all"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Details
+                          </button>
+                          {getDisplayStatus(comp) === 'in_progress' && (
+                            <button
+                              onClick={() => handleSubmit(comp.id)}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 font-body text-sm font-medium rounded-xl transition-all"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Submit
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {filteredCompetitions.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/[0.02] flex items-center justify-center">
+                    <Trophy className="w-10 h-10 text-white/20" />
+                  </div>
+                  <h3 className="font-display text-xl text-white mb-2">No competitions found</h3>
+                  <p className="font-body text-white/50 mb-6">
+                    {searchQuery ? 'Try adjusting your search query' : 'Start your journey by joining a competition'}
+                  </p>
+                  <button
+                    onClick={() => navigate('/competition')}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Browse Competitions
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -444,7 +366,7 @@ const MyCompetitions = () => {
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">{selectedCompetition.name}</h2>
-                <button 
+                <button
                   onClick={() => setShowDetailModal(false)}
                   className="p-2 text-white/60 hover:text-white rounded-lg transition-all"
                 >
@@ -457,32 +379,6 @@ const MyCompetitions = () => {
                 <h3 className="font-body text-white/50 text-sm mb-2">Description</h3>
                 <p className="font-body text-white">{selectedCompetition.description}</p>
               </div>
-              {selectedCompetition.requirements && selectedCompetition.requirements.length > 0 && (
-                <div>
-                  <h3 className="font-body text-white/50 text-sm mb-2">Requirements</h3>
-                  <ul className="space-y-2">
-                    {selectedCompetition.requirements.map((req, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-kath-gold mt-0.5" />
-                        <span className="font-body text-white/70 text-sm">{req}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {selectedCompetition.rules && selectedCompetition.rules.length > 0 && (
-                <div>
-                  <h3 className="font-body text-white/50 text-sm mb-2">Rules</h3>
-                  <ul className="space-y-2">
-                    {selectedCompetition.rules.map((rule, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
-                        <span className="font-body text-white/70 text-sm">{rule}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
             <div className="p-6 border-t border-white/10 flex gap-3">
               <button

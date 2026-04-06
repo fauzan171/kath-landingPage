@@ -14,6 +14,7 @@ const AdminStatistics = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
@@ -35,7 +36,7 @@ const AdminStatistics = () => {
     try {
       await Promise.all(items.map(item => statisticsService.update(item.id, item)));
       toast.success('Statistics saved!');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to save');
     } finally {
       setSaving(false);

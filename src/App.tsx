@@ -5,10 +5,9 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
-import { initializeCIBCData } from './services/cibcMockData';
 
 // Route Protection
-import { AdminRoute, JudgeRoute, ParticipantRoute } from './components/ProtectedRoute';
+import { AdminRoute, JudgeRoute, ParticipantRoute, AuthenticatedRoute } from './components/ProtectedRoute';
 
 // Sections (Landing Page Utama)
 import Navigation from './sections/Navigation';
@@ -37,6 +36,8 @@ import MyTeam from './pages/MyTeam';
 import CompetitionDetail from './pages/CompetitionDetail';
 import SubmissionForm from './pages/SubmissionForm';
 import BMCCompetition from './pages/BMCCompetition';
+import PublicLeaderboard from './pages/PublicLeaderboard';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 // CIBC Competition Pages
 import CIBCLanding from './pages/cibc-landing/CIBCLanding'; // Folder baru untuk Landing Page CIBC
@@ -48,6 +49,7 @@ import ForgotPassword from './pages/cibc/ForgotPassword';
 import VerifyEmail from './pages/cibc/VerifyEmail';
 import ResetPassword from './pages/cibc/ResetPassword';
 import ChangePassword from './pages/cibc/ChangePassword';
+import Rejected from './pages/cibc/Rejected';
 
 // Admin Pages
 import {
@@ -151,9 +153,6 @@ function App() {
     if (siteConfig.language) {
       document.documentElement.lang = siteConfig.language;
     }
-
-    // Initialize CIBC mock data (creates test user)
-    initializeCIBCData();
   }, []);
 
   return (
@@ -162,15 +161,16 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/my-competitions" element={<MyCompetitions />} />
-      <Route path="/competition" element={<MyCompetitions />} />
-      <Route path="/competition/:id" element={<CompetitionDetail />} />
-      <Route path="/competition/:id/submit" element={<SubmissionForm />} />
-      <Route path="/edit-profile" element={<EditProfile />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/my-teams" element={<MyTeam />} />
-      <Route path="/bmc-competition" element={<BMCCompetition />} />
+      {/* Authenticated Participant Routes */}
+      <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
+      <Route path="/my-competitions" element={<AuthenticatedRoute><MyCompetitions /></AuthenticatedRoute>} />
+      <Route path="/competition" element={<AuthenticatedRoute><MyCompetitions /></AuthenticatedRoute>} />
+      <Route path="/competition/:id" element={<AuthenticatedRoute><CompetitionDetail /></AuthenticatedRoute>} />
+      <Route path="/competition/:id/submit" element={<AuthenticatedRoute><SubmissionForm /></AuthenticatedRoute>} />
+      <Route path="/edit-profile" element={<AuthenticatedRoute><EditProfile /></AuthenticatedRoute>} />
+      <Route path="/settings" element={<AuthenticatedRoute><Settings /></AuthenticatedRoute>} />
+      <Route path="/my-teams" element={<AuthenticatedRoute><MyTeam /></AuthenticatedRoute>} />
+      <Route path="/bmc-competition" element={<AuthenticatedRoute><BMCCompetition /></AuthenticatedRoute>} />
 
       {/* CIBC Routes - Protected */}
       <Route path="/cibc" element={<CIBCLanding />} />
@@ -181,7 +181,12 @@ function App() {
       <Route path="/cibc/verify-email" element={<VerifyEmail />} />
       <Route path="/cibc/reset-password" element={<ResetPassword />} />
       <Route path="/cibc/change-password" element={<ChangePassword />} />
+      <Route path="/cibc/rejected" element={<Rejected />} />
       <Route path="/cibc/dashboard" element={<ParticipantRoute><CIBCDashboard /></ParticipantRoute>} />
+
+      {/* Public Competition Pages */}
+      <Route path="/cibc/leaderboard" element={<PublicLeaderboard />} />
+      <Route path="/cibc/terms" element={<TermsAndConditions />} />
 
       {/* Admin Routes - Protected */}
       <Route path="/admin/login" element={<AdminLogin />} />
@@ -225,6 +230,17 @@ function App() {
         <Route index element={<JudgeDashboard />} />
         <Route path="grading/:submissionId" element={<JudgeGrading />} />
       </Route>
+
+      {/* 404 Catch-All */}
+      <Route path="*" element={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1>
+            <p className="text-xl text-gray-600 mb-6">Page not found</p>
+            <a href="/" className="text-blue-600 hover:text-blue-800 font-medium">Back to Home</a>
+          </div>
+        </div>
+      } />
     </Routes>
   );
 }

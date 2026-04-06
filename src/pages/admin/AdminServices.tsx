@@ -76,7 +76,7 @@ const AdminServices = () => {
       await servicesService.delete(id);
       setItems(items.filter(i => i.id !== id));
       toast.success('Service deleted');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete');
     }
   };
@@ -85,7 +85,7 @@ const AdminServices = () => {
     try {
       const updated = await servicesService.update(item.id, { is_active: !item.is_active });
       setItems(items.map(i => i.id === item.id ? updated : i));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update');
     }
   };

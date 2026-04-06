@@ -46,7 +46,7 @@ export const validatePassword = (password: string): PasswordValidationResult => 
   }
 
   // Special character check (bonus)
-  const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
   // Check for common patterns
   const commonPatterns = [

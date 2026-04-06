@@ -15,6 +15,7 @@ const AdminSubmissions = () => {
   const [gradeForm, setGradeForm] = useState({ score: 0, feedback: '' });
   const [filter, setFilter] = useState<'all' | 'submitted' | 'graded' | 'draft'>('all');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -35,13 +36,20 @@ const AdminSubmissions = () => {
     if (!selectedSubmission) return;
     setGradingId(selectedSubmission.id);
     try {
-      // TODO: Get admin ID from auth context
+      // Get admin ID from Supabase auth
+      const { supabase: sb } = await import('@/lib/supabase');
+      if (!sb) throw new Error('Supabase not configured');
+      const { data: { user } } = await sb.auth.getUser();
       await submissionsService.grade(selectedSubmission.id, gradeForm.score, undefined, gradeForm.feedback);
+      // Update graded_by separately since grade() doesn't accept it
+      if (user?.id) {
+        await sb.from('submissions').update({ graded_by: user.id }).eq('id', selectedSubmission.id);
+      }
       toast.success('Submission graded!');
       load();
       setSelectedSubmission(null);
       setGradeForm({ score: 0, feedback: '' });
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to grade');
     } finally {
       setGradingId(null);

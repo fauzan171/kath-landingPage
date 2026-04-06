@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { createLogger } from '@/utils/logger';
 import {
   login as loginService,
   logout as logoutService,
@@ -22,6 +23,8 @@ import {
   isAuthenticatedAsync,
 } from '../services/auth.service';
 import type { LoginCredentials, AuthUser } from '../services/types';
+
+const log = createLogger('useAuth');
 
 interface UseAuthReturn {
   user: AuthUser | null;
@@ -47,7 +50,7 @@ export function useAuth(): UseAuthReturn {
         const currentUser = await getCurrentUserAsync();
         setUser(currentUser);
       } catch (err) {
-        console.error('Auth check failed:', err);
+        log.error('Auth check failed', err);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -104,7 +107,7 @@ export function useAuth(): UseAuthReturn {
       await logoutService();
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error instanceof Error ? error.message : error);
+      log.error('Logout error', error instanceof Error ? error.message : error);
       // Still logout locally even if API fails
       setUser(null);
     } finally {
@@ -137,7 +140,7 @@ export function useAuth(): UseAuthReturn {
       const currentUser = await getCurrentUserAsync();
       setUser(currentUser);
     } catch (err) {
-      console.error('Refresh user failed:', err);
+      log.error('Refresh user failed', err);
     }
   }, []);
 

@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Trophy, Users, Award, Clock, ArrowRight, Rocket } from 'lucide-react';
+import { useCountdownDeadline } from '../hooks/useCountdownDeadline';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,30 +17,8 @@ const Competition = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // Countdown timer
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const deadline = new Date(competitionConfig.mainCompetition.deadline);
-
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const diff = deadline.getTime() - now.getTime();
-
-      if (diff > 0) {
-        setTimeLeft({
-          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((diff / 1000 / 60) % 60),
-          seconds: Math.floor((diff / 1000) % 60),
-        });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Countdown timer - reads deadline from Supabase (admin controlled via stage end_date)
+  const { timeLeft } = useCountdownDeadline();
 
   // Animasi GSAP In saat Scroll
   useEffect(() => {

@@ -40,8 +40,17 @@ const AdminRegistrations = () => {
       const comp = await competitionService.getActive();
       if (comp) {
         const data = await teamsService.getAll(comp.id);
-        // TODO: Load members for each team
-        setTeams(data as TeamWithMembers[]);
+        // Load members for each team
+        const teamsWithMembers = await Promise.all(
+          (data as TeamWithMembers[]).map(async (team) => {
+            const { data: members } = await supabase!
+              .from('team_members')
+              .select('id, user_id, role, full_name, email, institution')
+              .eq('team_id', team.id);
+            return { ...team, members: members || [] };
+          })
+        );
+        setTeams(teamsWithMembers);
       }
     } catch (error) {
       console.error('Failed to load teams:', error);
@@ -62,7 +71,7 @@ const AdminRegistrations = () => {
       await teamsService.verify(teamId, adminId);
       toast.success('Team verified successfully!');
       loadTeams();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to verify team');
     } finally {
       setProcessing(null);
@@ -75,7 +84,7 @@ const AdminRegistrations = () => {
       await teamsService.reject(teamId, reason);
       toast.success('Team rejected');
       loadTeams();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to reject team');
     } finally {
       setProcessing(null);

@@ -13,7 +13,6 @@
     "lint": "eslint .",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
-    "deploy:staging": "npm run build && wrangler pages deploy dist --project-name=kath-event-organizer --branch=staging",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

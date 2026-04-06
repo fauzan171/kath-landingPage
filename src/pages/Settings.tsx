@@ -509,7 +509,7 @@ const Settings = () => {
                 role="tab"
                 aria-selected={activeTab === tab.id}
                 aria-controls={`tabpanel-${tab.id}`}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'password' | 'notifications' | 'privacy')}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                   activeTab === tab.id
                     ? 'bg-kath-gold/20 text-kath-gold'

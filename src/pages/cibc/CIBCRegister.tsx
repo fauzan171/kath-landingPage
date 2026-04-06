@@ -109,7 +109,7 @@ const CIBCRegister = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
-  const [paymentUploaded, setPaymentUploaded] = useState<string | null>(null);
+  const [_paymentUploaded, setPaymentUploaded] = useState<string | null>(null);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -292,52 +292,14 @@ const CIBCRegister = () => {
         // Redirect to pending approval page
         navigate('/cibc/pending-approval');
       } else {
-        // Fallback to localStorage (mock mode)
-        // SECURITY: Do NOT store passwords in localStorage
-        const userId = `user_${Date.now()}`;
-        const teamId = `team_${Date.now()}`;
-        const teamCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-
-        const newUser = {
-          id: userId,
-          email: step1Data.email,
-          // Password is NOT stored - authentication is handled by Supabase
-          // For mock mode, we use simple email-based lookup
-          fullName: step2Data.fullName,
-          category: step3Data.category,
-          teamId: teamId,
-          createdAt: new Date().toISOString(),
-          status: 'pending', // PENDING - needs admin approval
-        };
-
-        const newTeam = {
-          id: teamId,
-          name: step4Data.teamName || `${step2Data.fullName}'s Team`,
-          code: teamCode,
-          category: step3Data.category,
-          leaderId: userId,
-          members: [{ id: `mem_${Date.now()}`, name: step2Data.fullName, email: step1Data.email, role: 'leader' as const, status: 'active' as const, institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName, joinedAt: new Date().toISOString() }],
-          maxMembers: step3Data.category === 'corporate' ? 10 : 5,
-          createdAt: new Date().toISOString(),
-          status: 'forming' as const,
-          paymentStatus: paymentUploaded ? 'pending' : 'not_uploaded',
-          paymentProof: paymentUploaded,
-        };
-
-        const users = JSON.parse(localStorage.getItem('cibc_users') || '[]');
-        users.push(newUser);
-        localStorage.setItem('cibc_users', JSON.stringify(users));
-
-        const teams = JSON.parse(localStorage.getItem('cibc_teams') || '[]');
-        teams.push(newTeam);
-        localStorage.setItem('cibc_teams', JSON.stringify(teams));
-
-        toast.success(language === 'id' ? 'Registrasi berhasil!' : 'Registration successful!', {
+        // Supabase not configured - cannot register
+        toast.error(language === 'id' ? 'Konfigurasi server belum selesai' : 'Server not configured', {
           description: language === 'id'
-            ? 'Akun Anda sedang menunggu persetujuan admin.'
-            : 'Your account is pending admin approval.'
+            ? 'Registrasi tidak tersedia saat ini. Hubungi panitia.'
+            : 'Registration is not available right now. Please contact the organizer.'
         });
-        navigate('/cibc/pending-approval');
+        setIsSubmitting(false);
+        return;
       }
     } catch (error) {
       console.error('Registration error:', error);

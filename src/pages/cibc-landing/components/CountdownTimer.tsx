@@ -1,29 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCountdownDeadline } from '@/hooks/useCountdownDeadline';
 
-export const CountdownTimer = () => {
+interface CountdownTimerProps {
+    targetDate?: string | null;
+}
+
+/**
+ * Countdown timer component for CIBC landing page.
+ * Uses the shared useCountdownDeadline hook which has real-time
+ * Supabase subscription - admin changes are reflected immediately.
+ *
+ * If `targetDate` prop is provided, it overrides the Supabase deadline
+ * and computes countdown locally with interval.
+ */
+export const CountdownTimer = ({ targetDate: propTargetDate }: CountdownTimerProps) => {
     const { language } = useLanguage();
+    const { timeLeft: fetchedTimeLeft } = useCountdownDeadline();
 
-    // Set target date (Demo purposes)
-    const [timeLeft, setTimeLeft] = useState({
-        days: 30,
-        hours: 12,
-        minutes: 45,
-        seconds: 0
+    const [localTimeLeft, setLocalTimeLeft] = useState({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
     });
 
+    // When propTargetDate is provided, compute countdown locally with interval
+    // Otherwise use the real-time fetched timeLeft from the hook
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-                if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-                if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-                if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-                return prev;
-            });
-        }, 1000);
+        if (!propTargetDate) return;
+
+        const target = new Date(propTargetDate);
+
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const diff = target.getTime() - now.getTime();
+
+            if (diff > 0) {
+                setLocalTimeLeft({
+                    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((diff / 1000 / 60) % 60),
+                    seconds: Math.floor((diff / 1000) % 60),
+                });
+            } else {
+                setLocalTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+            }
+        };
+
+        calculateTimeLeft();
+        const timer = setInterval(calculateTimeLeft, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [propTargetDate]);
+
+    // Use prop override or the real-time fetched timeLeft
+    const timeLeft = propTargetDate ? localTimeLeft : fetchedTimeLeft;
 
     const timeBlocks = [
         { label: language === 'id' ? 'Hari' : 'Days', value: timeLeft.days },

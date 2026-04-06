@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { FileText, AlertCircle, Download, Star, Clock, CheckCircle2, XCircle, Upload, Plus, Eye } from 'lucide-react';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import {
+  CheckCircle2, Clock, XCircle, AlertCircle,
+  Plus, Eye, Upload, FileText, Star, Download,
+} from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { TeamData, SubmissionData, TaskData, StageData, CurrentUser } from '../CIBCDashboard';
 import SubmissionFormSection from './SubmissionFormSection';
 
@@ -12,6 +15,8 @@ interface SubmissionSectionProps {
   competition?: any;
   currentUser?: CurrentUser | null;
   onRefresh: () => void;
+  paymentStatus?: string;
+  paymentProof?: string;
 }
 
 const SubmissionSection = ({
@@ -21,7 +26,9 @@ const SubmissionSection = ({
   stages,
   competition,
   currentUser: _currentUser,
-  onRefresh
+  onRefresh,
+  paymentStatus: _paymentStatus,
+  paymentProof: _paymentProof,
 }: SubmissionSectionProps) => {
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'upload' | 'status'>('upload');
@@ -151,6 +158,8 @@ const SubmissionSection = ({
           competitionId={competition.id}
           existingSubmissions={submissions}
           onSubmissionComplete={onRefresh}
+          paymentStatus={team?.payment_status}
+          paymentProof={team?.payment_proof}
         />
       )}
 

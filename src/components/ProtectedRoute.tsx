@@ -5,7 +5,7 @@
  * Uses Supabase Auth for session management and checks user role/status.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
@@ -60,11 +60,7 @@ const ProtectedRoute = ({
     error: null,
   });
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       // Check if Supabase is configured
       if (!supabase) {
@@ -99,17 +95,13 @@ const ProtectedRoute = ({
 
       if (userError || !userData) {
         // User exists in auth but not in users table
-        // This could happen if trigger failed - create basic user state
+        // This could happen if trigger failed - do NOT grant access
+        console.error('User found in auth but not in users table:', session.user.id);
         setAuthState({
           isLoading: false,
-          isAuthenticated: true,
-          user: {
-            id: session.user.id,
-            email: session.user.email || '',
-            role: 'participant',
-            status: 'pending',
-          },
-          error: null,
+          isAuthenticated: false,
+          user: null,
+          error: 'Account not properly configured. Please contact support.',
         });
         return;
       }
@@ -134,7 +126,11 @@ const ProtectedRoute = ({
         error: 'Failed to verify authentication',
       });
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   // Loading state
   if (authState.isLoading) {

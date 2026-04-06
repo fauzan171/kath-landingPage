@@ -79,6 +79,7 @@ const AdminUsers = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'verified' | 'pending' | 'rejected'>('all');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -101,7 +102,7 @@ const AdminUsers = () => {
       await teamsService.update(teamId, { status: 'rejected' });
       toast.success('Team rejected');
       load();
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to disqualify');
     }
   };
@@ -111,7 +112,7 @@ const AdminUsers = () => {
       await teamsService.update(teamId, { status: 'verified' });
       toast.success('Team reinstated');
       load();
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to reinstate');
     }
   };

@@ -1,14 +1,18 @@
 /**
  * Judge Grading Page
  *
- * Grade submissions with blind grading (cannot see team name/institution)
+ * Grade submissions with per-criterion scoring.
+ * Shows team name, leader name, submission time for context.
+ * Scores are stored in judge_scores table separately per judge.
+ * Feedback is saved to BOTH judge_scores AND submissions.feedback (visible to participant).
  */
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Loader2, CheckCircle, AlertCircle, Star, Save,
-  FileText, ExternalLink, ArrowLeft
+  Loader2, CheckCircle, AlertCircle, Save,
+  FileText, ExternalLink, ArrowLeft, MessageSquare,
+  Users, Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -22,6 +26,8 @@ interface Submission {
   file_url?: string;
   file_name?: string;
   content?: string;
+  field_values?: Record<string, unknown>;
+  submitted_at?: string;
   task: {
     id: string;
     name: string;
@@ -33,6 +39,23 @@ interface Submission {
       max_points: number;
     }>;
   };
+  team?: {
+    id: string;
+    name: string;
+    institution?: string;
+    leader_name?: string;
+    leader_email?: string;
+  };
+}
+
+interface JudgeScore {
+  id?: string;
+  judge_id: string;
+  submission_id: string;
+  criterion_key: string;
+  score: number;
+  max_score: number;
+  feedback: string;
 }
 
 // ============================================
@@ -48,17 +71,19 @@ const JudgeGrading = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Grading state
+  // Grading state - per criterion
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [criterionFeedback, setCriterionFeedback] = useState<Record<string, string>>({});
+  const [generalFeedback, setGeneralFeedback] = useState('');
   const [totalScore, setTotalScore] = useState(0);
-  const [feedback, setFeedback] = useState('');
+  const [existingScores, setExistingScores] = useState<JudgeScore[]>([]);
 
   useEffect(() => {
     loadSubmission();
   }, [submissionId]);
 
   useEffect(() => {
-    // Calculate total score
+    // Calculate total score from criterion scores
     const total = Object.values(scores).reduce((sum, score) => sum + score, 0);
     setTotalScore(total);
   }, [scores]);
@@ -90,10 +115,19 @@ const JudgeGrading = () => {
 
       setAssignment(assignmentData);
 
-      // Get submission (blind - no team info)
+      // Get submission WITH team info (judge can see team details)
       const { data: submissionData, error: submissionError } = await supabase
         .from('submissions')
-        .select('id, file_url, file_name, content, task_id')
+        .select(`
+          id,
+          file_url,
+          file_name,
+          content,
+          field_values,
+          submitted_at,
+          task_id,
+          team_id
+        `)
         .eq('id', submissionId)
         .single();
 
@@ -106,11 +140,77 @@ const JudgeGrading = () => {
         .eq('id', submissionData?.task_id)
         .single();
 
+      // Get team details (name, leader, institution)
+      let teamData: Submission['team'] | null = null;
+      if (submissionData?.team_id) {
+        const { data: team } = await supabase
+          .from('teams')
+          .select('id, name, institution, leader_id')
+          .eq('id', submissionData.team_id)
+          .single();
+
+        if (team) {
+          // Get leader name from team_members
+          let leaderName = '';
+          let leaderEmail = '';
+          if (team.leader_id) {
+            const { data: leaderProfile } = await supabase
+              .from('team_members')
+              .select('user_id, role')
+              .eq('team_id', team.id)
+              .eq('role', 'leader')
+              .single();
+
+            if (leaderProfile) {
+              const { data: leaderUser } = await supabase
+                .from('users')
+                .select('name, email')
+                .eq('id', leaderProfile.user_id)
+                .single();
+
+              leaderName = leaderUser?.name || '';
+              leaderEmail = leaderUser?.email || '';
+            }
+          }
+
+          // Fallback: get first member as leader if no explicit leader
+          if (!leaderName) {
+            const { data: members } = await supabase
+              .from('team_members')
+              .select('user_id, role')
+              .eq('team_id', team.id)
+              .order('joined_at', { ascending: true })
+              .limit(1);
+
+            if (members && members.length > 0) {
+              const { data: firstMember } = await supabase
+                .from('users')
+                .select('name, email')
+                .eq('id', members[0].user_id)
+                .single();
+
+              leaderName = firstMember?.name || '';
+              leaderEmail = firstMember?.email || '';
+            }
+          }
+
+          teamData = {
+            id: team.id,
+            name: team.name,
+            institution: team.institution,
+            leader_name: leaderName,
+            leader_email: leaderEmail,
+          };
+        }
+      }
+
       const fullSubmission: Submission = {
         id: submissionData?.id || '',
         file_url: submissionData?.file_url || undefined,
         file_name: submissionData?.file_name || undefined,
         content: submissionData?.content || undefined,
+        field_values: submissionData?.field_values || undefined,
+        submitted_at: submissionData?.submitted_at || undefined,
         task: {
           id: taskData?.id || '',
           name: taskData?.name || 'Unknown Task',
@@ -118,6 +218,7 @@ const JudgeGrading = () => {
           max_score: taskData?.max_score || 100,
           rubric: taskData?.rubric || [],
         },
+        team: teamData || undefined,
       };
 
       setSubmission(fullSubmission);
@@ -125,10 +226,48 @@ const JudgeGrading = () => {
       // Initialize scores from rubric
       if (taskData?.rubric && Array.isArray(taskData.rubric)) {
         const initialScores: Record<string, number> = {};
+        const initialFeedback: Record<string, string> = {};
         taskData.rubric.forEach((_: unknown, index: number) => {
           initialScores[`criterion_${index}`] = 0;
+          initialFeedback[`criterion_${index}`] = '';
         });
         setScores(initialScores);
+        setCriterionFeedback(initialFeedback);
+      }
+
+      // Load existing scores from judge_scores table
+      const { data: existingScoreData } = await supabase
+        .from('judge_scores')
+        .select('*')
+        .eq('judge_id', user.id)
+        .eq('submission_id', submissionId);
+
+      if (existingScoreData && existingScoreData.length > 0) {
+        const savedScores: Record<string, number> = {};
+        const savedFeedback: Record<string, string> = {};
+        const scoreRecords: JudgeScore[] = [];
+
+        existingScoreData.forEach((record: JudgeScore) => {
+          savedScores[record.criterion_key] = record.score;
+          savedFeedback[record.criterion_key] = record.feedback || '';
+          scoreRecords.push(record);
+        });
+
+        setScores(savedScores);
+        setCriterionFeedback(savedFeedback);
+        setExistingScores(scoreRecords);
+
+        // Also load general feedback from assignment notes
+        if (assignmentData) {
+          const { data: assignDetail } = await supabase
+            .from('judge_assignments')
+            .select('notes')
+            .eq('id', assignmentData.id)
+            .single();
+          if (assignDetail?.notes) {
+            setGeneralFeedback(assignDetail.notes);
+          }
+        }
       }
 
       // Update assignment status to in_progress
@@ -153,6 +292,13 @@ const JudgeGrading = () => {
     }));
   };
 
+  const handleCriterionFeedbackChange = (criterionKey: string, value: string) => {
+    setCriterionFeedback(prev => ({
+      ...prev,
+      [criterionKey]: value
+    }));
+  };
+
   const handleSave = async (isFinal: boolean = false) => {
     if (!submission || !assignment || !supabase) return;
 
@@ -161,28 +307,72 @@ const JudgeGrading = () => {
       return;
     }
 
+    // Validate: feedback is mandatory for final submission
+    if (isFinal) {
+      const hasAnyFeedback = Object.values(criterionFeedback).some(f => f.trim().length > 0) || generalFeedback.trim().length > 0;
+      if (!hasAnyFeedback) {
+        toast.error('Please provide feedback for at least one criterion before submitting');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Update submission with judge's score
-      // Note: In a real system, you'd store each judge's score separately
-      // For now, we'll store it in criteria_scores with judge_id as key
-      const { error: submissionError } = await supabase
-        .from('submissions')
-        .update({
-          criteria_scores: {
-            ...scores,
-            [`judge_${user.id}`]: totalScore
-          },
-          feedback: feedback || null,
-        })
-        .eq('id', submission.id);
+      // Save/update each criterion score in judge_scores table
+      const rubric = submission.task?.rubric || [];
+      const scorePromises = rubric.map(async (criterion: { criterion: string; max_points: number }, index: number) => {
+        const key = `criterion_${index}`;
+        const score = scores[key] || 0;
+        const feedback = criterionFeedback[key] || '';
 
-      if (submissionError) throw submissionError;
+        // Check if score already exists
+        const existing = existingScores.find(s => s.criterion_key === key);
 
-      // If final, mark assignment as completed
+        if (existing?.id) {
+          // Update existing score
+          return supabase!
+            .from('judge_scores')
+            .update({
+              score,
+              max_score: criterion.max_points,
+              feedback,
+            })
+            .eq('id', existing.id);
+        } else {
+          // Insert new score
+          return supabase!
+            .from('judge_scores')
+            .insert({
+              judge_id: user.id,
+              submission_id: submission.id,
+              criterion_key: key,
+              score,
+              max_score: criterion.max_points,
+              feedback,
+            });
+        }
+      });
+
+      await Promise.all(scorePromises);
+
+      // Save general feedback in assignment notes AND submissions.feedback
+      await supabase
+        .from('judge_assignments')
+        .update({ notes: generalFeedback || null })
+        .eq('id', assignment.id);
+
+      // Save feedback to submissions table so participant can see it
+      if (generalFeedback.trim()) {
+        await supabase
+          .from('submissions')
+          .update({ feedback: generalFeedback })
+          .eq('id', submission.id);
+      }
+
+      // If final, mark assignment as completed and update submission aggregate score
       if (isFinal) {
         const { error: assignmentError } = await supabase
           .from('judge_assignments')
@@ -190,11 +380,17 @@ const JudgeGrading = () => {
           .eq('id', assignment.id);
 
         if (assignmentError) throw assignmentError;
+
+        // Calculate aggregate score from all judges
+        await calculateAggregateScore(submission.id);
       }
 
       toast.success(isFinal ? 'Grading submitted!' : 'Progress saved!');
       if (isFinal) {
         navigate('/judge');
+      } else {
+        // Reload to get updated scores
+        loadSubmission();
       }
     } catch (error) {
       console.error('Error saving:', error);
@@ -202,6 +398,60 @@ const JudgeGrading = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  /**
+   * Calculate aggregate score from all judges for a submission.
+   * This averages all judge scores and updates the submission's total_score.
+   */
+  const calculateAggregateScore = async (subId: string) => {
+    if (!supabase) return;
+
+    // Get all completed judge_assignments for this submission
+    const { data: completedAssignments } = await supabase
+      .from('judge_assignments')
+      .select('judge_id')
+      .eq('submission_id', subId)
+      .eq('status', 'completed');
+
+    if (!completedAssignments || completedAssignments.length === 0) return;
+
+    // Get all scores from all judges
+    const judgeIds = completedAssignments.map((a: { judge_id: string }) => a.judge_id);
+    const { data: allScores } = await supabase
+      .from('judge_scores')
+      .select('judge_id, score')
+      .eq('submission_id', subId)
+      .in('judge_id', judgeIds);
+
+    if (!allScores || allScores.length === 0) return;
+
+    // Calculate average per judge, then average across judges
+    const judgeTotals: Record<string, number> = {};
+    const judgeCounts: Record<string, number> = {};
+
+    (allScores as Array<{ judge_id: string; score: number }>).forEach((s) => {
+      judgeTotals[s.judge_id] = (judgeTotals[s.judge_id] || 0) + s.score;
+      judgeCounts[s.judge_id] = (judgeCounts[s.judge_id] || 0) + 1;
+    });
+
+    const judgeAverages = Object.keys(judgeTotals).map(judgeId =>
+      judgeTotals[judgeId] / judgeCounts[judgeId]
+    );
+
+    const aggregateScore = Math.round(
+      judgeAverages.reduce((sum, avg) => sum + avg, 0) / judgeAverages.length
+    );
+
+    // Update submission with aggregate score
+    await supabase
+      .from('submissions')
+      .update({
+        total_score: aggregateScore,
+        status: 'graded',
+        graded_at: new Date().toISOString(),
+      })
+      .eq('id', subId);
   };
 
   if (loading) {
@@ -224,6 +474,10 @@ const JudgeGrading = () => {
   const rubric = submission.task?.rubric || [];
   const maxScore = submission.task?.max_score || 100;
 
+  // Check if BMC structured data exists
+  const bmcFields = submission.field_values as Record<string, string> | undefined;
+  const isStructuredBMC = bmcFields && bmcFields.mode === 'structured';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -240,20 +494,73 @@ const JudgeGrading = () => {
         </div>
       </div>
 
-      {/* Blind Grading Notice */}
-      <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-        <div className="flex items-center gap-2">
-          <Star className="w-5 h-5 text-purple-600" />
-          <span className="text-sm text-purple-800 font-medium">Blind Grading Mode</span>
+      {/* ============================================ */}
+      {/* Team Info Card */}
+      {/* ============================================ */}
+      {submission.team && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Users className="w-5 h-5 text-purple-500" />
+            Team Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Team Name */}
+            <div className="p-3 bg-purple-50 rounded-lg">
+              <p className="text-xs text-purple-600 font-medium uppercase tracking-wider mb-1">Team Name</p>
+              <p className="font-semibold text-gray-800">{submission.team.name}</p>
+            </div>
+            {/* Leader */}
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <p className="text-xs text-blue-600 font-medium uppercase tracking-wider mb-1">Team Leader</p>
+              <p className="font-semibold text-gray-800">{submission.team.leader_name || 'N/A'}</p>
+              {submission.team.leader_email && (
+                <p className="text-xs text-gray-500 mt-0.5">{submission.team.leader_email}</p>
+              )}
+            </div>
+            {/* Institution */}
+            <div className="p-3 bg-green-50 rounded-lg">
+              <p className="text-xs text-green-600 font-medium uppercase tracking-wider mb-1">Institution</p>
+              <p className="font-semibold text-gray-800">{submission.team.institution || 'N/A'}</p>
+            </div>
+          </div>
+          {/* Submission Time */}
+          {submission.submitted_at && (
+            <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+              <Clock className="w-4 h-4" />
+              <span>
+                Submitted: {new Date(submission.submitted_at).toLocaleString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            </div>
+          )}
         </div>
-        <p className="text-sm text-purple-700 mt-1">
-          Anda menilai Submission #{submission.id.slice(0, 8)}. Nama tim dan institusi disembunyikan.
-        </p>
-      </div>
+      )}
 
       {/* Submission Content */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h3 className="font-semibold text-gray-800 mb-4">Submission Content</h3>
+
+        {/* BMC Structured Content */}
+        {isStructuredBMC && (
+          <div className="space-y-3 mb-6">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Business Model Canvas</p>
+            {Object.entries(bmcFields)
+              .filter(([key]) => key !== 'mode' && key !== 'files' && key !== 'file_count')
+              .map(([key, value]) => (
+                <div key={key} className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">
+                    {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{value || '(empty)'}</p>
+                </div>
+              ))}
+          </div>
+        )}
 
         {submission.file_url ? (
           <div className="space-y-4">
@@ -274,13 +581,13 @@ const JudgeGrading = () => {
               </a>
             </div>
           </div>
-        ) : submission.content ? (
+        ) : !isStructuredBMC && submission.content ? (
           <div className="prose prose-sm max-w-none">
             <p className="text-gray-700 whitespace-pre-wrap">{submission.content}</p>
           </div>
-        ) : (
+        ) : !isStructuredBMC ? (
           <p className="text-gray-500">No content submitted</p>
-        )}
+        ) : null}
       </div>
 
       {/* Rubric Grading */}
@@ -290,15 +597,17 @@ const JudgeGrading = () => {
         {rubric.length > 0 ? (
           <div className="space-y-6">
             {rubric.map((criterion: { criterion: string; description: string; max_points: number }, index: number) => (
-              <div key={index} className="border-b border-gray-100 pb-4 last:border-0">
-                <div className="flex items-start justify-between mb-2">
+              <div key={index} className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
+                <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="font-medium text-gray-800">{criterion.criterion}</p>
                     <p className="text-sm text-gray-500">{criterion.description}</p>
                   </div>
-                  <span className="text-sm text-gray-500">Max: {criterion.max_points} pts</span>
+                  <span className="text-sm text-gray-500 whitespace-nowrap ml-4">Max: {criterion.max_points} pts</span>
                 </div>
-                <div className="flex items-center gap-4">
+
+                {/* Score Slider */}
+                <div className="flex items-center gap-4 mb-3">
                   <input
                     type="range"
                     min="0"
@@ -314,6 +623,18 @@ const JudgeGrading = () => {
                     value={scores[`criterion_${index}`] || 0}
                     onChange={(e) => handleScoreChange(`criterion_${index}`, Math.min(criterion.max_points, Math.max(0, parseInt(e.target.value) || 0)))}
                     className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-center font-medium"
+                  />
+                </div>
+
+                {/* Per-criterion Feedback */}
+                <div className="flex items-start gap-2">
+                  <MessageSquare className="w-4 h-4 text-gray-400 mt-2 flex-shrink-0" />
+                  <textarea
+                    value={criterionFeedback[`criterion_${index}`] || ''}
+                    onChange={(e) => handleCriterionFeedbackChange(`criterion_${index}`, e.target.value)}
+                    placeholder="Feedback for this criterion (required for final submission)..."
+                    rows={2}
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none"
                   />
                 </div>
               </div>
@@ -353,13 +674,19 @@ const JudgeGrading = () => {
         </div>
       </div>
 
-      {/* Feedback */}
+      {/* General Feedback */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-800 mb-4">Feedback (Optional)</h3>
+        <h3 className="font-semibold text-gray-800 mb-2">
+          General Feedback
+          <span className="text-red-500 text-sm ml-1">*</span>
+        </h3>
+        <p className="text-xs text-gray-500 mb-3">
+          Feedback ini akan terlihat oleh peserta. Wajib diisi sebelum submit final.
+        </p>
         <textarea
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-          placeholder="Provide feedback for the team..."
+          value={generalFeedback}
+          onChange={(e) => setGeneralFeedback(e.target.value)}
+          placeholder="Provide overall feedback for the team..."
           rows={4}
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none"
         />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { faqConfig } from '../config';
@@ -12,13 +12,10 @@ const FAQ = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [openItems, setOpenItems] = useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('');
   const { language } = useLanguage();
 
-  // Set initial category based on language
-  useEffect(() => {
-    setActiveCategory(language === 'id' ? 'Umum' : 'General');
-  }, [language]);
+  // Derive initial category from language, allow user to change it
+  const [activeCategory, setActiveCategory] = useState<string>(() => language === 'id' ? 'Umum' : 'General');
 
   const toggleItem = (id: string) => {
     setOpenItems((prev) =>

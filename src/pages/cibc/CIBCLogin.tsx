@@ -15,13 +15,9 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 // import { Checkbox } from '@/components/ui/checkbox';
 import { supabaseAuthService } from '@/services/supabase.service';
-import { isSupabaseConfigured, env } from '@/config/environment';
+import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured } from '@/config/environment';
 import { useCSRFToken } from '@/components/CSRFProtectedForm';
-import { verifyPassword } from '@/utils/security';
-
-// Fixed test password for mock mode development only
-// SECURITY: This must NEVER be used in production
-const MOCK_TEST_PASSWORD = 'TestPass123!';
 
 const CIBCLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -128,20 +124,7 @@ const CIBCLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Try mock login first if useMockData is true
-      if (env.useMockData) {
-        const mockUser = await mockLogin(formData.email, formData.password);
-        if (mockUser) {
-          toast.success('Welcome back!', {
-            description: 'Login successful. Redirecting to dashboard...',
-          });
-          navigate('/cibc/dashboard');
-          return;
-        }
-        throw new Error('Invalid email or password');
-      }
-
-      // Try Supabase Auth
+      // Supabase Auth only - no mock data
       if (!isSupabaseConfigured()) {
         toast.error('Supabase is not configured. Please check your .env file.');
         setIsLoading(false);
@@ -219,13 +202,6 @@ const CIBCLogin: React.FC = () => {
 
             // ✅ Cek force_password_change — user pakai password sementara dari admin
             if (userData?.force_password_change === true) {
-              localStorage.setItem('cibc_current_user', JSON.stringify({
-                id: user.id,
-                email: user.email,
-                fullName: userData?.name || user.email?.split('@')[0],
-                category: userData?.category || 'student',
-                role: userRole,
-              }));
               toast.warning('Ganti Password', {
                 description: 'Anda login dengan password sementara. Harap buat password permanen Anda.',
               });
@@ -234,26 +210,16 @@ const CIBCLogin: React.FC = () => {
             }
           }
 
-          // Store session info
-          localStorage.setItem('cibc_current_user', JSON.stringify({
-            id: user.id,
-            email: user.email,
-            fullName: userData?.name || user.email?.split('@')[0],
-            category: userData?.category || 'student',
-            role: userRole,
-          }));
-        }
+          toast.success('Welcome back!', {
+            description: 'Login successful. Redirecting to dashboard...',
+          });
 
-        toast.success('Welcome back!', {
-          description: 'Login successful. Redirecting to dashboard...',
-        });
-
-        // Redirect based on role
-        const storedUser = JSON.parse(localStorage.getItem('cibc_current_user') || '{}');
-        if (storedUser.role === 'admin' || storedUser.role === 'super_admin') {
-          navigate('/admin');
-        } else {
-          navigate('/cibc/dashboard');
+          // Redirect based on role from Supabase query
+          if (userRole === 'admin' || userRole === 'super_admin') {
+            navigate('/admin');
+          } else {
+            navigate('/cibc/dashboard');
+          }
         }
       }
     } catch (error: unknown) {
@@ -265,74 +231,6 @@ const CIBCLogin: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  /**
-   * Mock login for development/testing ONLY
-   * SECURITY FIX P0-001: Prevents password bypass vulnerability
-   *
-   * This function:
-   * 1. BLOCKS execution in production environment
-   * 2. Requires password validation even in mock mode
-   * 3. Logs clear warnings when mock mode is active
-   */
-  const mockLogin = async (email: string, password: string): Promise<{ id: string; email: string; fullName: string; category: string; teamId?: string; teamName?: string } | null> => {
-    // SECURITY: Block mock login in production environment
-    if (env.environment === 'production') {
-      console.error('[SECURITY] Mock login attempted in production environment. This is blocked.');
-      throw new Error('Mock login is disabled in production environment');
-    }
-
-    // SECURITY: Warn developers that mock mode is active
-    console.warn('=============================================');
-    console.warn('MOCK LOGIN ACTIVE - DO NOT USE IN PRODUCTION');
-    console.warn('Environment:', env.environment);
-    console.warn('=============================================');
-
-    const USERS_KEY = 'cibc_users';
-    const stored = localStorage.getItem(USERS_KEY);
-    const users = stored ? JSON.parse(stored) : [];
-
-    // Find user by email (case-insensitive)
-    const user = users.find((u: { email: string }) =>
-      u.email.toLowerCase() === email.toLowerCase()
-    );
-
-    if (!user) {
-      return null;
-    }
-
-    // SECURITY: Password validation is REQUIRED even in mock mode
-    // Option 1: If user has a stored password hash, verify against it
-    if (user.passwordHash) {
-      const isValid = await verifyPassword(password, user.passwordHash);
-      if (!isValid) {
-        console.warn('[Mock Login] Invalid password for user:', email);
-        return null;
-      }
-    } else {
-      // Option 2: If no stored hash, require the fixed test password
-      // This ensures mock login still requires password knowledge
-      if (password !== MOCK_TEST_PASSWORD) {
-        console.warn('[Mock Login] Invalid test password. Hint: Check MOCK_TEST_PASSWORD constant');
-        return null;
-      }
-      console.info('[Mock Login] Using test password for user without stored hash');
-    }
-
-    // Login successful - store session info
-    localStorage.setItem('cibc_current_user', JSON.stringify({
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      category: user.category,
-      role: user.role || 'participant',
-      teamId: user.teamId,
-      teamName: user.teamName,
-    }));
-
-    console.info('[Mock Login] Successful login for:', email);
-    return user;
   };
 
   const stats = [

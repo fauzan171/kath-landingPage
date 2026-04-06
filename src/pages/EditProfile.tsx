@@ -145,20 +145,42 @@ const EditProfile = () => {
 
     setIsLoading(true);
 
-    // TODO: Implement profile update via Supabase
-    // For now, simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Update profile via Supabase
+      const { supabase: sb } = await import('@/lib/supabase');
+      if (!sb) throw new Error('Supabase not configured');
+      const { data: { user: authUser } } = await sb.auth.getUser();
 
-    // Refresh user data from Supabase
-    await refreshUser();
+      if (authUser) {
+        const { error: updateError } = await sb
+          .from('users')
+          .update({
+            name: formData.fullName,
+            phone: formData.phone,
+            institution: formData.institution,
+            avatar_url: avatarPreview || undefined,
+          })
+          .eq('id', authUser.id);
 
-    setIsLoading(false);
-    setIsSuccess(true);
+        if (updateError) {
+          console.error('[EditProfile] Update failed:', updateError);
+          throw updateError;
+        }
+      }
 
-    setTimeout(() => {
-      setIsSuccess(false);
-      navigate('/dashboard');
-    }, 2000);
+      // Refresh user data from Supabase
+      await refreshUser();
+
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err) {
+      console.error('[EditProfile] Error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const inputClasses = (fieldName: string) => `
@@ -497,7 +519,7 @@ const EditProfile = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveSection(tab.id as any)}
+                onClick={() => setActiveSection(tab.id as 'personal' | 'education' | 'social')}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-body text-sm transition-all ${
                   activeSection === tab.id
                     ? 'bg-kath-gold/20 text-kath-gold'

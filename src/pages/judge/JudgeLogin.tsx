@@ -112,16 +112,26 @@ const JudgeLogin = () => {
         // Check if user is a judge - get role from users table
         const { data: userData } = await supabase!
           .from('users')
-          .select('role, name')
+          .select('role, name, status')
           .eq('id', data.user.id)
           .maybeSingle();
 
         const role = userData?.role;
+        const status = userData?.status;
 
         if (role !== 'judge') {
           await supabase!.auth.signOut();
           toast.error('Access denied', {
             description: 'This portal is for judges only. Please use the appropriate login page.',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (status !== 'approved') {
+          await supabase!.auth.signOut();
+          toast.error('Account pending approval', {
+            description: 'Your judge account is pending admin approval. Please wait for confirmation.',
           });
           setIsLoading(false);
           return;

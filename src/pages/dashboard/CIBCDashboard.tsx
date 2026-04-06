@@ -40,6 +40,8 @@ export interface TeamData {
   status: string;
   team_code: string;
   total_score?: number;
+  payment_status?: string;
+  payment_proof?: string;
 }
 
 export interface StageData {
@@ -164,7 +166,7 @@ const CIBCDashboard = () => {
           institution: teamData.institution || '',
           status: teamData.status,
           team_code: teamData.team_code || teamData.code || '',
-          total_score: (teamData as any).total_score,
+          total_score: teamData.total_score,
         });
 
         // Update current user with team info

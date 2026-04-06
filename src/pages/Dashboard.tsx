@@ -1,46 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import {
-  Mail,
-  Calendar,
-  Users,
-  Trophy,
-  Award,
-  Medal,
-  Flag,
-  Crown,
-  FileText,
-  FileCheck,
-  Upload,
-  Download,
-  FolderOpen,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  XCircle,
-  Activity,
-  LogOut,
-  Bell,
-  ChevronRight,
-  Edit3,
-  Eye,
-  Settings,
-  Menu,
-  X,
-  FileSearch,
-  Target,
-  Zap
+  Mail, Calendar, Users, Trophy, Award, Medal, Flag, Crown,
+  FileText, FileCheck, Upload, Download, FolderOpen, CheckCircle2,
+  Clock, AlertCircle, XCircle, Activity, LogOut, Bell, ChevronRight,
+  Edit3, Eye, Settings, Menu, X, FileSearch, Target, Zap
 } from '../icons';
 import {
-  getNotifications,
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
-  getDashboardStats,
-  getCompetitions,
-  type Notification,
-  type Competition
-} from '../services/mockData';
+  supabaseNotificationService,
+  supabaseCompetitionService,
+} from '../services/supabase.service';
+import type { Notification as SupabaseNotification } from '../types';
+
+// Local display types for dashboard
+interface DashboardNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'urgent';
+  read: boolean;
+  time: string;
+  actionUrl?: string;
+}
+
+interface DashboardCompetition {
+  id: string;
+  name: string;
+  status: string;
+  deadline?: string;
+  progress: number;
+  teamName?: string;
+  teamSize: number;
+  hasSubmitted: boolean;
+  submissionDate?: string;
+}
+
+interface DashboardStats {
+  totalCompetitions: number;
+  active: number;
+  wins: number;
+  certificates: number;
+}
 
 interface TimelineEvent {
   id: string;
@@ -56,23 +57,68 @@ const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'timeline'>('overview');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [stats, setStats] = useState({
+  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const [competitions, setCompetitions] = useState<DashboardCompetition[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
     totalCompetitions: 0,
     active: 0,
     wins: 0,
     certificates: 0
   });
   const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Load data
-  useEffect(() => {
-    setNotifications(getNotifications());
-    setCompetitions(getCompetitions());
-    setStats(getDashboardStats());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  // Load data from Supabase
+  const loadData = useCallback(async () => {
+    setIsLoadingData(true);
+    try {
+      // Load notifications
+      const notifs = await supabaseNotificationService.getMy();
+      const mappedNotifs: DashboardNotification[] = notifs.map((n: SupabaseNotification) => ({
+        id: n.id,
+        title: n.title,
+        message: n.message || '',
+        type: (['info', 'success', 'warning', 'urgent'].includes(n.type) ? n.type : 'info') as DashboardNotification['type'],
+        read: n.is_read,
+        time: new Date(n.created_at).toLocaleDateString('id-ID'),
+        actionUrl: n.link,
+      }));
+      setNotifications(mappedNotifs);
+
+      // Load competition stats
+      const compStats = await supabaseCompetitionService.getStats();
+      if (compStats) {
+        setStats({
+          totalCompetitions: 1,
+          active: compStats.totalTeams > 0 ? 1 : 0,
+          wins: 0,
+          certificates: 0,
+        });
+      }
+
+      // Load competition data
+      const competition = await supabaseCompetitionService.getActive();
+      if (competition) {
+        setCompetitions([{
+          id: competition.id,
+          name: competition.name,
+          status: competition.is_active ? 'in_progress' : 'upcoming',
+          deadline: competition.competition_end || competition.registration_end,
+          progress: 0,
+          teamSize: 0,
+          hasSubmitted: false,
+        }]);
+      }
+    } catch (e) {
+      console.error('Error loading dashboard data:', e);
+    } finally {
+      setIsLoadingData(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -86,14 +132,22 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  const handleMarkAsRead = (id: string) => {
-    markNotificationAsRead(id);
-    setNotifications(getNotifications());
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await supabaseNotificationService.markRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    } catch (e) {
+      console.error('Error marking notification as read:', e);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    markAllNotificationsAsRead();
-    setNotifications(getNotifications());
+  const handleMarkAllAsRead = async () => {
+    try {
+      await supabaseNotificationService.markAllRead();
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (e) {
+      console.error('Error marking all notifications as read:', e);
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -240,7 +294,7 @@ const Dashboard = () => {
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id as any)}
+                  onClick={() => setActiveTab(item.id as 'overview' | 'documents' | 'timeline')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                     activeTab === item.id
                       ? 'bg-kath-primary/10 text-kath-primary'
@@ -316,7 +370,7 @@ const Dashboard = () => {
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id as any);
+                    setActiveTab(item.id as 'overview' | 'documents' | 'timeline');
                     setShowMobileMenu(false);
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm transition-all ${
@@ -455,12 +509,14 @@ const Dashboard = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-kath-text-muted" />
-                      <span className="font-body text-kath-text-secondary">
-                        Deadline: {new Date(currentCompetition.deadline).toLocaleDateString('id-ID')}
-                      </span>
-                    </div>
+                    {currentCompetition.deadline && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-kath-text-muted" />
+                        <span className="font-body text-kath-text-secondary">
+                          Deadline: {new Date(currentCompetition.deadline).toLocaleDateString('id-ID')}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-kath-text-muted" />
                       <span className="font-body text-kath-text-secondary">
@@ -671,44 +727,55 @@ const Dashboard = () => {
                   )}
                 </div>
 
-                <div className="space-y-3">
-                  {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((notif) => (
-                    <div
-                      key={notif.id}
-                      onClick={() => {
-                        handleMarkAsRead(notif.id);
-                        if (notif.actionUrl) navigate(notif.actionUrl);
-                      }}
-                      className={`p-3 rounded-xl cursor-pointer transition-all ${
-                        notif.read ? 'bg-kath-bg-main' : 'bg-kath-primary/5 border border-kath-primary/20'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            notif.type === 'success'
-                              ? 'bg-kath-success/10 text-kath-success'
-                              : notif.type === 'warning'
-                              ? 'bg-kath-gold/10 text-kath-gold'
-                              : notif.type === 'urgent'
-                              ? 'bg-kath-error/10 text-kath-error'
-                              : 'bg-kath-primary/10 text-kath-primary'
-                          }`}
-                        >
-                          {notif.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> :
-                           notif.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
-                           notif.type === 'urgent' ? <Zap className="w-4 h-4" /> :
-                           <Bell className="w-4 h-4" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-body text-kath-text-primary text-sm font-medium truncate">{notif.title}</p>
-                          <p className="font-body text-kath-text-secondary text-xs line-clamp-2">{notif.message}</p>
-                          <p className="font-body text-kath-text-muted text-xs mt-1">{notif.time}</p>
+                {isLoadingData ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-kath-primary/30 border-t-kath-primary rounded-full animate-spin" />
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Bell className="w-8 h-8 text-kath-text-muted mx-auto mb-2" />
+                    <p className="font-body text-kath-text-muted text-sm">Tidak ada notifikasi</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => {
+                          handleMarkAsRead(notif.id);
+                          if (notif.actionUrl) navigate(notif.actionUrl);
+                        }}
+                        className={`p-3 rounded-xl cursor-pointer transition-all ${
+                          notif.read ? 'bg-kath-bg-main' : 'bg-kath-primary/5 border border-kath-primary/20'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                              notif.type === 'success'
+                                ? 'bg-kath-success/10 text-kath-success'
+                                : notif.type === 'warning'
+                                ? 'bg-kath-gold/10 text-kath-gold'
+                                : notif.type === 'urgent'
+                                ? 'bg-kath-error/10 text-kath-error'
+                                : 'bg-kath-primary/10 text-kath-primary'
+                            }`}
+                          >
+                            {notif.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> :
+                             notif.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
+                             notif.type === 'urgent' ? <Zap className="w-4 h-4" /> :
+                             <Bell className="w-4 h-4" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-body text-kath-text-primary text-sm font-medium truncate">{notif.title}</p>
+                            <p className="font-body text-kath-text-secondary text-xs line-clamp-2">{notif.message}</p>
+                            <p className="font-body text-kath-text-muted text-xs mt-1">{notif.time}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 {notifications.length > 3 && (
                   <button

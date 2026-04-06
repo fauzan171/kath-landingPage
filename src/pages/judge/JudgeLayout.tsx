@@ -4,7 +4,7 @@
  * Separate from Admin, limited access to assigned submissions only
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { notificationsService } from '@/services/cibc.service';
@@ -20,26 +20,26 @@ const JudgeLayout = () => {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    loadUser();
-    loadUnreadCount();
-  }, []);
-
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     const stored = localStorage.getItem('cibc_current_user');
     if (stored) {
       setUser(JSON.parse(stored));
     }
-  };
+  }, []);
 
-  const loadUnreadCount = async () => {
+  const loadUnreadCount = useCallback(async () => {
     try {
       const count = await notificationsService.getUnreadCount();
       setUnreadCount(count);
     } catch (error) {
       console.error('Error loading unread count:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadUser();
+    loadUnreadCount();
+  }, [loadUser, loadUnreadCount]);
 
   const handleLogout = async () => {
     if (supabase) {
@@ -51,6 +51,7 @@ const JudgeLayout = () => {
   };
 
   const handleMarkAsRead = async (_id: string) => {
+    void _id;
     setUnreadCount(prev => Math.max(0, prev - 1));
   };
 

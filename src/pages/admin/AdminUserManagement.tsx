@@ -186,11 +186,9 @@ const AdminUserManagement = () => {
 
           authUserId = newAuthUser.user.id;
 
-          // Sinkronkan ID baru ke public.users
-          if (authUserId !== selectedUser.id) {
-            // Jika ID berbeda, update public.users (jarang terjadi tapi aman)
-            await supabase.from('users').update({ id: authUserId }).eq('id', selectedUser.id);
-          }
+          // Don't update primary key - instead, log a warning and skip
+          console.warn(`[AdminUserManagement] User ID mismatch: auth=${authUserId}, db=${selectedUser.id}. Skipping ID update.`);
+
 
           toast.success('Akun Auth berhasil dibuat untuk user ini.');
         } else {
@@ -198,24 +196,24 @@ const AdminUserManagement = () => {
         }
       }
 
-      // Tandai force_password_change = true
+      // Tandai force_password_change = true (always use selectedUser.id for public users table)
       await supabase
         .from('users')
         .update({
           force_password_change: true,
           temp_password_set_at: new Date().toISOString(),
         })
-        .eq('id', authUserId);
+        .eq('id', selectedUser.id);
 
       // Update status request (jika ada)
       await supabase
         .from('password_reset_requests')
         .update({ status: 'processed', processed_at: new Date().toISOString() })
-        .eq('user_id', authUserId)
+        .eq('user_id', selectedUser.id)
         .eq('status', 'pending');
 
       setResetResult({
-        userId: authUserId,
+        userId: selectedUser.id,
         email: selectedUser.email,
         newPassword: passwordToUse,
       });

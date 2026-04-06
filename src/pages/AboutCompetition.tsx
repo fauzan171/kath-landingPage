@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { appContactConfig } from '../config';
 import {
   Trophy,
   Users,
@@ -557,7 +558,7 @@ const AboutCompetition = ({ onBack }: AboutCompetitionProps) => {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
-                  onClick={() => window.open('https://wa.me/622112345678', '_blank')}
+                  onClick={() => window.open(appContactConfig.whatsappUrl, '_blank')}
                   className="px-10 py-4 border border-kath-charcoal/50 hover:border-kath-gold/50 text-kath-white font-body font-medium rounded-full transition-all"
                 >
                   Hubungi Kami

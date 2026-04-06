@@ -16,6 +16,7 @@ const AdminContact = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ContactInfo>>({});
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
@@ -47,7 +48,7 @@ const AdminContact = () => {
       }
       setEditingId(null);
       setEditForm({});
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to save');
     }
   };
@@ -58,7 +59,7 @@ const AdminContact = () => {
       await contactInfoService.delete(id);
       setItems(items.filter(i => i.id !== id));
       toast.success('Deleted');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to delete');
     }
   };

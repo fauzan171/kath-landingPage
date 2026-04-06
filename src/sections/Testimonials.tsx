@@ -119,8 +119,8 @@ const Testimonials = () => {
           <div className="relative overflow-hidden pb-8 px-4">
             <div
               // Durasi ditambah ke 1000ms dan kurva diubah agar gesekannya sangaaat halus
-              className="flex transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              className="flex transition-transform duration-1000"
+              style={{ transform: `translateX(-${currentIndex * 100}%)`, transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)' }}
             >
               {testimonialsConfig.testimonials.map((testimonial) => (
                 <div

@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft,
   Trophy,
   Calendar,
-  MapPin,
-  Building2,
   Users,
   Clock,
   CheckCircle2,
@@ -19,13 +17,11 @@ import {
   Edit3
 } from '../icons';
 import {
-  getCompetitionById,
-  getTeamsByCompetition,
-  getSubmissionByCompetition,
-  type Competition,
-  type Team,
-  type Submission
-} from '../services/mockData';
+  supabaseCompetitionService,
+  supabaseTeamService,
+  supabaseSubmissionService,
+} from '../services/supabase.service';
+import type { Competition, Team, Submission } from '../types';
 
 const CompetitionDetail = () => {
   const navigate = useNavigate();
@@ -34,19 +30,42 @@ const CompetitionDetail = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'requirements' | 'submissions'>('overview');
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  useEffect(() => {
-    if (id) {
-      const comp = getCompetitionById(id);
+  const loadData = useCallback(async () => {
+    if (!id) return;
+    setIsLoadingData(true);
+    try {
+      const comp = await supabaseCompetitionService.getById(id);
       if (comp) {
         setCompetition(comp);
-        setTeams(getTeamsByCompetition(id));
-        const existingSub = getSubmissionByCompetition(id);
+
+        // Load teams for this competition
+        const teamData = await supabaseTeamService.getByCompetition(id);
+        setTeams(teamData);
+
+        // Load submission for this competition
+        const existingSub = await supabaseSubmissionService.getByCompetition(id);
         setSubmission(existingSub || null);
       }
+    } catch (e) {
+      console.error('Error loading competition detail:', e);
+    } finally {
+      setIsLoadingData(false);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen bg-kath-bg-dark flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-kath-gold/30 border-t-kath-gold rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!competition) {
     return (
@@ -72,8 +91,10 @@ const CompetitionDetail = () => {
       case 'registered':
         return { color: 'bg-blue-500/15 text-blue-400 border-blue-500/20', label: 'Registered' };
       case 'in_progress':
+      case 'active':
         return { color: 'bg-amber-500/15 text-amber-400 border-amber-500/20', label: 'In Progress' };
       case 'finished':
+      case 'completed':
         return { color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', label: 'Finished' };
       case 'upcoming':
         return { color: 'bg-purple-500/15 text-purple-400 border-purple-500/20', label: 'Upcoming' };
@@ -82,8 +103,10 @@ const CompetitionDetail = () => {
     }
   };
 
-  const status = getStatusConfig(competition.status);
-  const daysLeft = Math.ceil((new Date(competition.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const displayStatus = competition.is_active ? 'in_progress' : (competition.status as string);
+  const status = getStatusConfig(displayStatus);
+  const deadline = competition.competition_end || competition.registration_end || '';
+  const daysLeft = deadline ? Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
   return (
     <div className="min-h-screen bg-kath-bg-dark">
@@ -129,11 +152,13 @@ const CompetitionDetail = () => {
           {/* Hero Card */}
           <div className="relative rounded-2xl overflow-hidden mb-8">
             <div className="absolute inset-0">
-              <img
-                src={competition.image}
-                alt={competition.name}
-                className="w-full h-full object-cover"
-              />
+              {competition.image && (
+                <img
+                  src={competition.image}
+                  alt={competition.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-kath-bg-dark via-kath-bg-dark/80 to-kath-bg-dark/40" />
             </div>
             
@@ -142,12 +167,6 @@ const CompetitionDetail = () => {
                 <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${status.color}`}>
                   {status.label}
                 </span>
-                {competition.result && (
-                  <span className="px-3 py-1.5 bg-kath-gold/20 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/30">
-                    <Trophy className="w-4 h-4 inline mr-1" />
-                    {competition.result === 'winner' ? 'Champion' : 'Runner Up'}
-                  </span>
-                )}
               </div>
 
               <h1 className="font-display text-3xl sm:text-4xl text-white mb-4">{competition.name}</h1>
@@ -155,17 +174,9 @@ const CompetitionDetail = () => {
 
               <div className="flex flex-wrap gap-4 mb-6">
                 <div className="flex items-center gap-2 text-text-white/60">
-                  <Building2 className="w-4 h-4" />
-                  <span className="font-body text-sm">{competition.organizer}</span>
-                </div>
-                <div className="flex items-center gap-2 text-text-white/60">
-                  <MapPin className="w-4 h-4" />
-                  <span className="font-body text-sm">{competition.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-text-white/60">
                   <Calendar className="w-4 h-4" />
                   <span className="font-body text-sm">
-                    {new Date(competition.startDate || '').toLocaleDateString('id-ID')} - {new Date(competition.endDate || '').toLocaleDateString('id-ID')}
+                    {competition.competition_start ? new Date(competition.competition_start).toLocaleDateString('id-ID') : 'TBD'} - {competition.competition_end ? new Date(competition.competition_end).toLocaleDateString('id-ID') : 'TBD'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-text-white/60">
@@ -178,12 +189,14 @@ const CompetitionDetail = () => {
               <div className="max-w-md">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-body text-text-white/60 text-sm">Progress</span>
-                  <span className="font-body text-kath-gold text-sm">{competition.progress}%</span>
+                  <span className="font-body text-kath-gold text-sm">
+                    {competition.is_active ? 'Active' : competition.status === 'completed' ? '100' : '0'}%
+                  </span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-kath-gold to-kath-gold-light rounded-full transition-all"
-                    style={{ width: `${competition.progress}%` }}
+                    style={{ width: `${competition.is_active ? 50 : competition.status === 'completed' ? 100 : 0}%` }}
                   />
                 </div>
               </div>
@@ -192,7 +205,7 @@ const CompetitionDetail = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mb-8">
-            {competition.status === 'in_progress' && !competition.hasSubmitted && (
+            {competition.is_active && !submission && (
               <button
                 onClick={() => navigate(`/competition/${competition.id}/submit`)}
                 className="flex items-center gap-2 px-6 py-3 bg-kath-gold hover:bg-kath-gold-light text-kath-bg-dark font-body font-medium rounded-full transition-all"
@@ -201,7 +214,7 @@ const CompetitionDetail = () => {
                 Submit Now
               </button>
             )}
-            {competition.status === 'in_progress' && competition.hasSubmitted && (
+            {competition.is_active && submission && (
               <button
                 onClick={() => navigate(`/competition/${competition.id}/submit`)}
                 className="flex items-center gap-2 px-6 py-3 border border-kath-gold/30 text-kath-gold hover:bg-kath-gold/10 font-body font-medium rounded-full transition-all"
@@ -229,7 +242,7 @@ const CompetitionDetail = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
                   activeTab === tab.id
                     ? 'bg-kath-gold/20 text-kath-gold'
@@ -255,25 +268,27 @@ const CompetitionDetail = () => {
                   <div className="p-4 bg-white/[0.02] rounded-xl">
                     <Clock className="w-5 h-5 text-kath-gold mb-2" />
                     <p className="font-body text-white/50 text-sm">Deadline</p>
-                    <p className="font-body text-white">{new Date(competition.deadline).toLocaleDateString('id-ID')}</p>
+                    <p className="font-body text-white">
+                      {deadline ? new Date(deadline).toLocaleDateString('id-ID') : 'TBD'}
+                    </p>
                     <p className={`font-body text-sm mt-1 ${daysLeft < 7 ? 'text-red-400' : 'text-emerald-400'}`}>
                       {daysLeft > 0 ? `${daysLeft} days left` : 'Deadline passed'}
                     </p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
                     <Users className="w-5 h-5 text-kath-gold mb-2" />
-                    <p className="font-body text-white/50 text-sm">Team Size</p>
-                    <p className="font-body text-white">{competition.teamSize} members</p>
+                    <p className="font-body text-white/50 text-sm">Teams</p>
+                    <p className="font-body text-white">{teams.length} registered</p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
                     <Trophy className="w-5 h-5 text-kath-gold mb-2" />
-                    <p className="font-body text-white/50 text-sm">Prize Pool</p>
-                    <p className="font-body text-white">Rp 500.000.000</p>
+                    <p className="font-body text-white/50 text-sm">Prize</p>
+                    <p className="font-body text-white">{competition.prize || 'TBD'}</p>
                   </div>
                   <div className="p-4 bg-white/[0.02] rounded-xl">
                     <CheckCircle2 className="w-5 h-5 text-kath-gold mb-2" />
-                    <p className="font-body text-white/50 text-sm">Status</p>
-                    <p className="font-body text-white">{competition.hasSubmitted ? 'Submitted' : 'Not Submitted'}</p>
+                    <p className="font-body text-white/50 text-sm">Submission</p>
+                    <p className="font-body text-white">{submission ? 'Submitted' : 'Not Submitted'}</p>
                   </div>
                 </div>
 
@@ -281,12 +296,9 @@ const CompetitionDetail = () => {
                   <div className="p-6 bg-gradient-to-br from-kath-gold/10 to-transparent border border-kath-gold/20 rounded-xl">
                     <div className="flex items-center gap-3 mb-4">
                       <Trophy className="w-6 h-6 text-kath-gold" />
-                      <h3 className="font-display text-lg text-white">Your Achievement</h3>
+                      <h3 className="font-display text-lg text-white">Prize</h3>
                     </div>
                     <p className="font-display text-3xl text-kath-gold mb-2">{competition.prize}</p>
-                    <p className="font-body text-text-white/60">
-                      Congratulations on your {competition.result === 'winner' ? 'victory' : 'achievement'}!
-                    </p>
                   </div>
                 )}
               </div>
@@ -298,27 +310,60 @@ const CompetitionDetail = () => {
                 <div className="relative">
                   <div className="absolute left-5 top-0 bottom-0 w-px bg-white/10" />
                   <div className="space-y-6">
-                    {(competition.timeline || []).map((event, index) => (
-                      <div key={index} className="relative flex gap-4">
-                        <div
-                          className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                            event.completed
-                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                              : 'bg-white/5 border-white/20 text-white/40'
-                          }`}
-                        >
-                          {event.completed ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
-                            <h4 className={`font-body font-medium ${event.completed ? 'text-white' : 'text-white/40'}`}>
-                              {event.phase}
-                            </h4>
-                            <span className="font-body text-xs text-white/40">{event.date}</span>
-                          </div>
+                    {/* Registration phase */}
+                    <div className="relative flex gap-4">
+                      <div className="relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 bg-emerald-500/20 border-emerald-500 text-emerald-400">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
+                          <h4 className="font-body font-medium text-white">Registration</h4>
+                          <span className="font-body text-xs text-white/40">
+                            {competition.registration_start ? new Date(competition.registration_start).toLocaleDateString('id-ID') : 'TBD'} - {competition.registration_end ? new Date(competition.registration_end).toLocaleDateString('id-ID') : 'TBD'}
+                          </span>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                    {/* Competition phase */}
+                    <div className="relative flex gap-4">
+                      <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                        competition.is_active
+                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                          : 'bg-white/5 border-white/20 text-white/40'
+                      }`}>
+                        {competition.is_active ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
+                          <h4 className={`font-body font-medium ${competition.is_active ? 'text-white' : 'text-white/40'}`}>
+                            Competition
+                          </h4>
+                          <span className="font-body text-xs text-white/40">
+                            {competition.competition_start ? new Date(competition.competition_start).toLocaleDateString('id-ID') : 'TBD'} - {competition.competition_end ? new Date(competition.competition_end).toLocaleDateString('id-ID') : 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Results phase */}
+                    <div className="relative flex gap-4">
+                      <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                        competition.status === 'completed'
+                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                          : 'bg-white/5 border-white/20 text-white/40'
+                      }`}>
+                        {competition.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
+                          <h4 className={`font-body font-medium ${competition.status === 'completed' ? 'text-white' : 'text-white/40'}`}>
+                            Results
+                          </h4>
+                          <span className="font-body text-xs text-white/40">
+                            {competition.competition_end ? new Date(competition.competition_end).toLocaleDateString('id-ID') : 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -328,26 +373,28 @@ const CompetitionDetail = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-display text-lg text-white mb-4">Submission Requirements</h3>
-                  <ul className="space-y-3">
-                    {(competition.requirements || []).map((req, index) => (
-                      <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
-                        <CheckCircle2 className="w-5 h-5 text-kath-gold mt-0.5 flex-shrink-0" />
-                        <span className="font-body text-white/70">{req}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {(competition.requirements && competition.requirements.length > 0) ? (
+                    <ul className="space-y-3">
+                      {competition.requirements.map((req, index) => (
+                        <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
+                          <CheckCircle2 className="w-5 h-5 text-kath-gold mt-0.5 flex-shrink-0" />
+                          <span className="font-body text-white/70">{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="font-body text-white/50">No specific requirements listed yet.</p>
+                  )}
                 </div>
 
                 <div>
-                  <h3 className="font-display text-lg text-white mb-4">Rules & Regulations</h3>
-                  <ul className="space-y-3">
-                    {(competition.rules || []).map((rule, index) => (
-                      <li key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
-                        <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
-                        <span className="font-body text-white/70">{rule}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="font-display text-lg text-white mb-4">Target Participants</h3>
+                  <div className="p-4 bg-white/[0.02] rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
+                      <span className="font-body text-white/70">{competition.target || 'Open to all participants'}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -360,38 +407,48 @@ const CompetitionDetail = () => {
                     <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                       <div className="flex items-center gap-3 mb-2">
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                        <span className="font-body text-emerald-400 font-medium">Submitted</span>
+                        <span className="font-body text-emerald-400 font-medium capitalize">{submission.status.replace('_', ' ')}</span>
                       </div>
                       <p className="font-body text-text-white/60 text-sm">
-                        Submitted on {new Date(submission.submittedAt || submission.submitted_at || '').toLocaleDateString('id-ID')}
+                        Submitted on {submission.submitted_at ? new Date(submission.submitted_at).toLocaleDateString('id-ID') : 'N/A'}
                       </p>
                     </div>
 
-                    <div>
-                      <h4 className="font-body text-white/50 text-sm mb-3">Files</h4>
-                      <div className="space-y-2">
-                        {(submission.files || []).map((file) => (
-                          <div
-                            key={file.id}
-                            className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl"
-                          >
-                            <div className="flex items-center gap-3">
-                              <FileText className="w-5 h-5 text-kath-gold" />
-                              <div>
-                                <p className="font-body text-white text-sm">{file.name}</p>
-                                <p className="font-body text-white/40 text-xs">{file.size}</p>
-                              </div>
+                    {submission.content && (
+                      <div>
+                        <h4 className="font-body text-white/50 text-sm mb-3">Content</h4>
+                        <div className="p-4 bg-white/[0.02] rounded-xl">
+                          <p className="font-body text-white/70">{submission.content}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {submission.file_name && (
+                      <div>
+                        <h4 className="font-body text-white/50 text-sm mb-3">Files</h4>
+                        <div className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <FileText className="w-5 h-5 text-kath-gold" />
+                            <div>
+                              <p className="font-body text-white text-sm">{submission.file_name}</p>
+                              <p className="font-body text-white/40 text-xs">
+                                {submission.file_size ? `${(submission.file_size / 1024).toFixed(1)} KB` : ''}
+                              </p>
                             </div>
-                            <button
-                              onClick={() => alert(`Downloading ${file.name}...`)}
+                          </div>
+                          {submission.file_url && (
+                            <a
+                              href={submission.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="p-2 text-white/40 hover:text-kath-gold hover:bg-kath-gold/10 rounded-lg transition-all"
                             >
                               <Download className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                            </a>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {submission.feedback && (
                       <div className="p-4 bg-white/[0.02] rounded-xl">

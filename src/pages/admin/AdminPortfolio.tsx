@@ -16,6 +16,7 @@ const AdminPortfolio = () => {
   const [editForm, setEditForm] = useState<Partial<Portfolio>>({});
   const [saving, setSaving] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
@@ -44,7 +45,7 @@ const AdminPortfolio = () => {
       }
       setEditingId(null);
       setEditForm({});
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to save');
     } finally {
       setSaving(false);
@@ -57,7 +58,7 @@ const AdminPortfolio = () => {
       await portfolioService.delete(id);
       setItems(items.filter(i => i.id !== id));
       toast.success('Deleted');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete');
     }
   };
@@ -66,7 +67,7 @@ const AdminPortfolio = () => {
     try {
       const updated = await portfolioService.update(item.id, { is_active: !item.is_active });
       setItems(items.map(i => i.id === item.id ? updated : i));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed');
     }
   };

@@ -350,12 +350,31 @@ export const supabaseCompetitionService = {
 
     if (stagesTasksError) throw stagesTasksError;
 
+    // Get submission counts per task for progress calculation
+    const { data: submissionCounts } = await supabase
+      .from('submissions')
+      .select('task_id, status')
+      .eq('competition_id', competition.id);
+
+    const submittedByTask = new Map<string, number>();
+    (submissionCounts || []).forEach((s: { task_id: string; status: string }) => {
+      if (s.status === 'submitted' || s.status === 'graded') {
+        submittedByTask.set(s.task_id, (submittedByTask.get(s.task_id) || 0) + 1);
+      }
+    });
+
     // Transform to match expected format
-    return (stagesWithTasks || []).map(stage => ({
-      ...stage,
-      tasks: ((stage.tasks || []) as Task[]).sort((a, b) => (a.order_index || 0) - (b.order_index || 0)),
-      progress: 0, // TODO: Calculate based on submissions
-    }));
+    return (stagesWithTasks || []).map(stage => {
+      const tasks = ((stage.tasks || []) as Task[]).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+      const requiredTasks = tasks.filter(t => t.is_required);
+      const completedRequired = requiredTasks.filter(t => (submittedByTask.get(t.id) || 0) > 0).length;
+      const progress = requiredTasks.length > 0 ? Math.round((completedRequired / requiredTasks.length) * 100) : 0;
+      return {
+        ...stage,
+        tasks,
+        progress,
+      };
+    });
   },
 
   /**
@@ -968,6 +987,107 @@ export const supabaseTeamService = {
 // ============================================
 
 export const supabaseSubmissionService = {
+  /**
+   * Get submission for current user by competition
+   */
+  getByCompetition: async (competitionId: string): Promise<Submission | null> => {
+    // First get the current user's team for this competition
+    const user = await supabaseAuthService.getCurrentUser();
+    if (!user) return null;
+
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('id')
+      .contains('member_ids', [user.id])
+      .eq('competition_id', competitionId)
+      .maybeSingle();
+
+    if (!teamData) return null;
+
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('team_id', teamData.id)
+      .eq('competition_id', competitionId)
+      .maybeSingle();
+
+    if (error) return null;
+    return data;
+  },
+
+  /**
+   * Create a new submission (simplified wrapper)
+   */
+  create: async (params: { competition_id: string; content: string; task_id?: string; team_id?: string }): Promise<Submission> => {
+    // Get current user's team for this competition
+    const user = await supabaseAuthService.getCurrentUser();
+    if (!user) throw new Error('Not authenticated');
+
+    let teamId = params.team_id;
+    if (!teamId) {
+      const { data: teamData } = await supabase
+        .from('teams')
+        .select('id')
+        .contains('member_ids', [user.id])
+        .eq('competition_id', params.competition_id)
+        .maybeSingle();
+      teamId = teamData?.id;
+    }
+
+    if (!teamId) throw new Error('No team found for this competition');
+
+    const taskId = params.task_id || 'default';
+    const { data, error } = await supabase
+      .from('submissions')
+      .insert({
+        competition_id: params.competition_id,
+        team_id: teamId,
+        task_id: taskId,
+        content: params.content,
+        status: 'submitted',
+        submitted_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Update a submission (supports content, status, and file metadata)
+   */
+  update: async (id: string, params: {
+    content?: string;
+    status?: string;
+    file_url?: string;
+    file_name?: string;
+    file_size?: number;
+    file_type?: string;
+    drive_file_id?: string;
+    field_values?: Record<string, unknown>;
+  }): Promise<Submission> => {
+    const updateData: Record<string, unknown> = {};
+    if (params.content !== undefined) updateData.content = params.content;
+    if (params.status !== undefined) updateData.status = params.status;
+    if (params.file_url !== undefined) updateData.file_url = params.file_url;
+    if (params.file_name !== undefined) updateData.file_name = params.file_name;
+    if (params.file_size !== undefined) updateData.file_size = params.file_size;
+    if (params.file_type !== undefined) updateData.file_type = params.file_type;
+    if (params.drive_file_id !== undefined) updateData.drive_file_id = params.drive_file_id;
+    if (params.field_values !== undefined) updateData.field_values = params.field_values;
+
+    const { data, error } = await supabase
+      .from('submissions')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   /**
    * Get submissions for a team
    */

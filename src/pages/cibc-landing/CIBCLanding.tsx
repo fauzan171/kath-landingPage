@@ -12,6 +12,7 @@ import { ThemesSection } from './sections/ThemesSection';
 import { TimelineSection } from './sections/TimelineSection';
 import { PrizesSection } from './sections/PrizesSection';
 import { TestimonialsSection } from './sections/TestimonialsSection';
+import { JudgesSection } from './sections/JudgesSection';
 import { FAQSection } from './sections/FAQSection';
 import { CTASection } from './sections/CTASection';
 import { Footer } from './sections/Footer';
@@ -55,6 +56,8 @@ const CIBCLanding = () => {
         <PrizesSection />
 
         <TestimonialsSection />
+
+        <JudgesSection />
 
         <section id="faq">
           <FAQSection />

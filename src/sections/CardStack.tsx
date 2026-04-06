@@ -147,13 +147,14 @@ const CardStack = () => {
             {cards.map((card, index) => (
               <div
                 key={`img-${card.id}`}
-                className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                className={`absolute inset-0 transition-all duration-1000 ${
                   activeIndex === index
                     ? 'opacity-100 translate-y-0 scale-100 z-10'
                     : activeIndex > index
                     ? 'opacity-0 -translate-y-20 scale-90 z-0'
                     : 'opacity-0 translate-y-20 scale-110 z-0'
                 }`}
+                style={{ transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }}
               >
                 <img
                   src={card.image}

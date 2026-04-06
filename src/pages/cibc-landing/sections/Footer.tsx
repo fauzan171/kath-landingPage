@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
@@ -64,13 +65,13 @@ export const Footer = () => {
                     </p>
                     
                     <div className="flex items-center gap-5">
-                        <a href="#" className="font-body text-xs text-gray-500 font-medium hover:text-[#FFB22C] transition-colors">
+                        <Link to="/cibc/terms" className="font-body text-xs text-gray-500 font-medium hover:text-[#FFB22C] transition-colors">
                             {language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions'}
-                        </a>
+                        </Link>
                         <span className="text-gray-300 text-xs">•</span>
-                        <a href="#" className="font-body text-xs text-gray-500 font-medium hover:text-[#FFB22C] transition-colors">
-                            {language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy'}
-                        </a>
+                        <Link to="/cibc/leaderboard" className="font-body text-xs text-gray-500 font-medium hover:text-[#FFB22C] transition-colors">
+                            {language === 'id' ? 'Papan Peringkat' : 'Leaderboard'}
+                        </Link>
                     </div>
                 </div>
 

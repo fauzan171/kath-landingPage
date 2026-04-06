@@ -91,7 +91,7 @@ export interface ApiError {
 // ==========================================
 
 // Internal database status
-export type CompetitionStatus = 'draft' | 'upcoming' | 'active' | 'completed';
+export type CompetitionStatus = 'draft' | 'upcoming' | 'active' | 'completed' | 'archived';
 // Display status for landing page
 export type CompetitionDisplayStatus = 'Open' | 'Coming Soon' | 'Closed';
 
@@ -175,11 +175,11 @@ export interface Team {
   id: string;
   competition_id: string;
   name: string;
-  code: string;
+  code?: string;
   category?: string;
   institution?: string;
   status: TeamStatus;
-  payment_status: PaymentStatus;
+  payment_status?: PaymentStatus;
   payment_proof?: string;
   payment_drive_id?: string;
   verified_by?: string;
@@ -197,7 +197,7 @@ export interface TeamMember {
   phone?: string;
   institution?: string;
   role: TeamMemberRole;
-  is_active: boolean;
+  is_active?: boolean;
   joined_at: string;
 }
 
@@ -239,23 +239,27 @@ export interface Task {
 // Submission Types
 // ==========================================
 
-export type SubmissionStatus = 'draft' | 'submitted' | 'under_review' | 'graded';
+export type SubmissionStatus = 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final' | 'late';
 
 export interface Submission {
   id: string;
-  task_id: string;
-  team_id: string;
-  competition_id: string;
+  task_id?: string;
+  team_id?: string;
+  competition_id?: string;
   file_url?: string;
   file_name?: string;
   file_size?: number;
   drive_file_id?: string;
   link_url?: string;
   content?: string;
+  field_values?: Record<string, unknown>;
   status: SubmissionStatus;
   total_score?: number;
   feedback?: string;
+  criteria_scores?: Record<string, number>;
   submitted_at?: string;
+  submittedAt?: string; // Legacy alias
+  files?: { id: string; name: string; size: string }[]; // Legacy display field
   created_at: string;
   updated_at: string;
 }

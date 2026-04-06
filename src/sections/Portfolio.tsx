@@ -37,6 +37,7 @@ const Portfolio = () => {
   // Kembalikan ke 6 item setiap kali filter kategori berubah
   useEffect(() => {
     setVisibleCount(6);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [activeFilter]);
 
   // Animasi Header & Grid Awal

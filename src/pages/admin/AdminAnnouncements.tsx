@@ -14,6 +14,7 @@ const AdminAnnouncements = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Announcement>>({});
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -53,7 +54,7 @@ const AdminAnnouncements = () => {
       }
       setEditingId(null);
       setEditForm({});
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to save');
     } finally {
       setSaving(false);
@@ -65,7 +66,7 @@ const AdminAnnouncements = () => {
       const updated = await announcementsService.publish(id);
       setAnnouncements(announcements.map(a => a.id === id ? updated : a));
       toast.success('Published!');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to publish');
     }
   };
@@ -76,7 +77,7 @@ const AdminAnnouncements = () => {
       await announcementsService.delete(id);
       setAnnouncements(announcements.filter(a => a.id !== id));
       toast.success('Deleted');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to delete');
     }
   };

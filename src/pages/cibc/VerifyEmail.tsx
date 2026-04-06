@@ -4,7 +4,7 @@
  * Shown when user needs to verify their email address
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { gsap } from 'gsap';
@@ -18,6 +18,36 @@ const VerifyEmail: React.FC = () => {
   const [message, setMessage] = useState('');
 
   const email = searchParams.get('email') || '';
+
+  const verifyEmail = useCallback(async (token: string) => {
+    if (!isSupabaseConfigured() || !supabase) {
+      setStatus('error');
+      setMessage('Email verification is not available at this time.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'signup',
+      });
+
+      if (error) {
+        setStatus('error');
+        setMessage(error.message);
+      } else {
+        setStatus('success');
+        setMessage('Your email has been verified successfully!');
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate('/cibc/login');
+        }, 3000);
+      }
+    } catch (_err) {
+      setStatus('error');
+      setMessage('An unexpected error occurred during verification.');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,37 +73,7 @@ const VerifyEmail: React.FC = () => {
       // Just show the "check your email" message
       setStatus('loading');
     }
-  }, [searchParams]);
-
-  const verifyEmail = async (token: string) => {
-    if (!isSupabaseConfigured() || !supabase) {
-      setStatus('error');
-      setMessage('Email verification is not available at this time.');
-      return;
-    }
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: 'signup',
-      });
-
-      if (error) {
-        setStatus('error');
-        setMessage(error.message);
-      } else {
-        setStatus('success');
-        setMessage('Your email has been verified successfully!');
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          navigate('/cibc/login');
-        }, 3000);
-      }
-    } catch (err) {
-      setStatus('error');
-      setMessage('An unexpected error occurred during verification.');
-    }
-  };
+  }, [searchParams, email, verifyEmail]);
 
   const handleResendEmail = async () => {
     if (!email || !isSupabaseConfigured() || !supabase) {
@@ -93,7 +93,7 @@ const VerifyEmail: React.FC = () => {
         setStatus('resent');
         setMessage('Verification email has been resent!');
       }
-    } catch (err) {
+    } catch (_err) {
       setMessage('Failed to resend verification email.');
     }
   };

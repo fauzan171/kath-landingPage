@@ -233,7 +233,7 @@ const Register = () => {
           setEmailExists(true);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       setSubmitError('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);

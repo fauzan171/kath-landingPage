@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Download, Loader2, CheckCircle, Clock, FileText, Users, Award, Eye, Send } from 'lucide-react';
+import { Download, Loader2, CheckCircle, Clock, FileText, Users, Award, Eye, Send, User, CreditCard, Calendar, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { submissionsService, competitionService, type Submission, type Team } from '@/services/cibc.service';
 import { supabase } from '@/lib/supabase';
@@ -19,8 +19,14 @@ const DEFAULT_RUBRIC = [
   { id: 'team', name: 'Team Composition', nameId: 'Komposisi Tim', maxScore: 15, weight: 0.15 },
 ];
 
+interface TeamWithLeader extends Team {
+  leader_name?: string;
+  leader_email?: string;
+  member_count?: number;
+}
+
 interface GradingSubmission extends Submission {
-  team?: Team;
+  team?: TeamWithLeader;
   criteria_scores?: Record<string, number>;
 }
 
@@ -34,6 +40,7 @@ const AdminGrading = () => {
   const [filter, setFilter] = useState<'all' | 'submitted' | 'graded' | 'needs_revision'>('submitted');
   const [blindMode, setBlindMode] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -41,7 +48,59 @@ const AdminGrading = () => {
       const comp = await competitionService.getActive();
       if (comp) {
         const data = await submissionsService.getAll(comp.id);
-        setSubmissions(data);
+
+        // Enrich submissions with team leader info
+        const enriched = await Promise.all(data.map(async (sub) => {
+          if (sub.team_id && supabase) {
+            // Get team details
+            const { data: team } = await supabase
+              .from('teams')
+              .select('id, name, institution, payment_proof, payment_status')
+              .eq('id', sub.team_id)
+              .single();
+
+            if (team) {
+              // Get leader info
+              let leaderName = '';
+              let leaderEmail = '';
+              const { data: leaderMember } = await supabase
+                .from('team_members')
+                .select('user_id')
+                .eq('team_id', team.id)
+                .eq('role', 'leader')
+                .single();
+
+              if (leaderMember) {
+                const { data: leaderUser } = await supabase
+                  .from('users')
+                  .select('name, email')
+                  .eq('id', leaderMember.user_id)
+                  .single();
+                leaderName = leaderUser?.name || '';
+                leaderEmail = leaderUser?.email || '';
+              }
+
+              // Get member count
+              const { count: memberCount } = await supabase
+                .from('team_members')
+                .select('*', { count: 'exact', head: true })
+                .eq('team_id', team.id);
+
+              return {
+                ...sub,
+                team: {
+                  ...team,
+                  leader_name: leaderName,
+                  leader_email: leaderEmail,
+                  member_count: memberCount || 0,
+                } as TeamWithLeader,
+              };
+            }
+          }
+          return sub;
+        }));
+
+        setSubmissions(enriched);
       }
     } catch (e) {
       console.error(e);
@@ -297,16 +356,58 @@ const AdminGrading = () => {
                         <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded text-xs">Late</span>
                       )}
                     </div>
-                    {!blindMode && submission.team?.institution && (
-                      <p className="text-sm text-gray-500">{submission.team.institution}</p>
+                    {/* Team Leader & Institution */}
+                    {!blindMode && submission.team && (
+                      <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                        {submission.team.leader_name && (
+                          <span className="flex items-center gap-1">
+                            <User className="w-3.5 h-3.5" />
+                            {submission.team.leader_name}
+                          </span>
+                        )}
+                        {submission.team.institution && (
+                          <span>{submission.team.institution}</span>
+                        )}
+                        {submission.team.member_count !== undefined && (
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5" />
+                            {submission.team.member_count} members
+                          </span>
+                        )}
+                      </div>
                     )}
-                    {submission.file_name && (
-                      <p className="text-sm text-gray-500 mt-1">{submission.file_name}</p>
-                    )}
+                    {/* Submission Time */}
                     {submission.submitted_at && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Submitted: {new Date(submission.submitted_at).toLocaleString()}
+                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        Submitted: {new Date(submission.submitted_at).toLocaleString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </p>
+                    )}
+                    {/* File Name */}
+                    {submission.file_name && (
+                      <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                        <FileText className="w-3.5 h-3.5" />
+                        {submission.file_name}
+                      </p>
+                    )}
+                    {/* Payment Proof */}
+                    {!blindMode && submission.team?.payment_proof && (
+                      <a
+                        href={submission.team.payment_proof}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 mt-1 flex items-center gap-1"
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        View Payment Proof
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
                     )}
                   </div>
                 </div>
@@ -317,14 +418,6 @@ const AdminGrading = () => {
                       <div className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg font-bold text-lg">
                         {submission.total_score}/100
                       </div>
-                      {submission.criteria_scores && (
-                        <button
-                          onClick={() => openGrading(submission)}
-                          className="text-xs text-gray-500 hover:text-gray-700"
-                        >
-                          View Details
-                        </button>
-                      )}
                     </div>
                   )}
                   {submission.file_url && (
@@ -338,20 +431,16 @@ const AdminGrading = () => {
                       <Download className="w-5 h-5 text-gray-500" />
                     </a>
                   )}
-                  {submission.status === 'submitted' && (
+                  {(submission.status === 'submitted' || submission.status === 'graded') && (
                     <button
                       onClick={() => openGrading(submission)}
-                      className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600"
+                      className={`px-4 py-2 rounded-lg text-sm ${
+                        submission.status === 'submitted'
+                          ? 'bg-amber-500 text-white hover:bg-amber-600'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                     >
-                      Grade
-                    </button>
-                  )}
-                  {submission.status === 'graded' && (
-                    <button
-                      onClick={() => openGrading(submission)}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
-                    >
-                      Review
+                      {submission.status === 'submitted' ? 'Grade' : 'Review'}
                     </button>
                   )}
                 </div>
@@ -382,7 +471,7 @@ const AdminGrading = () => {
 
             {/* Team Info */}
             <div className="p-4 bg-gray-50 rounded-lg mb-6">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-3">
                 <Users className="w-8 h-8 text-gray-400" />
                 <div>
                   <p className="font-medium">
@@ -393,6 +482,55 @@ const AdminGrading = () => {
                   )}
                 </div>
               </div>
+              {/* Detailed Team Info */}
+              {!blindMode && selectedSubmission.team && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 pt-3 border-t border-gray-200">
+                  {selectedSubmission.team.leader_name && (
+                    <div className="p-2 bg-white rounded-lg">
+                      <p className="text-xs text-gray-500">Team Leader</p>
+                      <p className="font-medium text-sm">{selectedSubmission.team.leader_name}</p>
+                    </div>
+                  )}
+                  {selectedSubmission.team.leader_email && (
+                    <div className="p-2 bg-white rounded-lg">
+                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="font-medium text-sm text-gray-700">{selectedSubmission.team.leader_email}</p>
+                    </div>
+                  )}
+                  {selectedSubmission.team.member_count !== undefined && (
+                    <div className="p-2 bg-white rounded-lg">
+                      <p className="text-xs text-gray-500">Members</p>
+                      <p className="font-medium text-sm">{selectedSubmission.team.member_count} orang</p>
+                    </div>
+                  )}
+                  {selectedSubmission.submitted_at && (
+                    <div className="p-2 bg-white rounded-lg">
+                      <p className="text-xs text-gray-500">Submitted At</p>
+                      <p className="font-medium text-sm">
+                        {new Date(selectedSubmission.submitted_at).toLocaleString('id-ID', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Payment Proof */}
+              {!blindMode && selectedSubmission.team?.payment_proof && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <a
+                    href={selectedSubmission.team.payment_proof}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Lihat Bukti Pembayaran
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Rubric Grading */}

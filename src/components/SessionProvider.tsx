@@ -73,7 +73,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   const warningTime = warningMinutes * 60 * 1000;
 
   // State
-  const [lastActivity, setLastActivity] = useState(Date.now());
+  const [lastActivity, setLastActivity] = useState(() => Date.now());
   const [showWarning, setShowWarning] = useState(false);
   const [timeUntilExpiry, setTimeUntilExpiry] = useState(sessionTimeout / 1000);
   const [isActive, setIsActive] = useState(true);
@@ -89,6 +89,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   const logout = useCallback(async () => {
     try {
+      // Determine redirect based on current path
+      const currentPath = window.location.pathname;
+      let redirectPath = '/login';
+      if (currentPath.startsWith('/admin')) {
+        redirectPath = '/admin/login';
+      } else if (currentPath.startsWith('/judge')) {
+        redirectPath = '/judge/login';
+      } else if (currentPath.startsWith('/cibc')) {
+        redirectPath = '/cibc/login';
+      }
+
       if (isSupabaseConfigured()) {
         await supabaseAuthService.signOut();
       }
@@ -97,11 +108,16 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       setIsActive(false);
       setShowWarning(false);
       toast.info('Session expired', { description: 'You have been logged out due to inactivity.' });
-      navigate('/cibc/login');
+      navigate(redirectPath);
     } catch (error) {
       console.error('Logout error:', error);
       // Force redirect even on error
-      navigate('/cibc/login');
+      const currentPath = window.location.pathname;
+      let redirectPath = '/login';
+      if (currentPath.startsWith('/admin')) redirectPath = '/admin/login';
+      else if (currentPath.startsWith('/judge')) redirectPath = '/judge/login';
+      else if (currentPath.startsWith('/cibc')) redirectPath = '/cibc/login';
+      navigate(redirectPath);
     }
   }, [navigate]);
 

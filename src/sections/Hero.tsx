@@ -124,7 +124,7 @@ const Hero = () => {
         {/* CTA Buttons */}
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-10 w-full sm:w-auto">
           <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-[#FFB22C] text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-[1.03]">
-            <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none">
+            <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none" style={{ transitionTimingFunction: 'cubic-bezier(0.68,-0.55,0.27,1.55)' }}>
               <div className="absolute inset-0 bg-[#FFB22C]/70 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
               <div className="absolute inset-0 bg-[#FFB22C] rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
             </div>
@@ -135,7 +135,7 @@ const Hero = () => {
           </button>
 
           <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-white/25 text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full transition-transform duration-300 flex items-center justify-center hover:scale-[1.03]">
-              <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none">
+              <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none" style={{ transitionTimingFunction: 'cubic-bezier(0.68,-0.55,0.27,1.55)' }}>
                 <div className="absolute inset-0 bg-white/60 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
                 <div className="absolute inset-0 bg-white rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
               </div>

@@ -14,12 +14,7 @@ const News = () => {
   const { language } = useLanguage();
 
   const [selectedNews, setSelectedNews] = useState<typeof newsConfig.items[0] | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('');
-
-  // Set initial category based on language
-  useEffect(() => {
-    setActiveCategory(language === 'id' ? 'Semua' : 'All');
-  }, [language]);
+  const [activeCategory, setActiveCategory] = useState<string>(() => language === 'id' ? 'Semua' : 'All');
 
   const categories = [
     { id: 'all', label: language === 'id' ? 'Semua' : 'All' },

@@ -5,6 +5,10 @@ import './index.css'
 import App from './App.tsx'
 import { LanguageProvider } from './contexts/LanguageContext.tsx'
 import { SessionProvider } from './components/SessionProvider.tsx'
+import { installLogger } from './utils/logger'
+
+// Suppress console.log/debug in production
+installLogger()
 
 /**
  * Note: AuthProvider from AuthContext.tsx has been removed.

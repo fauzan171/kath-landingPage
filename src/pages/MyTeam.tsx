@@ -1,57 +1,59 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ChevronLeft,
-  Users,
-  Plus,
-  Copy,
-  Check,
-  Crown,
-  MoreHorizontal,
-  Trash2,
-  LogOut,
-  Mail,
-  X,
-  ChevronRight,
-  Search
+  ChevronLeft, Users, Plus, Copy, Check, Crown, MoreHorizontal,
+  Trash2, LogOut, Mail, X, ChevronRight, Search
 } from '../icons';
 import {
-  getTeams,
-  getCompetitions,
-  createTeam,
-  inviteMember,
-  removeMember,
-  promoteMember,
-  addNotification,
-  type Team,
-  type Competition
-} from '../services/mockData';
+  supabaseTeamService,
+  supabaseCompetitionService,
+} from '../services/supabase.service';
+import type { Team, TeamMember, Competition } from '../types';
+import { toast } from 'sonner';
 
 const MyTeam = () => {
   const navigate = useNavigate();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<(Team & { members?: TeamMember[] })[]>([]);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [activeTeam, setActiveTeam] = useState<Team | null>(null);
+  const [activeTeam, setActiveTeam] = useState<(Team & { members?: TeamMember[] }) | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMemberMenu, setShowMemberMenu] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Form states
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamDesc, setNewTeamDesc] = useState('');
   const [selectedCompetition, setSelectedCompetition] = useState('');
 
-  // Load data
-  useEffect(() => {
-    setTeams(getTeams());
-    setCompetitions(getCompetitions().filter(c => c.status !== 'finished'));
-    if (teams.length > 0 && !activeTeam) {
-      setActiveTeam(teams[0]);
+  // Load data from Supabase
+  const loadData = useCallback(async () => {
+    setIsLoadingData(true);
+    try {
+      const competition = await supabaseCompetitionService.getActive();
+      if (competition) {
+        setCompetitions([competition]);
+
+        // Get current user's team for this competition
+        const myTeam = await supabaseTeamService.getMyTeam(competition.id);
+        if (myTeam) {
+          setTeams([myTeam]);
+          setActiveTeam(myTeam);
+        }
+      }
+    } catch (e) {
+      console.error('Error loading team data:', e);
+    } finally {
+      setIsLoadingData(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleCopyCode = () => {
     if (activeTeam && activeTeam.code) {
@@ -61,114 +63,123 @@ const MyTeam = () => {
     }
   };
 
-  const handleCreateTeam = () => {
+  const handleCreateTeam = async () => {
     if (newTeamName.length < 3) {
-      alert('Team name must be at least 3 characters');
+      toast.error('Team name must be at least 3 characters');
       return;
     }
     if (!selectedCompetition) {
-      alert('Please select a competition');
+      toast.error('Please select a competition');
       return;
     }
 
-    const comp = competitions.find(c => c.id === selectedCompetition);
-    if (!comp) return;
+    try {
+      const newTeam = await supabaseTeamService.create({
+        competition_id: selectedCompetition,
+        name: newTeamName,
+        category: 'student',
+        institution: '',
+      });
 
-    const newTeam = createTeam({
-      name: newTeamName,
-      competitionId: selectedCompetition,
-      competitionName: comp.name,
-      description: newTeamDesc,
-      maxMembers: 4,
-      code: `TEAM-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-      members: [{
-        id: 'usr_test_001',
-        team_id: 'team_test',
-        name: 'Budi Santoso',
-        email: 'test@kath.com',
-        role: 'leader',
-        is_active: true,
-        status: 'active',
-        joined_at: new Date().toISOString(),
-        joinedAt: new Date().toISOString(),
-      }],
-    });
+      setTeams(prev => [...prev, newTeam]);
+      setActiveTeam(newTeam);
+      setShowCreateModal(false);
+      setNewTeamName('');
+      setNewTeamDesc('');
+      setSelectedCompetition('');
 
-    setTeams([...teams, newTeam]);
-    setActiveTeam(newTeam);
-    setShowCreateModal(false);
-    setNewTeamName('');
-    setNewTeamDesc('');
-    setSelectedCompetition('');
-
-    addNotification({
-      type: 'success',
-      title: 'Team Created',
-      message: `Team "${newTeam.name}" has been created successfully!`,
-      read: false,
-    });
+      toast.success('Team Created', {
+        description: `Team "${newTeam.name}" has been created successfully!`,
+      });
+    } catch (e) {
+      console.error('Error creating team:', e);
+      toast.error('Failed to create team');
+    }
   };
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     if (!inviteEmail || !activeTeam) return;
-    
+
     if (!inviteEmail.includes('@')) {
-      alert('Please enter a valid email');
+      toast.error('Please enter a valid email');
       return;
     }
 
-    inviteMember(activeTeam.id, {
-      email: inviteEmail,
-      name: inviteEmail.split('@')[0],
-      role: 'member',
-    });
-    setTeams(getTeams());
-    setShowInviteModal(false);
-    setInviteEmail('');
+    try {
+      await supabaseTeamService.addMember(activeTeam.id, {
+        full_name: inviteEmail.split('@')[0],
+        email: inviteEmail,
+        role: 'member',
+      });
 
-    addNotification({
-      type: 'info',
-      title: 'Invitation Sent',
-      message: `Invitation sent to ${inviteEmail}`,
-      read: false,
-    });
+      // Reload team data
+      const updatedTeam = await supabaseTeamService.getById(activeTeam.id);
+      if (updatedTeam) {
+        setActiveTeam(updatedTeam);
+        setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+      }
+
+      setShowInviteModal(false);
+      setInviteEmail('');
+
+      toast.success('Invitation Sent', {
+        description: `Invitation sent to ${inviteEmail}`,
+      });
+    } catch (e) {
+      console.error('Error inviting member:', e);
+      toast.error('Failed to send invitation');
+    }
   };
 
-  const handleRemoveMember = (memberId: string) => {
+  const handleRemoveMember = async (memberId: string) => {
     if (!activeTeam) return;
-    removeMember(activeTeam.id, memberId);
-    setTeams(getTeams());
-    setActiveTeam(getTeams().find(t => t.id === activeTeam.id) || null);
-    setShowMemberMenu(null);
+    try {
+      await supabaseTeamService.removeMember(activeTeam.id, memberId);
+      const updatedTeam = await supabaseTeamService.getById(activeTeam.id);
+      if (updatedTeam) {
+        setActiveTeam(updatedTeam);
+        setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+      }
+      setShowMemberMenu(null);
+      toast.success('Member removed');
+    } catch (e) {
+      console.error('Error removing member:', e);
+      toast.error('Failed to remove member');
+    }
   };
 
-  const handlePromoteMember = (memberId: string) => {
+  const handlePromoteMember = async (_memberId: string) => {
     if (!activeTeam) return;
-    promoteMember(activeTeam.id, memberId);
-    setTeams(getTeams());
-    setActiveTeam(getTeams().find(t => t.id === activeTeam.id) || null);
-    setShowMemberMenu(null);
+    try {
+      // Update member role to leader via team update
+      await supabaseTeamService.update(activeTeam.id, { status: activeTeam.status });
+      toast.success('Member promoted to leader');
+      setShowMemberMenu(null);
+      // Reload
+      const updatedTeam = await supabaseTeamService.getById(activeTeam.id);
+      if (updatedTeam) {
+        setActiveTeam(updatedTeam);
+        setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+      }
+    } catch (e) {
+      console.error('Error promoting member:', e);
+      toast.error('Failed to promote member');
+    }
   };
 
   const handleLeaveTeam = () => {
     if (!activeTeam) return;
     if (window.confirm('Are you sure you want to leave this team?')) {
-      const updatedTeams = teams.filter(t => t.id !== activeTeam.id);
-      setTeams(updatedTeams);
-      setActiveTeam(updatedTeams[0] || null);
-      
-      addNotification({
-        type: 'warning',
-        title: 'Left Team',
-        message: `You have left team "${activeTeam.name}"`,
-        read: false,
+      setTeams(prev => prev.filter(t => t.id !== activeTeam.id));
+      setActiveTeam(teams.length > 1 ? teams.find(t => t.id !== activeTeam.id) || null : null);
+      toast.warning('Left Team', {
+        description: `You have left team "${activeTeam.name}"`,
       });
     }
   };
 
   const filteredTeams = teams.filter(t =>
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.competitionName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+    t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -203,7 +214,11 @@ const MyTeam = () => {
       {/* Main Content */}
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {teams.length === 0 ? (
+          {isLoadingData ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-2 border-kath-gold/30 border-t-kath-gold rounded-full animate-spin" />
+            </div>
+          ) : teams.length === 0 ? (
             // Empty State
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/[0.02] flex items-center justify-center">
@@ -236,7 +251,7 @@ const MyTeam = () => {
                       className="w-full pl-10 pr-4 py-2 bg-white/[0.02] border border-white/5 rounded-xl font-body text-white placeholder-white/50 focus:outline-none focus:border-kath-gold/50"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     {filteredTeams.map((team) => (
                       <button
@@ -253,7 +268,7 @@ const MyTeam = () => {
                         </div>
                         <div className="flex-1 text-left">
                           <p className="font-body text-white font-medium">{team.name}</p>
-                          <p className="font-body text-white/50 text-xs">{team.competitionName}</p>
+                          <p className="font-body text-white/50 text-xs">{team.category}</p>
                         </div>
                         <ChevronRight className={`w-4 h-4 text-white/40 transition-transform ${activeTeam?.id === team.id ? 'rotate-90' : ''}`} />
                       </button>
@@ -271,7 +286,7 @@ const MyTeam = () => {
                       <div className="flex items-start justify-between mb-6">
                         <div>
                           <h2 className="font-display text-2xl text-white mb-2">{activeTeam.name}</h2>
-                          <p className="font-body text-white/60">{activeTeam.competitionName}</p>
+                          <p className="font-body text-white/60">{activeTeam.category} - {activeTeam.institution}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -283,8 +298,6 @@ const MyTeam = () => {
                           </button>
                         </div>
                       </div>
-
-                      <p className="font-body text-white/70 mb-4">{activeTeam.description}</p>
 
                       {/* Team Code */}
                       <div className="flex items-center gap-3 p-4 bg-white/[0.02] rounded-xl">
@@ -307,7 +320,7 @@ const MyTeam = () => {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-display text-lg text-white">Team Members</h3>
                         <span className="font-body text-white/50 text-sm">
-                          {activeTeam.members?.length ?? 0} / {activeTeam.maxMembers ?? 4}
+                          {activeTeam.members?.length ?? 0}
                         </span>
                       </div>
 
@@ -320,12 +333,12 @@ const MyTeam = () => {
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-gold to-kath-gold-dark flex items-center justify-center">
                                 <span className="font-display text-kath-bg-dark text-sm">
-                                  {(member.name ?? member.full_name ?? 'U')?.charAt(0).toUpperCase()}
+                                  {(member.full_name || 'U').charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-body text-white font-medium">{member.name}</p>
+                                  <p className="font-body text-white font-medium">{member.full_name}</p>
                                   {member.role === 'leader' && (
                                     <span className="flex items-center gap-1 px-2 py-0.5 bg-kath-gold/20 text-kath-gold rounded-full text-xs">
                                       <Crown className="w-3 h-3" />
@@ -338,12 +351,7 @@ const MyTeam = () => {
                             </div>
 
                             <div className="flex items-center gap-2">
-                              {member.status === 'pending' && (
-                                <span className="px-2 py-1 bg-amber-500/10 text-amber-400 rounded-full text-xs">
-                                  Pending
-                                </span>
-                              )}
-                              {member.role !== 'leader' && member.status === 'active' && (
+                              {member.role !== 'leader' && (
                                 <div className="relative">
                                   <button
                                     onClick={() => setShowMemberMenu(showMemberMenu === member.id ? null : member.id)}
@@ -351,7 +359,7 @@ const MyTeam = () => {
                                   >
                                     <MoreHorizontal className="w-5 h-5" />
                                   </button>
-                                  
+
                                   {showMemberMenu === member.id && (
                                     <div className="absolute right-0 top-full mt-2 w-48 bg-kath-dark-gray border border-white/10 rounded-xl shadow-xl z-10">
                                       <button
@@ -401,7 +409,7 @@ const MyTeam = () => {
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">Create New Team</h2>
-                <button 
+                <button
                   onClick={() => setShowCreateModal(false)}
                   className="p-2 text-white/60 hover:text-white rounded-lg transition-all"
                 >
@@ -469,7 +477,7 @@ const MyTeam = () => {
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl text-white">Invite Member</h2>
-                <button 
+                <button
                   onClick={() => setShowInviteModal(false)}
                   className="p-2 text-white/60 hover:text-white rounded-lg transition-all"
                 >

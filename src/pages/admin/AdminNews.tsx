@@ -14,6 +14,7 @@ const AdminNews = () => {
   const [editForm, setEditForm] = useState<Partial<News>>({});
   const [saving, setSaving] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
@@ -39,7 +40,7 @@ const AdminNews = () => {
         toast.success('Updated!');
       }
       setEditingId(null); setEditForm({});
-    } catch (e) { toast.error('Failed'); }
+    } catch (_e) { toast.error('Failed'); }
     finally { setSaving(false); }
   };
 
@@ -48,13 +49,13 @@ const AdminNews = () => {
       const updated = await newsService.update(item.id, { is_published: !item.is_published, published_at: !item.is_published ? new Date().toISOString() : undefined });
       setItems(items.map(i => i.id === item.id ? updated : i));
       toast.success(item.is_published ? 'Unpublished' : 'Published');
-    } catch (e) { toast.error('Failed'); }
+    } catch (_e) { toast.error('Failed'); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete?')) return;
     try { await newsService.delete(id); setItems(items.filter(i => i.id !== id)); toast.success('Deleted'); }
-    catch (e) { toast.error('Failed'); }
+    catch (_e) { toast.error('Failed'); }
   };
 
   if (loading) return <div className="flex justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>;

@@ -20,7 +20,7 @@ export const TimelineSection = () => {
 
         if (!section || !line) return;
 
-        let ctx = gsap.context(() => {
+        const ctx = gsap.context(() => {
             // 1. Animasi Header (Muncul dari bawah)
             gsap.fromTo('.timeline-header', 
                 { opacity: 0, y: 30 }, 

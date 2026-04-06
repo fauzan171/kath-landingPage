@@ -19,7 +19,7 @@ const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 // Warn if Supabase is not configured (but don't throw error)
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    '⚠️ Supabase environment variables are missing. Please create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. ' +
+    'Warning: Supabase environment variables are missing. Please create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. ' +
     'See .env.example for reference.'
   );
 }
@@ -61,17 +61,53 @@ export interface UserRoleAssignment {
   permissions: string[];
 }
 
+// ============================================
+// Rubric Types
+// ============================================
+
+/** A single rubric criterion with weight-based scoring */
+export interface RubricCriterion {
+  id: string;
+  name: string;
+  nameId?: string;
+  maxScore: number;
+  weight: number;
+  description?: string;
+}
+
+/** The full rubric data structure stored as JSONB on tasks */
+export interface RubricData {
+  rubric: RubricCriterion[];
+  totalWeight: number;
+}
+
+/** Legacy rubric format used by AdminStages */
+export interface LegacyRubricCriterion {
+  criterion: string;
+  description: string;
+  max_points: number;
+}
+
 export interface Competition {
   id: string;
   code: string;
   name: string;
+  name_id?: string;
   subtitle?: string;
   description?: string;
+  description_id?: string;
   status: 'draft' | 'upcoming' | 'active' | 'completed' | 'archived';
+  is_active?: boolean;
   registration_start?: string;
   registration_end?: string;
+  competition_start?: string;
+  competition_end?: string;
   event_start?: string;
   event_end?: string;
+  target?: string;
+  prize?: string;
+  image?: string;
+  requirements?: string[];
   config: {
     totalPrize?: string;
     maxTeamSize?: number;
@@ -126,21 +162,16 @@ export interface Task {
   instructions?: string;
   type: 'file_upload' | 'text_input' | 'link_submit' | 'quiz' | 'attendance' | 'text' | 'link' | 'presentation';
   max_file_size_mb?: number;
-  max_file_size?: number;  // Alias, some code uses this
+  max_file_size?: number;
   max_score?: number;
   allowed_extensions?: string[];
-  file_types?: string[];  // Alias for allowed_extensions
+  file_types?: string[];
   deadline?: string;
   is_required: boolean;
   is_published: boolean;
   order_index: number;
-  rubric?: Array<{
-    id: string;
-    name: string;
-    nameId?: string;
-    maxScore: number;
-    weight: number;
-  }>;
+  rubric?: Array<RubricCriterion | LegacyRubricCriterion>;
+  rubric_data?: RubricData;
   custom_fields?: Array<{
     id: string;
     label: string;
@@ -158,7 +189,7 @@ export interface Team {
   id: string;
   competition_id: string;
   name: string;
-  team_code?: string;  // Alias for code, used by some components
+  team_code?: string;
   code?: string;
   category?: 'startup' | 'student' | 'corporate' | 'open';
   status: 'draft' | 'pending' | 'verified' | 'rejected';
@@ -166,13 +197,11 @@ export interface Team {
   country?: string;
   total_score?: number;
   rank?: number;
-  // Payment fields
   payment_status?: 'unpaid' | 'pending' | 'verified' | 'rejected';
   payment_proof?: string;
   payment_uploaded_at?: string;
   payment_drive_id?: string;
   payment_rejection_reason?: string;
-  // Verification fields
   notes?: string;
   verified_by?: string;
   verified_at?: string;
@@ -196,7 +225,6 @@ export interface TeamMember {
   role: 'leader' | 'member' | 'mentor';
   is_active: boolean;
   joined_at: string;
-  // Joined user data (from users table)
   user?: {
     id: string;
     name: string;
@@ -212,33 +240,22 @@ export interface Submission {
   competition_id: string;
   submitted_by?: string;
   submitted_at?: string;
-
-  // File metadata (Google Drive URL - string only!)
-  file_url?: string;        // https://drive.google.com/file/d/xxx/view
+  file_url?: string;
   file_name?: string;
-  file_size?: number;       // bytes
-  file_type?: string;       // MIME type
-  drive_file_id?: string;   // Google Drive file ID
-  link_url?: string;        // For link submissions
-
-  // Content
+  file_size?: number;
+  file_type?: string;
+  drive_file_id?: string;
+  link_url?: string;
   content?: string;
   field_values?: Record<string, unknown>;
-
-  // Status
   status: 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final' | 'late';
-
-  // Grading
   total_score?: number;
   graded_by?: string;
   graded_at?: string;
   feedback?: string;
   criteria_scores?: Record<string, number>;
-
-  // Late submission
   is_late?: boolean;
   penalty_applied?: number;
-
   created_at: string;
   updated_at: string;
 }
@@ -267,22 +284,15 @@ export async function signUp(email: string, password: string, metadata?: Record<
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      data: metadata
-    }
+    options: { data: metadata }
   });
-
   if (error) throw error;
   return data;
 }
 
 export async function signIn(email: string, password: string) {
   if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data;
 }
@@ -306,7 +316,7 @@ export async function getSession() {
 }
 
 // ============================================
-// FILE UPLOAD HELPER (via n8n → Google Drive)
+// FILE UPLOAD HELPER (via n8n -> Google Drive)
 // ============================================
 
 export async function uploadFileToDrive(
@@ -319,7 +329,6 @@ export async function uploadFileToDrive(
   fileName: string;
   fileSize: number;
 }> {
-  // Mock mode for development - return fake URL
   if (!n8nWebhookUrl) {
     console.warn('N8N_WEBHOOK_URL not configured, using mock upload');
     const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -331,7 +340,6 @@ export async function uploadFileToDrive(
     };
   }
 
-  // Create form data
   const formData = new FormData();
   formData.append('file', file);
   formData.append('taskId', taskId);
@@ -339,7 +347,6 @@ export async function uploadFileToDrive(
   formData.append('fileName', file.name);
   formData.append('fileSize', file.size.toString());
 
-  // Upload via n8n webhook
   const response = await fetch(`${n8nWebhookUrl}/upload-pdf`, {
     method: 'POST',
     body: formData
@@ -351,7 +358,6 @@ export async function uploadFileToDrive(
   }
 
   const result = await response.json();
-
   if (!result.success) {
     throw new Error(result.error || 'Upload failed');
   }
@@ -375,17 +381,15 @@ export async function createSubmission(
   file: File
 ): Promise<Submission> {
   if (!supabase) throw new Error('Supabase is not configured');
-  // 1. Upload file to Google Drive via n8n
   const uploadResult = await uploadFileToDrive(file, taskId, teamId);
 
-  // 2. Save metadata to Supabase (URL string only!)
   const { data, error } = await supabase
     .from('submissions')
     .insert({
       task_id: taskId,
       team_id: teamId,
       competition_id: competitionId,
-      file_url: uploadResult.fileUrl,        // Google Drive URL
+      file_url: uploadResult.fileUrl,
       file_name: uploadResult.fileName,
       file_size: uploadResult.fileSize,
       file_type: file.type,

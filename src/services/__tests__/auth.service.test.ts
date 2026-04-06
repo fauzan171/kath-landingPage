@@ -54,6 +54,8 @@ describe('login', () => {
     const mockUser = {
       id: 'user-123',
       email: 'test@example.com',
+      email_confirmed_at: '2026-04-01T00:00:00Z',
+      confirmed_at: '2026-04-01T00:00:00Z',
       user_metadata: { name: 'Test User', role: 'admin' },
     };
 
