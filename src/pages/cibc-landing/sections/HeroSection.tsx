@@ -85,7 +85,7 @@ export const HeroSection = () => {
       <div className="absolute top-[-5%] left-[-5%] w-[110%] h-[110%] pointer-events-none">
         <img
           ref={bgImageRef}
-          src="/hero-pic-4.webp"
+          src="/hero-pic-4.avif"
           alt="CIBC Hero Background"
           className="w-full h-full object-cover"
           style={{ willChange: 'transform, filter' }} 
