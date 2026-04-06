@@ -1322,6 +1322,7 @@ export const supabaseSubmissionService = {
   upsert: async (submission: Partial<Submission>): Promise<Submission> => {
     const payload = { ...submission } as Record<string, unknown>;
 
+    // Try upsert with onConflict first (requires UNIQUE constraint on task_id, team_id)
     const { data, error } = await supabase
       .from('submissions')
       .upsert(payload, { onConflict: 'task_id,team_id' })
@@ -1329,16 +1330,74 @@ export const supabaseSubmissionService = {
       .single();
 
     if (error) {
-      // Retry without columns that may not exist yet (migration v6.6.0)
-      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
-        const stripped = stripMissingSubmissionColumns(payload);
-        const { data: retryData, error: retryError } = await supabase
+      // If error is about missing constraint or missing columns, try manual upsert
+      if (error.code === '42P10' || error.code === 'PGRST204' || error.message?.includes('schema cache') || error.message?.includes('ON CONFLICT')) {
+        // Strip columns that may not exist yet
+        const cleanPayload = (error.code === 'PGRST204' || error.message?.includes('schema cache'))
+          ? stripMissingSubmissionColumns(payload)
+          : payload;
+
+        // Manual upsert: check if submission exists, then update or insert
+        const taskId = cleanPayload.task_id as string;
+        const teamId = cleanPayload.team_id as string;
+
+        if (taskId && teamId) {
+          // Check existing
+          const { data: existing } = await supabase
+            .from('submissions')
+            .select('id')
+            .eq('task_id', taskId)
+            .eq('team_id', teamId)
+            .maybeSingle();
+
+          if (existing) {
+            // Update existing
+            const { id, task_id, team_id, competition_id, created_at, ...updateData } = cleanPayload;
+            const { data: updatedData, error: updateError } = await supabase
+              .from('submissions')
+              .update(updateData)
+              .eq('id', existing.id)
+              .select()
+              .single();
+            if (updateError) {
+              // One more retry with stripped columns
+              if (updateError.code === 'PGRST204') {
+                const stripped = stripMissingSubmissionColumns(updateData);
+                const { data: retryData, error: retryError } = await supabase
+                  .from('submissions')
+                  .update(stripped)
+                  .eq('id', existing.id)
+                  .select()
+                  .single();
+                if (retryError) throw retryError;
+                return retryData;
+              }
+              throw updateError;
+            }
+            return updatedData;
+          }
+        }
+
+        // Insert new
+        const { data: insertData, error: insertError } = await supabase
           .from('submissions')
-          .upsert(stripped, { onConflict: 'task_id,team_id' })
+          .insert(cleanPayload)
           .select()
           .single();
-        if (retryError) throw retryError;
-        return retryData;
+        if (insertError) {
+          if (insertError.code === 'PGRST204') {
+            const stripped = stripMissingSubmissionColumns(cleanPayload);
+            const { data: retryData, error: retryError } = await supabase
+              .from('submissions')
+              .insert(stripped)
+              .select()
+              .single();
+            if (retryError) throw retryError;
+            return retryData;
+          }
+          throw insertError;
+        }
+        return insertData;
       }
       throw error;
     }
