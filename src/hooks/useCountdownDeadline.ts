@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabaseCompetitionService, supabaseStageService } from '@/services/cibc.service';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
+import { nowWIB, toWIB } from '@/utils/timezone';
 
 interface TimeLeft {
   days: number;
@@ -111,10 +112,10 @@ export function useCountdownDeadline(fallbackDaysFromNow: number = 30) {
   useEffect(() => {
     if (!deadline) return;
 
-    const targetDate = new Date(deadline);
+    const targetDate = toWIB(deadline);
 
     const calculateTimeLeft = () => {
-      const now = new Date();
+      const now = nowWIB();
       const diff = targetDate.getTime() - now.getTime();
 
       if (diff > 0) {

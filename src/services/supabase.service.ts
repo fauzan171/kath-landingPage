@@ -1743,19 +1743,41 @@ export const supabasePaymentService = {
     paymentProofUrl: string,
     driveFileId?: string
   ): Promise<Team> => {
+    // Build update payload — only include columns that exist in the DB
+    const updatePayload: Record<string, unknown> = {
+      payment_proof: paymentProofUrl,
+      payment_status: 'pending',
+    };
+    // These columns may not exist yet if migration v6.6.0 hasn't been run
+    try {
+      updatePayload.payment_uploaded_at = new Date().toISOString();
+      if (driveFileId) updatePayload.payment_drive_id = driveFileId;
+    } catch (_e) { /* ignore */ }
+
     const { data, error } = await supabase
       .from('teams')
-      .update({
-        payment_proof: paymentProofUrl,
-        payment_status: 'pending',
-        payment_uploaded_at: new Date().toISOString(),
-        payment_drive_id: driveFileId || null,
-      })
+      .update(updatePayload)
       .eq('id', teamId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without optional columns if they don't exist yet
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const { data: retryData, error: retryError } = await supabase
+          .from('teams')
+          .update({
+            payment_proof: paymentProofUrl,
+            payment_status: 'pending',
+          })
+          .eq('id', teamId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData as Team;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -1861,19 +1883,38 @@ export const supabasePaymentService = {
    * Reject payment (admin)
    */
   rejectPayment: async (teamId: string, reason: string, adminId: string | null): Promise<Team> => {
+    // Build update payload — only include columns that exist in the DB
+    const updatePayload: Record<string, unknown> = {
+      payment_status: 'rejected',
+    };
+    // These columns may not exist yet if migration v6.6.0 hasn't been run
+    try {
+      updatePayload.payment_rejection_reason = reason;
+      if (adminId) updatePayload.rejected_by = adminId;
+      updatePayload.rejected_at = new Date().toISOString();
+    } catch (_e) { /* ignore */ }
+
     const { data, error } = await supabase
       .from('teams')
-      .update({
-        payment_status: 'rejected',
-        payment_rejection_reason: reason,
-        rejected_by: adminId,
-        rejected_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', teamId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Retry without optional columns if they don't exist yet
+      if (error.message?.includes('schema cache') || error.code === 'PGRST204') {
+        const { data: retryData, error: retryError } = await supabase
+          .from('teams')
+          .update({ payment_status: 'rejected' })
+          .eq('id', teamId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData as Team;
+      }
+      throw error;
+    }
 
     // Create notification for team members
     const { data: members } = await supabase

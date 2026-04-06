@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCountdownDeadline } from '@/hooks/useCountdownDeadline';
+import { nowWIB, toWIB } from '@/utils/timezone';
 
 interface CountdownTimerProps {
     targetDate?: string | null;
@@ -30,10 +31,10 @@ export const CountdownTimer = ({ targetDate: propTargetDate }: CountdownTimerPro
     useEffect(() => {
         if (!propTargetDate) return;
 
-        const target = new Date(propTargetDate);
+        const target = toWIB(propTargetDate);
 
         const calculateTimeLeft = () => {
-            const now = new Date();
+            const now = nowWIB();
             const diff = target.getTime() - now.getTime();
 
             if (diff > 0) {

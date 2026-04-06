@@ -8,6 +8,7 @@ import { Plus, Loader2, Calendar, Clock, Play, Pause, Edit2, Trash2, Timer, Eye,
 import { toast } from 'sonner';
 import { stagesService, tasksService, competitionService, type Stage, type Task } from '@/services/cibc.service';
 import type { LegacyRubricCriterion } from '@/lib/supabase';
+import { createWIBISOString, nowWIB, toWIB } from '@/utils/timezone';
 
 // Use the legacy rubric criterion type (matches admin UI format)
 type RubricCriterion = LegacyRubricCriterion;
@@ -190,9 +191,9 @@ const AdminStages = () => {
 
   // Check if stage is currently active based on dates
   const isStageActiveByDate = (stage: Stage) => {
-    const now = new Date();
-    const start = stage.start_date ? new Date(stage.start_date) : null;
-    const end = stage.end_date ? new Date(stage.end_date) : null;
+    const now = nowWIB();
+    const start = stage.start_date ? toWIB(stage.start_date) : null;
+    const end = stage.end_date ? toWIB(stage.end_date) : null;
 
     if (start && end) {
       return now >= start && now <= end;
@@ -230,8 +231,8 @@ const AdminStages = () => {
       {(() => {
         const activeStage = stages.find(s => s.is_active);
         const countdownDeadline = activeStage?.end_date;
-        const now = new Date();
-        const diff = countdownDeadline ? new Date(countdownDeadline).getTime() - now.getTime() : null;
+        const now = nowWIB();
+        const diff = countdownDeadline ? toWIB(countdownDeadline).getTime() - now.getTime() : null;
         const isExpired = diff !== null && diff <= 0;
         const days = diff && diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0;
         const hours = diff && diff > 0 ? Math.floor((diff / (1000 * 60 * 60)) % 24) : 0;
@@ -606,7 +607,7 @@ const AdminStages = () => {
                     <input
                       type="date"
                       value={editingStage.start_date?.split('T')[0] || ''}
-                      onChange={(e) => setEditingStage({ ...editingStage, start_date: e.target.value ? `${e.target.value}T00:00:00Z` : undefined })}
+                      onChange={(e) => setEditingStage({ ...editingStage, start_date: e.target.value ? createWIBISOString(e.target.value, '00:00:00') : undefined })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none"
                     />
                   </div>
@@ -618,7 +619,7 @@ const AdminStages = () => {
                     <input
                       type="date"
                       value={editingStage.end_date?.split('T')[0] || ''}
-                      onChange={(e) => setEditingStage({ ...editingStage, end_date: e.target.value ? `${e.target.value}T23:59:59Z` : undefined })}
+                      onChange={(e) => setEditingStage({ ...editingStage, end_date: e.target.value ? createWIBISOString(e.target.value, '23:59:59') : undefined })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none"
                     />
                   </div>
