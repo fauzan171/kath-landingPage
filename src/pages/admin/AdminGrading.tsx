@@ -534,43 +534,42 @@ const AdminGrading = () => {
             </div>
 
             {/* Rubric Grading */}
-            <div className="space-y-4 mb-6">
-              <h3 className="font-semibold text-gray-800">Rubric Criteria</h3>
-              {DEFAULT_RUBRIC.map((criteria) => (
-                <div key={criteria.id} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="font-medium">{criteria.name}</p>
-                      <p className="text-xs text-gray-500">{criteria.nameId}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Weight: {(criteria.weight * 100)}%</span>
-                      <div className="px-2 py-1 bg-gray-100 rounded text-sm">
-                        Max: {criteria.maxScore}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-800 mb-3">Rubric Criteria</h3>
+              <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                {DEFAULT_RUBRIC.map((criteria) => (
+                  <div key={criteria.id} className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <p className="font-medium text-sm">{criteria.name}</p>
+                        <p className="text-xs text-gray-400">{criteria.nameId}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{(criteria.weight * 100)}%</span>
+                        <span className="text-xs text-gray-400">/ {criteria.maxScore}</span>
                       </div>
                     </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min={0}
+                        max={criteria.maxScore}
+                        value={criteriaScores[criteria.id] || 0}
+                        onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Number(e.target.value) })}
+                        className="w-full accent-amber-500 h-1.5"
+                      />
+                      <input
+                        type="number"
+                        min={0}
+                        max={criteria.maxScore}
+                        value={criteriaScores[criteria.id] || 0}
+                        onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Math.min(criteria.maxScore, Math.max(0, Number(e.target.value))) })}
+                        className="w-14 px-1.5 py-0.5 border rounded text-center text-sm"
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="range"
-                      min={0}
-                      max={criteria.maxScore}
-                      value={criteriaScores[criteria.id] || 0}
-                      onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Number(e.target.value) })}
-                      className="w-full accent-amber-500"
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      max={criteria.maxScore}
-                      value={criteriaScores[criteria.id] || 0}
-                      onChange={(e) => setCriteriaScores({ ...criteriaScores, [criteria.id]: Math.min(criteria.maxScore, Math.max(0, Number(e.target.value))) })}
-                      className="w-16 px-2 py-1 border rounded text-center"
-                    />
-                    <span className="text-sm text-gray-500">/ {criteria.maxScore}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Total Score */}
