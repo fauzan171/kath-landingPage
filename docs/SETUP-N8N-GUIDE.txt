@@ -1,0 +1,419 @@
+# Panduan Setup n8n untuk KATH Event Organizer
+# (Upload File ke Google Drive - 100% GRATIS)
+#
+# Panduan ini untuk yang AWAM SEKALI.
+# Ikuti langkah per langkah, JANGAN LONCAT.
+#
+# ============================================================
+
+============================================
+BAGIAN 0: APA ITU n8n?
+============================================
+
+n8n adalah tool OTOMASI seperti "Zapier" tapi GRATIS.
+
+Cara kerjanya sederhana:
+  Website KATH  -->  kirim file  -->  n8n  -->  simpan ke Google Drive
+                     (upload)        (perantara)     (storage gratis 15GB)
+
+Jadi file TIDAK disimpan di Supabase (yang berbayar),
+melainkan disimpan di Google Drive (yang gratis 15GB).
+
+Yang disimpan di Supabase hanya LINK/URL file tersebut.
+
+
+============================================
+BAGIAN 1: BUAT AKUN GOOGLE & DRIVE
+============================================
+
+Langkah 1.1 - Buat Folder di Google Drive
+------------------------------------------
+1. Buka https://drive.google.com
+2. Login dengan akun Google Anda
+3. Klik tombol "+ New" (kiri atas)
+4. Pilih "New folder"
+5. Beri nama: "KATH-Uploads"
+6. Klik "Create"
+
+Langkah 1.2 - Dapatkan Folder ID
+---------------------------------
+1. Buka folder "KATH-Uploads" yang baru dibuat
+2. Lihat URL di browser, contoh:
+   https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ
+3. SALIN bagian terakhir setelah "/folders/"
+   Contoh: 1aBcDeFgHiJkLmNoPqRsTuVwXyZ
+4. SIMPAN baik-baik, ini akan dipakai nanti sebagai "FOLDER_ID"
+
+
+============================================
+BAGIAN 2: DAFTAR n8n (GRATIS)
+============================================
+
+Pilih SALAH SATU opsi berikut:
+
+--- Opsi A: n8n Cloud (PALING MUDAH, rekomendasi) ---
+1. Buka https://n8n.cloud
+2. Klik "Start for free"
+3. Daftar dengan akun Google atau email
+4. Pilih plan "Free" (cukup untuk kebutuhan ini)
+5. Selesai! Anda punya instance n8n sendiri
+
+--- Opsi B: Railway (GRATIS, sedikit lebih teknis) ---
+1. Buka https://railway.app
+2. Login dengan akun GitHub
+3. Klik "New Project"
+4. Pilih "Deploy from Template"
+5. Cari "n8n"
+6. Klik "Deploy"
+7. Tunggu sampai status "SUCCESS"
+8. Klik domain yang diberikan (contoh: n8n-production-abc.up.railway.app)
+9. Buat akun admin n8n di halaman yang muncul
+
+--- Opsi C: Render (GRATIS alternatif) ---
+1. Buka https://render.com
+2. Login dengan akun GitHub
+3. Klik "New" -> "Web Service"
+4. Pilih "Deploy a template"
+5. Cari "n8n"
+6. Klik "Apply"
+7. Tunggu sampai "Live"
+8. Buka URL yang diberikan
+
+CATATAN PENTING untuk Opsi B & C:
+- Railway/Render versi gratis akan "sleep" jika tidak dipakai
+- Pertama kali akses butuh 1-2 menit untuk "wake up"
+- Ini normal dan tidak masalah
+
+
+============================================
+BAGIAN 3: SETUP CREDENTIALS GOOGLE DRIVE DI n8n
+============================================
+
+Setelah login ke n8n Anda:
+
+Langkah 3.1 - Buka Menu Credentials
+------------------------------------
+1. Di sidebar kiri, klik "Credentials"
+2. Klik tombol "Add Credential" (atas kanan)
+3. Di search box, ketik "Google Drive"
+4. Klik "Google Drive OAuth2 API"
+5. Klik "Continue"
+
+Langkah 3.2 - Dapatkan Google OAuth Client ID
+----------------------------------------------
+SEBELUM mengisi form di n8n, kita perlu buat credentials di Google:
+
+1. Buka https://console.cloud.google.com
+2. Login dengan akun Google yang SAMA dengan Google Drive
+3. Klik dropdown project di atas -> "New Project"
+4. Beri nama: "KATH-n8n" -> klik "Create"
+5. Pastikan project "KATH-n8n" sudah dipilih/aktif
+6. Di sidebar kiri, buka "APIs & Services" -> "Enabled APIs & Services"
+7. Klik "+ ENABLE APIS AND SERVICES" di atas
+8. Cari "Google Drive API"
+9. Klik "Google Drive API" -> "Enable"
+10. Kembali ke "APIs & Services" -> "OAuth consent screen"
+11. Pilih "External" -> klik "Create"
+12. Isi form:
+    - App name: KATH Upload
+    - User support email: email Anda
+    - Developer contact email: email Anda
+13. Klik "Save and Continue"
+14. Di step "Scopes", klik "Save and Continue" (skip dulu)
+15. Di step "Test Users", klik "+ ADD USERS"
+16. Masukkan email Google Anda -> klik "Add" -> "Save and Continue"
+17. Klik "Back to Dashboard"
+18. Buka "APIs & Services" -> "Credentials"
+19. Klik "+ CREATE CREDENTIALS" -> "OAuth client ID"
+20. Application type: "Web application"
+21. Name: "n8n Google Drive"
+22. Di "Authorized redirect URIs", klik "ADD URI"
+23. Masukkan URL berikut (sesuaikan dengan n8n Anda):
+
+    Jika pakai n8n Cloud:
+      https://YOUR-APP-NAME.app.n8n.cloud/rest/oauth2-credential/callback
+
+    Jika pakai Railway:
+      https://YOUR-RAILWAY-APP.up.railway.app/rest/oauth2-credential/callback
+
+    Jika pakai Render:
+      https://YOUR-RENDER-APP.onrender.com/rest/oauth2-credential/callback
+
+24. Klik "Create"
+25. ANDA AKAN MELIHAT "Client ID" dan "Client Secret"
+26. SALIN keduanya, simpan baik-baik
+
+Langkah 3.3 - Selesaikan Setup di n8n
+--------------------------------------
+1. Kembali ke tab n8n (halaman Add Credential tadi)
+2. Paste "Client ID" ke field "Client ID"
+3. Paste "Client Secret" ke field "Client Secret"
+4. Klik "Connect my account"
+5. Browser akan buka halaman Google untuk login
+6. Login dengan akun Google Anda
+7. Klik "Continue" jika ada warning "App belum diverifikasi" (ini normal)
+8. Beri izin akses Google Drive
+9. Jika berhasil, n8n akan menampilkan "Connected"
+10. Beri nama credential: "Google Drive KATH"
+11. Klik "Save"
+
+
+============================================
+BAGIAN 4: IMPORT WORKFLOW
+============================================
+
+Langkah 4.1 - Import Workflow
+------------------------------
+1. Di sidebar kiri n8n, klik "Workflows"
+2. Klik tombol "..." (tiga titik) di kanan atas
+3. Pilih "Import from File"
+4. Pilih file: n8n/cibc-upload-workflow.json
+   (file ini sudah ada di project Anda)
+5. Workflow akan muncul di layar
+
+Langkah 4.2 - Update Credential di Workflow
+--------------------------------------------
+1. Klik node "Upload to Google Drive" (kotak di layar)
+2. Di panel kanan, klik dropdown "Credential"
+3. Pilih "Google Drive KATH" (yang dibuat di Bagian 3)
+4. Di field "Folder ID", ganti "YOUR_GOOGLE_DRIVE_FOLDER_ID"
+   dengan FOLDER_ID yang disimpan di Langkah 1.2
+5. Klik panel kosong untuk menutup
+
+6. Klik node "Set Public Permission"
+7. Di panel kanan, klik dropdown "Credential"
+8. Pilih "Google Drive KATH"
+9. Klik panel kosong untuk menutup
+
+Langkah 4.3 - Aktifkan Workflow
+-------------------------------
+1. Di kanan atas, klik toggle "Inactive" -> menjadi "Active"
+   (warna berubah hijau)
+2. Workflow sekarang AKTIF dan siap menerima upload
+
+
+============================================
+BAGIAN 5: DAPATKAN WEBHOOK URL
+============================================
+
+Setelah workflow aktif, Anda perlu mendapatkan webhook URL:
+
+1. Klik node "Webhook" di workflow
+2. Di panel kanan, lihat bagian "Production URL"
+3. URL-nya akan terlihat seperti:
+
+   https://YOUR-APP.app.n8n.cloud/webhook/cibc-upload-pdf
+   atau
+   https://YOUR-RAILWAY-APP.up.railway.app/webhook/cibc-upload-pdf
+
+4. SALIN URL tersebut (tanpa /upload-pdf di akhir)
+   Contoh: https://YOUR-APP.app.n8n.cloud/webhook
+
+5. Ini adalah "WEBHOOK_BASE_URL" Anda
+
+
+============================================
+BAGIAN 6: UPDATE .env PROJECT
+============================================
+
+1. Buka file .env di project KATH Anda
+   (Jika belum ada, copy dari .env.example)
+
+2. Update baris VITE_N8N_WEBHOOK_URL:
+
+   SEBELUM:
+   VITE_N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook
+
+   SESUDAH (contoh):
+   VITE_N8N_WEBHOOK_URL=https://my-kath.app.n8n.cloud/webhook
+
+3. Simpan file .env
+
+4. Restart development server:
+   - Tekan Ctrl+C di terminal
+   - Jalankan: npm run dev
+
+
+============================================
+BAGIAN 7: TAMBAH WORKFLOW UNTUK PAYMENT PROOF
+============================================
+
+Workflow yang diimport di Bagian 4 hanya menangani upload PDF (tugas).
+Kita perlu buat workflow kedua untuk upload gambar (bukti pembayaran).
+
+Langkah 7.1 - Buat Workflow Baru
+---------------------------------
+1. Di n8n, klik "Workflows" -> "Add Workflow" (tombol +)
+2. Beri nama: "CIBC Payment Proof Upload"
+
+Langkah 7.2 - Tambah Node Webhook
+----------------------------------
+1. Klik tombol "+" -> cari "Webhook" -> tambahkan
+2. Setting:
+   - HTTP Method: POST
+   - Path: upload-payment
+   - Response Mode: Last Node
+
+Langkah 7.3 - Tambah Node Validate
+-----------------------------------
+1. Klik "+" -> cari "IF" -> tambahkan
+2. Setting Conditions:
+   - String condition:
+     Value 1: ={{ $json.file.mimetype }}
+     Operation: starts with
+     Value 2: image/
+   - Number condition:
+     Value 1: ={{ $json.file.fileSize }}
+     Operation: smaller than
+     Value 2: 5242880  (5MB dalam bytes)
+
+Langkah 7.4 - Tambah Node Upload Google Drive (IF TRUE)
+-------------------------------------------------------
+1. Klik "+" dari output TRUE IF -> cari "Google Drive"
+2. Setting:
+   - Operation: Upload
+   - Name: ={{ $json.file.fileName }}
+   - Binary Property Name: file
+   - Folder ID: FOLDER_ID_ANDA (dari Langkah 1.2)
+   - Use File Name: ON
+3. Pilih credential "Google Drive KATH"
+
+Langkah 7.5 - Tambah Node Share (Set Public)
+---------------------------------------------
+1. Klik "+" -> cari "Google Drive"
+2. Setting:
+   - Operation: Share
+   - File ID: ={{ $json.id }}
+   - Role: Reader
+   - Type: Anyone
+3. Pilih credential "Google Drive KATH"
+
+Langkah 7.6 - Tambah Node Response Sukses
+------------------------------------------
+1. Klik "+" -> cari "Set" -> tambahkan
+2. Setting Values:
+   - success = true
+   - fileUrl = ={{ 'https://drive.google.com/file/d/' + $json.id + '/view' }}
+   - driveFileId = ={{ $json.id }}
+   - fileName = ={{ $json.name }}
+   - fileSize = ={{ $json.size }}
+
+Langkah 7.7 - Tambah Node Response Error (IF FALSE)
+----------------------------------------------------
+1. Klik "+" dari output FALSE IF -> cari "Set"
+2. Setting Values:
+   - success = false
+   - error = Invalid file. Only image files under 5MB are allowed.
+
+Langkah 7.8 - Hubungkan Semua Node
+-----------------------------------
+Susunan koneksi harus seperti ini:
+
+  Webhook --> IF (Validate)
+                |-- TRUE --> Google Drive Upload --> Google Drive Share --> Set (Success)
+                |-- FALSE --> Set (Error)
+
+Cara menghubungkan:
+1. Klik titik kecil di kanan node Webhook
+2. Tarik ke titik kecil di kiri node IF
+3. Ulangi untuk setiap koneksi sesuai diagram di atas
+
+Langkah 7.9 - Aktifkan
+-----------------------
+1. Klik toggle "Inactive" -> "Active"
+2. Workflow payment proof sudah siap
+
+
+============================================
+BAGIAN 8: TEST SEMUANYA
+============================================
+
+Langkah 8.1 - Test Webhook Manual
+----------------------------------
+1. Buka terminal/command prompt
+2. Jalankan perintah ini (sesuaikan URL):
+
+   Test Upload PDF:
+   curl -X POST https://YOUR-WEBHOOK-URL/upload-pdf \
+     -F "file=@/path/to/test-file.pdf" \
+     -F "taskId=test-task-001" \
+     -F "teamId=test-team-001"
+
+   Test Upload Payment:
+   curl -X POST https://YOUR-WEBHOOK-URL/upload-payment \
+     -F "file=@/path/to/test-image.jpg" \
+     -F "teamId=test-team-001" \
+     -F "competitionId=test-comp-001" \
+     -F "uploadType=payment"
+
+3. Jika berhasil, response akan berisi:
+   {"success":true,"fileUrl":"https://drive.google.com/file/d/...","driveFileId":"..."}
+
+4. Cek Google Drive folder "KATH-Uploads" - file harusnya sudah ada
+
+Langkah 8.2 - Test dari Website
+--------------------------------
+1. Jalankan: npm run dev
+2. Buka http://localhost:5173
+3. Coba upload bukti pembayaran atau submit tugas
+4. Cek Google Drive - file harusnya muncul
+
+
+============================================
+BAGIAN 9: TROUBLESHOOTING (Jika Ada Masalah)
+============================================
+
+Masalah: "Failed to upload" di website
+Solusi:
+  1. Cek file .env - pastikan VITE_N8N_WEBHOOK_URL benar
+  2. Cek n8n - pastikan workflow ACTIVE (hijau)
+  3. Cek browser console (F12) untuk error detail
+
+Masalah: Google Drive credential error di n8n
+Solusi:
+  1. Hapus credential lama di n8n
+  2. Ulangi Bagian 3 dari awal
+  3. Pastikan Google Drive API sudah di-enable
+  4. Pastikan redirect URI benar
+
+Masalah: "App belum diverifikasi" saat login Google
+Solusi:
+  - Ini NORMAL untuk development
+  - Klik "Advanced" -> "Go to KATH Upload (unsafe)"
+  - Lanjutkan login
+
+Masalah: Railway/Render n8n "sleeping"
+Solusi:
+  - Buka URL n8n Anda di browser
+  - Tunggu 1-2 menit sampai halaman muncul
+  - Workflow akan otomatis aktif lagi
+
+Masalah: File tidak muncul di Google Drive
+Solusi:
+  1. Di n8n, buka workflow -> klik "Executions" di sidebar
+  2. Lihat execution terakhir - apakah success atau error?
+  3. Jika error, baca pesan error-nya
+  4. Pastikan Folder ID benar
+  5. Pastikan credential Google Drive terhubung
+
+
+============================================
+BAGIAN 10: RINGKASAN APA YANG ANDA BUTUHKAN
+============================================
+
+Checklist:
+  [ ] Akun Google (Gmail)
+  [ ] Folder "KATH-Uploads" di Google Drive
+  [ ] Folder ID dari Google Drive
+  [ ] Akun n8n (Cloud/Railway/Render)
+  [ ] Google Cloud Project dengan Drive API enabled
+  [ ] OAuth Client ID & Secret dari Google
+  [ ] Credential Google Drive di n8n
+  [ ] Workflow "CIBC PDF to Google Drive" diimport & aktif
+  [ ] Workflow "CIBC Payment Proof Upload" dibuat & aktif
+  [ ] Webhook URL dicatat
+  [ ] File .env diupdate dengan Webhook URL
+  [ ] Test berhasil
+
+Biaya: $0/bulan (semua gratis)
+Storage: 15GB di Google Drive (cukup untuk ribuan file)

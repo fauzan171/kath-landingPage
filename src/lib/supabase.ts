@@ -329,44 +329,41 @@ export async function uploadFileToDrive(
   fileName: string;
   fileSize: number;
 }> {
-  if (!n8nWebhookUrl) {
-    console.warn('N8N_WEBHOOK_URL not configured, using mock upload');
-    const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return {
-      fileUrl: `https://drive.google.com/file/d/${mockFileId}/view`,
-      driveFileId: mockFileId,
+  if (!supabase) throw new Error('Supabase is not configured');
+
+  // 1. Request Presigned Upload URL from Edge Function
+  const { data, error } = await supabase.functions.invoke('upload-r2', {
+    body: {
       fileName: file.name,
-      fileSize: file.size
-    };
-  }
-
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('taskId', taskId);
-  formData.append('teamId', teamId);
-  formData.append('fileName', file.name);
-  formData.append('fileSize', file.size.toString());
-
-  const response = await fetch(`${n8nWebhookUrl}/upload-pdf`, {
-    method: 'POST',
-    body: formData
+      contentType: file.type,
+      taskId,
+      teamId
+    }
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-    throw new Error(error.message || 'Failed to upload file');
+  if (error || !data?.uploadUrl) {
+    console.error('Failed getting upload URL:', error);
+    throw new Error('Gagal mendapatkan akses secure upload. Silakan coba sesaat lagi.');
   }
 
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error || 'Upload failed');
+  // 2. Upload file directly to Cloudflare R2
+  const uploadResponse = await fetch(data.uploadUrl, {
+    method: 'PUT',
+    body: file,
+    headers: {
+      'Content-Type': file.type,
+    }
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error('Gagal memindahkan file ke Cloud Storage. Silakan coba lagi.');
   }
 
   return {
-    fileUrl: result.fileUrl,
-    driveFileId: result.driveFileId,
-    fileName: result.fileName,
-    fileSize: parseInt(result.fileSize, 10)
+    fileUrl: data.finalUrl,
+    driveFileId: data.key, 
+    fileName: file.name,
+    fileSize: file.size
   };
 }
 
