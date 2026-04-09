@@ -1,9 +1,9 @@
 export const COMPETITION_DATA = {
-    name: "CIBC Power 2026",
-    tagline: "Empowering The Next Generation of Sustainable Innovators",
+    name: "CIBC 2026",
+    tagline: "Building Impactful Businesses for a Modern Era",
     description: {
-        id: "Bergabunglah dalam kompetisi business case terbesar tahun ini. Tunjukkan inovasimu, pecahkan masalah dunia nyata, dan menangkan total hadiah ratusan juta rupiah.",
-        en: "Join the biggest business case competition of the year. Showcase your innovation, solve real-world problems, and win a total prize pool of hundreds of millions of rupiah."
+        id: "Bergabunglah dalam Cakrawala International Business Competition (CIBC) 2026 — kompetisi business plan berskala internasional untuk mengembangkan, menguji, dan mempresentasikan ide bisnis inovatifmu.",
+        en: "Join the Cakrawala International Business Competition (CIBC) 2026 — an international-scale business plan competition to develop, test, and present your innovative business ideas."
     },
     stats: [
         { value: "500+", label: "Participants" },
@@ -13,40 +13,34 @@ export const COMPETITION_DATA = {
     ],
     themes: [
         {
-            title: { id: "Teknologi Hijau", en: "Green Technology" },
-            desc: { id: "Inovasi teknologi untuk kelestarian lingkungan.", en: "Technological innovations for environmental sustainability." },
+            title: { id: "Empowering The Global Gen Z Economy", en: "Empowering The Global Gen Z Economy" },
+            desc: { id: "Solusi bisnis yang memberdayakan ekonomi generasi Z secara global melalui inovasi, kreativitas, dan kolaborasi lintas batas.", en: "Business solutions that empower the global Gen Z economy through innovation, creativity, and cross-border collaboration." },
             topics: {
-                id: ["Energi Terbarukan", "Manajemen Limbah", "Efisiensi Karbon"],
-                en: ["Renewable Energy", "Waste Management", "Carbon Efficiency"]
+                id: ["Ekonomi Digital Gen Z", "Inovasi Bisnis Milenial", "Kewirausahaan Sosial"],
+                en: ["Gen Z Digital Economy", "Millennial Business Innovation", "Social Entrepreneurship"]
             }
         },
         {
-            title: { id: "Ekonomi Sirkular", en: "Circular Economy" },
-            desc: { id: "Model bisnis yang meminimalkan limbah dan memaksimalkan sumber daya.", en: "Business models that minimize waste and maximize resources." },
+            title: { id: "Technology & Sustainability in The Future of Beauty Industry", en: "Technology & Sustainability in The Future of Beauty Industry" },
+            desc: { id: "Menggabungkan teknologi dan keberlanjutan untuk masa depan industri kecantikan yang inovatif dan bertanggung jawab.", en: "Combining technology and sustainability for an innovative and responsible future of the beauty industry." },
             topics: {
-                id: ["Daur Ulang Produk", "Rantai Pasok Berkelanjutan", "Upcycling"],
-                en: ["Product Recycling", "Sustainable Supply Chain", "Upcycling"]
-            }
-        },
-        {
-            title: { id: "Dampak Sosial", en: "Social Impact" },
-            desc: { id: "Solusi bisnis yang memberdayakan masyarakat.", en: "Business solutions that empower communities." },
-            topics: {
-                id: ["Pemberdayaan UMKM", "Akses Pendidikan", "Kesehatan Masyarakat"],
-                en: ["MSME Empowerment", "Education Access", "Public Health"]
+                id: ["Beauty Tech Innovation", "Keberlanjutan Industri Kecantikan", "Produk Kecantikan Berkelanjutan"],
+                en: ["Beauty Tech Innovation", "Beauty Industry Sustainability", "Sustainable Beauty Products"]
             }
         }
     ],
     timeline: [
         {
-            phase: { id: "Pendaftaran Dibuka", en: "Registration Opens" },
-            date: { id: "1 Mei 2026", en: "May 1, 2026" },
-            location: "Online"
+            phase: { id: "Pendaftaran Gelombang 1", en: "Wave 1 Registration" },
+            date: { id: "19 – 23 April 2026", en: "April 19 – 23, 2026" },
+            location: "Online via KATHEO.COM",
+            fee: "Rp 125.000"
         },
         {
-            phase: { id: "Batas Akhir Pendaftaran", en: "Registration Deadline" },
-            date: { id: "30 Juni 2026", en: "June 30, 2026" },
-            location: "Online"
+            phase: { id: "Pendaftaran Gelombang 2", en: "Wave 2 Registration" },
+            date: { id: "24 April – 31 Mei 2026", en: "April 24 – May 31, 2026" },
+            location: "Online via KATHEO.COM",
+            fee: "Rp 150.000"
         },
         {
             phase: { id: "Pengumuman Semifinalis", en: "Semifinalists Announcement" },
@@ -67,14 +61,6 @@ export const COMPETITION_DATA = {
                 { place: "1st Winner", amount: "Rp 25.000.000", benefits: ["Trophy", "Certificate", "Incubation Program"] },
                 { place: "Runner Up 1", amount: "Rp 15.000.000", benefits: ["Trophy", "Certificate", "Mentorship"] }
             ],
-            startup: [
-                { place: "Runner Up 2", amount: "Rp 15.000.000", benefits: ["Trophy", "Certificate", "AWS Credits"] },
-                { place: "1st Winner", amount: "Rp 40.000.000", benefits: ["Trophy", "Certificate", "Investor Pitch"] },
-                { place: "Runner Up 1", amount: "Rp 25.000.000", benefits: ["Trophy", "Certificate", "AWS Credits"] }
-            ],
-            corporate: [
-                { place: "Innovation Award", amount: "Rp 20.000.000", benefits: ["Plaque", "Media Coverage", "Partnership"] }
-            ]
         }
     },
     testimonials: [
@@ -103,129 +89,129 @@ export const COMPETITION_DATA = {
         {
             q: { id: "Siapa saja yang bisa mendaftar?", en: "Who can register?" },
             a: {
-                id: "Mahasiswa aktif (D3/D4/S1) dari seluruh universitas di Indonesia dan luar negeri, serta startup tahap awal (early-stage).",
-                en: "Active students (Diploma/Bachelor) from all universities in Indonesia and abroad, as well as early-stage startups."
+                id: "Peserta harus merupakan mahasiswa aktif D3, D4, atau S1 dari universitas di seluruh Indonesia dan institusi internasional.",
+                en: "Participants must be active undergraduate or diploma students from universities across Indonesia and international institutions."
+            }
+        },
+        {
+            q: { id: "Berapa anggota dalam satu tim?", en: "How many members per team?" },
+            a: {
+                id: "Setiap tim harus terdiri dari 2 hingga 3 mahasiswa. Tim boleh terdiri dari anggota yang berbeda jurusan atau angkatan dalam universitas yang sama.",
+                en: "Each team must consist of 2 to 3 students. Teams may consist of members from different majors or cohorts within the same university."
             }
         },
         {
             q: { id: "Apakah ada biaya pendaftaran?", en: "Is there a registration fee?" },
             a: {
-                id: "Pendaftaran tahap awal (Early Bird) gratis. Untuk reguler akan dikenakan biaya sebesar Rp 150.000 per tim.",
-                en: "Early Bird registration is free. Regular registration will incur a fee of Rp 150,000 per team."
+                id: "Ya. Gelombang 1 (19–23 April 2026): Rp 125.000 per tim. Gelombang 2 (24 April – 31 Mei 2026): Rp 150.000 per tim.",
+                en: "Yes. Wave 1 (April 19–23, 2026): Rp 125,000 per team. Wave 2 (April 24 – May 31, 2026): Rp 150,000 per team."
             }
         },
         {
-            q: { id: "Berapa anggota maksimal dalam satu tim?", en: "What is the maximum number of members in a team?" },
+            q: { id: "Bagaimana cara mendaftar?", en: "How do I register?" },
             a: {
-                id: "Setiap tim maksimal terdiri dari 3 orang anggota untuk kategori mahasiswa, dan 2-6 orang untuk kategori startup/korporat.",
-                en: "Each team consists of a maximum of 3 members for the student category, and 2-6 members for the startup/corporate categories."
+                id: "Tim harus dibuat oleh ketua tim, dan formulir pendaftaran harus diisi melalui website KATHEO.COM. Setelah itu, anggota lainnya dapat bergabung ke tim yang telah dibuat.",
+                en: "Teams must be created by the team leader, and the registration form must be filled out via the KATHEO.COM website. After that, other members may join the team that has already been created."
             }
         },
         {
             q: { id: "Apakah boleh menggunakan BMC yang sudah ada?", en: "Can I use an existing BMC?" },
             a: {
-                id: "Tidak. Semua BMC yang disubmit harus merupakan karya orisinal yang dibuat khusus untuk CIBC 2026. Penggunaan BMC yang sudah pernah disubmit ke kompetisi lain harus didiskusikan terlebih dahulu dengan panitia.",
-                en: "No. All submitted BMCs must be original work created specifically for CIBC 2026. Using BMCs previously submitted to other competitions must be disclosed to the committee first."
+                id: "Tidak. Ide Business Plan harus merupakan karya orisinal dari tim yang bersangkutan, belum pernah dipublikasikan di media manapun, belum pernah memenangkan kompetisi serupa, dan belum pernah dipresentasikan dan/atau digunakan untuk media komunikasi apapun.",
+                en: "No. The Business Plan idea must be an original work by the respective team, never previously published in any media, never won in a similar competition, and has never been presented or used for any communication media."
             }
         },
         {
-            q: { id: "Bagaimana jika anggota tim keluar sebelum deadline?", en: "What if a team member leaves before the deadline?" },
+            q: { id: "Apakah bisa mengganti anggota tim setelah mendaftar?", en: "Can I change team members after registering?" },
             a: {
-                id: "Tim dapat mengganti anggota maksimal 1 orang sebelum deadline pendaftaran. Setelah deadline, komposisi tim tidak dapat diubah. Hubungi panitia untuk proses penggantian.",
-                en: "Teams may replace up to 1 member before the registration deadline. After the deadline, team composition cannot be changed. Contact the committee for the replacement process."
+                id: "Tidak. Setelah pendaftaran selesai, perubahan komposisi tim termasuk anggota atau ketua tim dilarang keras. Peserta yang terdaftar tidak dapat diganti oleh individu lain.",
+                en: "No. Once registration is completed, any changes to the team composition, including members or the team leader, are strictly prohibited. Registered participants cannot be replaced by other individuals."
+            }
+        },
+        {
+            q: { id: "Format file BMC apa yang diterima?", en: "What BMC file formats are accepted?" },
+            a: {
+                id: "BMC dikumpulkan dalam format PDF, JPG, atau PNG. Nama file harus mengikuti format: [Nama Tim]_[Nama Institusi]_BMC.",
+                en: "BMC must be submitted in PDF, JPG, or PNG format. The file name must follow the format: [Team Name]_[Institution Name]_BMC."
+            }
+        },
+        {
+            q: { id: "Apa saja yang harus ada dalam BMC?", en: "What must be included in the BMC?" },
+            a: {
+                id: "BMC harus mencakup 9 elemen utama: Customer Segments, Value Propositions, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, dan Cost Structure. Jika perlu, peserta boleh menambahkan penjelasan singkat maksimal 1 halaman.",
+                en: "The BMC must include the 9 main elements: Customer Segments, Value Propositions, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, and Cost Structure. If necessary, participants may add a brief explanation of a maximum of 1 page."
             }
         },
         {
             q: { id: "Apakah boleh submit lebih dari satu ide?", en: "Can I submit more than one idea?" },
             a: {
-                id: "Tidak. Setiap tim hanya boleh submit SATU (1) BMC. Namun, revisi diperbolehkan sebelum deadline pengumpulan.",
-                en: "No. Each team may submit only ONE (1) BMC. However, revisions are allowed before the submission deadline."
-            }
-        },
-        {
-            q: { id: "Format file apa yang diterima? Berapa ukuran maksimal?", en: "What file formats are accepted? What is the maximum file size?" },
-            a: {
-                id: "Format yang diterima: PDF, PPTX, DOCX, PNG, JPG. Ukuran maksimal per file: 10MB. Maksimal 5 file per submission.",
-                en: "Accepted formats: PDF, PPTX, DOCX, PNG, JPG. Maximum file size: 10MB per file. Maximum 5 files per submission."
-            }
-        },
-        {
-            q: { id: "Apakah ada mentoring sebelum final?", en: "Is there mentoring before the finals?" },
-            a: {
-                id: "Ya! Semifinalis akan mendapat sesi mentoring eksklusif dengan para ahli industri dan akademisi sebelum grand final.",
-                en: "Yes! Semifinalists will receive exclusive mentoring sessions with industry experts and academics before the grand final."
-            }
-        },
-        {
-            q: { id: "Kapan pengumuman hasil?", en: "When will results be announced?" },
-            a: {
-                id: "Pengumuman semifinalis: 15 Juli 2026. Pengumuman pemenang grand final: 10 Agustus 2026. Hasil akan dikirim via email dan dipublikasikan di website.",
-                en: "Semifinalists announcement: July 15, 2026. Grand final winners announcement: August 10, 2026. Results will be sent via email and published on the website."
-            }
-        },
-        {
-            q: { id: "Bagaimana proses penilaian?", en: "How does the judging process work?" },
-            a: {
-                id: "Penilaian dilakukan secara blind review oleh panel juri ahli. Setiap blok BMC dinilai berdasarkan kriteria tertentu (Customer Segments 15%, Value Proposition 20%, dll). Score dihitung dari rata-rata semua juri.",
-                en: "Judging is conducted through blind review by an expert panel. Each BMC block is scored based on specific criteria (Customer Segments 15%, Value Proposition 20%, etc.). Final scores are averaged across all judges."
-            }
-        },
-        {
-            q: { id: "Apakah ada feedback dari juri?", en: "Will we receive feedback from judges?" },
-            a: {
-                id: "Ya, setiap tim semifinalis akan menerima feedback terstruktur dari juri per kriteria penilaian setelah pengumuman hasil.",
-                en: "Yes, every semifinalist team will receive structured feedback from judges per scoring criterion after results are announced."
-            }
-        },
-        {
-            q: { id: "Apakah bisa ganti kategori setelah mendaftar?", en: "Can I change categories after registering?" },
-            a: {
-                id: "Perubahan kategori dapat dilakukan sebelum deadline pendaftaran dengan menghubungi panitia. Setelah deadline, perubahan kategori tidak diperbolehkan.",
-                en: "Category changes can be made before the registration deadline by contacting the committee. After the deadline, category changes are not permitted."
+                id: "Tidak. Peserta hanya boleh mendaftar sebagai bagian dari satu tim untuk Business Plan Competition.",
+                en: "No. Participants may only register as part of one team for the Business Plan Competition."
             }
         },
         {
             q: { id: "Apa kebijakan plagiarisme?", en: "What is the plagiarism policy?" },
             a: {
-                id: "Plagiarisme akan mengakibatkan diskualifikasi seluruh tim, pencabutan hadiah, dan potensi larangan mengikuti CIBC di masa depan. Semua submission dapat diperiksa menggunakan alat deteksi plagiarisme.",
-                en: "Plagiarism will result in immediate disqualification of the entire team, forfeiture of prizes, and potential ban from future CIBC editions. All submissions may be checked using plagiarism detection tools."
+                id: "Karya yang dibuat tidak boleh mengandung unsur SARA dan tidak boleh melanggar hukum atau peraturan apapun. Plagiarisme akan mengakibatkan diskualifikasi seluruh tim.",
+                en: "The work created must not contain elements of SARA (Ethnicity, Religion, Race, and Intergroup relations) and must not violate any laws or regulations. Plagiarism will result in immediate disqualification of the entire team."
+            }
+        },
+        {
+            q: { id: "Apakah ada twibbon yang harus diupload?", en: "Is there a twibbon to upload?" },
+            a: {
+                id: "Ya, peserta wajib mengunggah foto menggunakan twibbon yang disediakan panitia, yang dapat diakses di: http://s.itk.ac.id/TwibbonKATHBPC2026",
+                en: "Yes, participants must upload a photo using the twibbon provided by the committee, accessible at: http://s.itk.ac.id/TwibbonKATHBPC2026"
+            }
+        },
+        {
+            q: { id: "Apakah peserta wajib follow Instagram?", en: "Are participants required to follow Instagram accounts?" },
+            a: {
+                id: "Ya, peserta wajib mengikuti akun Instagram @innovatewith.cibc dan @kath.eventorganizer.",
+                en: "Yes, participants are required to follow the Instagram accounts @innovatewith.cibc and @kath.eventorganizer."
+            }
+        },
+        {
+            q: { id: "Bagaimana proses penilaian?", en: "How does the judging process work?" },
+            a: {
+                id: "Penilaian dilakukan oleh panel juri ahli. Reviewer hanya akan menilai dokumen BMC utama yang disubmit, jadi pastikan konten BMC lengkap dan representatif.",
+                en: "Judging is conducted by an expert panel. Reviewers will only assess the primary BMC document submitted; therefore, please ensure that the BMC content is complete and representative."
             }
         }
     ],
     judges: [
         {
-            name: "Dr. Rina Setiawan",
-            title: { id: "Profesor Entrepreneurship", en: "Professor of Entrepreneurship" },
-            institution: "Universitas Indonesia",
-            avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80",
-            expertise: { id: "Inovasi Bisnis, Strategi Startup", en: "Business Innovation, Startup Strategy" }
+            name: "Judge 1",
+            title: { id: "Panel Juri", en: "Judge Panel" },
+            institution: "To Be Announced",
+            avatar: "/no-profile.webp",
+            expertise: { id: "Business & Innovation", en: "Business & Innovation" }
         },
         {
-            name: "Ahmad Fauzi, MBA",
-            title: { id: "Managing Director", en: "Managing Director" },
-            institution: "Venture Capital ABC",
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80",
-            expertise: { id: "Investasi, Valuasi Startup", en: "Investment, Startup Valuation" }
+            name: "Judge 2",
+            title: { id: "Panel Juri", en: "Judge Panel" },
+            institution: "To Be Announced",
+            avatar: "/no-profile.webp",
+            expertise: { id: "Strategy & Management", en: "Strategy & Management" }
         },
         {
-            name: "Prof. Lisa Chen",
-            title: { id: "Ketua Center for Innovation", en: "Director of Center for Innovation" },
-            institution: "National University of Singapore",
-            avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80",
-            expertise: { id: "Model Bisnis Berkelanjutan, ESG", en: "Sustainable Business Models, ESG" }
+            name: "Judge 3",
+            title: { id: "Panel Juri", en: "Judge Panel" },
+            institution: "To Be Announced",
+            avatar: "/no-profile.webp",
+            expertise: { id: "Technology & Sustainability", en: "Technology & Sustainability" }
         },
         {
-            name: "Budi Hartono",
-            title: { id: "CEO & Founder", en: "CEO & Founder" },
-            institution: "GreenTech Indonesia",
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80",
-            expertise: { id: "Teknologi Hijau, Ekonomi Sirkular", en: "Green Technology, Circular Economy" }
+            name: "Judge 4",
+            title: { id: "Panel Juri", en: "Judge Panel" },
+            institution: "To Be Announced",
+            avatar: "/no-profile.webp",
+            expertise: { id: "Entrepreneurship", en: "Entrepreneurship" }
         }
     ],
     contact: {
-        email: "hello@cibcpower.com",
-        instagram: "@cibcpower",
-        linkedin: "CIBC Power Official",
-        twitter: "@cibcpower"
+        email: "hello@katheo.com",
+        instagram: "@innovatewith.cibc",
+        linkedin: "KATH Event Organizer",
+        twitter: "@kath.eventorganizer"
     }
 };

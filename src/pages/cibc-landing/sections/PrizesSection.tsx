@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Trophy, CircleCheck, Medal, Award } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
@@ -10,7 +10,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const PrizesSection = () => {
     const { language } = useLanguage();
-    const [activeCategory, setActiveCategory] = useState<'student' | 'startup' | 'corporate'>('student');
     const sectionRef = useRef<HTMLElement>(null);
 
     // GSAP untuk animasi scroll saat pertama kali section terlihat
@@ -63,86 +62,51 @@ export const PrizesSection = () => {
                     </h2>
                 </div>
 
-                {/* Category Tabs (Interactive) */}
-                <div className="prize-header-elem flex justify-center mb-16 overflow-x-auto pb-4 hide-scrollbar">
-                    <div className="flex gap-2 p-1.5 bg-white border border-gray-200 rounded-full shadow-sm">
-                        {(Object.keys(COMPETITION_DATA.prizes.categories) as Array<keyof typeof COMPETITION_DATA.prizes.categories>).map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`relative px-8 py-3 rounded-full font-body text-sm font-bold transition-colors duration-300 z-10 ${
-                                    activeCategory === cat ? 'text-white' : 'text-gray-500 hover:text-[#0F0F0F]'
-                                }`}
-                            >
-                                {activeCategory === cat && (
-                                    <motion.div
-                                        layoutId="activeTabPrize"
-                                        className="absolute inset-0 bg-[#0F0F0F] rounded-full -z-10"
-                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                    />
-                                )}
-                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                {/* Prize Cards Grid */}
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                        {COMPETITION_DATA.prizes.categories.student.map((prize, index) => {
+                            const style = getPrizeStyling(index);
+                            const isGrandPrize = index === 1;
 
-                {/* Prize Cards Grid with Framer Motion */}
-                <div className="max-w-6xl mx-auto min-h-[500px]">
-                    <AnimatePresence mode="wait">
-                        <motion.div 
-                            key={activeCategory}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
-                            className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center"
-                        >
-                            {COMPETITION_DATA.prizes.categories[activeCategory].map((prize, index) => {
-                                const style = getPrizeStyling(index);
-                                const isGrandPrize = index === 1;
-
-                                return (
-                                    <motion.div 
-                                        key={index}
-                                        whileHover={{ y: -15, scale: 1.02 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                        className={`relative p-8 lg:p-10 rounded-[2rem] bg-white border transition-all duration-300 ${style.border} ${
-                                            isGrandPrize 
-                                            ? 'shadow-2xl shadow-[#FFB22C]/15 z-10 md:scale-105' 
-                                            : 'shadow-xl shadow-black/5 hover:shadow-2xl hover:shadow-black/10'
-                                        }`}
-                                    >
-                                        {isGrandPrize && (
-                                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-[#FFB22C] to-[#FFA000] text-white font-body text-xs font-bold rounded-full uppercase tracking-widest shadow-lg shadow-[#FFB22C]/30">
-                                                Grand Prize
-                                            </div>
-                                        )}
-                                        
-                                        <div className="text-center">
-                                            <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-8 ${style.bg}`}>
-                                                <style.icon className={`w-12 h-12 ${style.color}`} />
-                                            </div>
-                                            
-                                            <h3 className="font-display text-2xl text-gray-500 font-medium mb-2">{prize.place}</h3>
-                                            <div className="font-display text-4xl lg:text-5xl text-[#0F0F0F] font-bold mb-10">
-                                                {prize.amount}
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                {prize.benefits.map((benefit, i) => (
-                                                    <div key={i} className="flex items-center justify-center gap-3 text-gray-600">
-                                                        <CircleCheck className={`w-5 h-5 shrink-0 ${isGrandPrize ? 'text-[#FFB22C]' : 'text-gray-400'}`} />
-                                                        <span className="font-body text-sm font-medium">{benefit}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
+                            return (
+                                <div
+                                    key={index}
+                                    className={`relative p-8 lg:p-10 rounded-[2rem] bg-white border transition-all duration-300 ${style.border} ${
+                                        isGrandPrize
+                                        ? 'shadow-2xl shadow-[#FFB22C]/15 z-10 md:scale-105'
+                                        : 'shadow-xl shadow-black/5 hover:shadow-2xl hover:shadow-black/10'
+                                    }`}
+                                >
+                                    {isGrandPrize && (
+                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-[#FFB22C] to-[#FFA000] text-white font-body text-xs font-bold rounded-full uppercase tracking-widest shadow-lg shadow-[#FFB22C]/30">
+                                            Grand Prize
                                         </div>
-                                    </motion.div>
-                                );
-                            })}
-                        </motion.div>
-                    </AnimatePresence>
+                                    )}
+                                    
+                                    <div className="text-center">
+                                        <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-8 ${style.bg}`}>
+                                            <style.icon className={`w-12 h-12 ${style.color}`} />
+                                        </div>
+                                        
+                                        <h3 className="font-display text-2xl text-gray-500 font-medium mb-2">{prize.place}</h3>
+                                        <div className="font-display text-4xl lg:text-5xl text-[#0F0F0F] font-bold mb-10">
+                                            {prize.amount}
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {prize.benefits.map((benefit, i) => (
+                                                <div key={i} className="flex items-center justify-center gap-3 text-gray-600">
+                                                    <CircleCheck className={`w-5 h-5 shrink-0 ${isGrandPrize ? 'text-[#FFB22C]' : 'text-gray-400'}`} />
+                                                    <span className="font-body text-sm font-medium">{benefit}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {/* Additional Benefits */}

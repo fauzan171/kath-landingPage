@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
 
@@ -151,6 +151,12 @@ export const TimelineSection = () => {
                                                 <div className="flex items-center gap-2">
                                                     <MapPin className="w-4 h-4 text-[#FFB22C]" />
                                                     <span>{item.location}</span>
+                                                </div>
+                                            )}
+                                            {item.fee && (
+                                                <div className="flex items-center gap-2">
+                                                    <CreditCard className="w-4 h-4 text-[#FFB22C]" />
+                                                    <span className="font-bold text-[#0F0F0F]">{item.fee}</span>
                                                 </div>
                                             )}
                                         </div>

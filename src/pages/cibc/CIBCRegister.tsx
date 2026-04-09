@@ -13,8 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ChevronLeft, Check, Mail, User,
-  Building2, GraduationCap, Briefcase,
-  Users, Target, CreditCard, Upload
+  GraduationCap, Users, Target, CreditCard, Upload
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -66,24 +65,14 @@ const step2Schema = z.object({
 });
 
 const step3Schema = z.object({
-  category: z.enum(['student', 'startup', 'corporate']),
-  institutionName: z.string().optional(),
+  category: z.enum(['student']),
+  institutionName: z.string().min(1, 'Institution name is required'),
   major: z.string().optional(),
-  yearOfStudy: z.string().optional(),
-  companyName: z.string().optional(),
-  companyStage: z.enum(['idea', 'mvp', 'revenue', 'growth']).optional(),
-  foundedYear: z.string().optional(),
-  corporationName: z.string().optional(),
-  department: z.string().optional(),
-  position: z.string().optional(),
-  employeeCount: z.string().optional(),
+  studentId: z.string().min(1, 'Student ID is required'),
 });
 
 const step4Schema = z.object({
-  hasTeam: z.boolean(),
-  teamName: z.string().optional(),
-  teamCode: z.string().optional(),
-  inviteEmails: z.array(z.string().email()).optional(),
+  teamName: z.string().min(2, 'Team name is required'),
 });
 
 const step5Schema = z.object({
@@ -133,20 +122,13 @@ const CIBCRegister = () => {
       category: 'student' as CompetitionCategory,
       institutionName: '',
       major: '',
-      yearOfStudy: '',
-      companyName: '',
-      companyStage: 'idea',
-      foundedYear: '',
-      corporationName: '',
-      department: '',
-      position: '',
-      employeeCount: '',
+      studentId: '',
     },
   });
 
   const step4Form = useForm({
     resolver: zodResolver(step4Schema),
-    defaultValues: { hasTeam: true, teamName: '', teamCode: '', inviteEmails: [] },
+    defaultValues: { teamName: '' },
   });
 
   const step5Form = useForm({
@@ -158,7 +140,6 @@ const CIBCRegister = () => {
   });
 
   const watchedCategory = step3Form.watch('category');
-  const watchedHasTeam = step4Form.watch('hasTeam');
 
   // Step navigation
   const nextStep = useCallback(async () => {
@@ -218,9 +199,9 @@ const CIBCRegister = () => {
         }).eq('id', user.id);
         if (userError) console.error('Error updating user record:', userError);
 
-        const teamName = step4Data.teamName || `${step2Data.fullName}'s Team`;
-        const institution = step3Data.institutionName || step3Data.companyName || step3Data.corporationName;
-        const teamCategory: 'student' | 'open' = step3Data.category === 'student' ? 'student' : 'open';
+        const teamName = step4Data.teamName;
+        const institution = step3Data.institutionName;
+        const teamCategory: 'student' | 'open' = 'student';
 
         // Create team
         const team = await teamsService.create({
@@ -545,121 +526,70 @@ const CIBCRegister = () => {
               <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Kategori Partisipasi' : 'Participation Category'}
               </h2>
-              <div className="grid md:grid-cols-3 gap-4 mb-8">
-                {(['student', 'startup', 'corporate'] as const).map(cat => (
-                  <label
-                    key={cat}
-                    className={`relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${watchedCategory === cat
-                      ? 'border-[#FFB22C] bg-[#FFB22C]/5'
-                      : 'border-[#F4F6F8] bg-[#F4F6F8] hover:border-gray-300'
-                      }`}
-                  >
-                    <input
-                      type="radio"
-                      value={cat}
-                      {...step3Form.register('category')}
-                      className="sr-only"
-                    />
-                    <div className="flex justify-between items-center mb-2">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${watchedCategory === cat ? 'bg-[#FFB22C] text-white' : 'bg-white text-gray-400'
-                        }`}>
-                        {cat === 'student' && <GraduationCap className="w-5 h-5" />}
-                        {cat === 'startup' && <Briefcase className="w-5 h-5" />}
-                        {cat === 'corporate' && <Building2 className="w-5 h-5" />}
-                      </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${watchedCategory === cat ? 'border-[#FFB22C] bg-[#FFB22C]' : 'border-gray-300 bg-white'
-                        }`}>
-                        {watchedCategory === cat && <Check className="w-3 h-3 text-white" />}
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-sm text-[#0F0F0F] mt-1">
-                      {cat === 'student' && (language === 'id' ? 'Mahasiswa' : 'Student')}
-                      {cat === 'startup' && 'Startup'}
-                      {cat === 'corporate' && (language === 'id' ? 'Korporat' : 'Corporate')}
+              {/* Student Category Info */}
+              <div className="bg-amber-50 rounded-2xl p-6 mb-8 border border-amber-200">
+                <div className="flex items-start gap-4">
+                  <GraduationCap className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-amber-800 mb-2">
+                      {language === 'id' ? 'Kategori Mahasiswa (D3/D4/S1)' : 'Student Category (Diploma/Undergraduate)'}
                     </h3>
-                  </label>
-                ))}
+                    <p className="text-sm text-amber-700 mb-2">
+                      {language === 'id'
+                        ? 'Peserta harus merupakan mahasiswa aktif D3, D4, atau S1 dari universitas di Indonesia dan institusi internasional.'
+                        : 'Participants must be active undergraduate or diploma students from universities across Indonesia and international institutions.'}
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      {language === 'id'
+                        ? 'Tim terdiri dari 2-3 mahasiswa. Anggota boleh dari jurusan atau angkatan berbeda dalam universitas yang sama.'
+                        : 'Each team must consist of 2 to 3 students. Members may be from different majors or cohorts within the same university.'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Conditional Inputs based on Category */}
-              {watchedCategory && (
-                <div className="grid md:grid-cols-2 gap-6 bg-white pt-2">
-                  {watchedCategory === 'student' && (
-                    <>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                          {language === 'id' ? 'Nama Institusi' : 'Institution Name'}
-                        </label>
-                        <input
-                          type="text"
-                          {...step3Form.register('institutionName')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                          {language === 'id' ? 'Jurusan' : 'Major'}
-                        </label>
-                        <input
-                          type="text"
-                          {...step3Form.register('major')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        />
-                      </div>
-                    </>
-                  )}
-                  {watchedCategory === 'startup' && (
-                    <>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                          {language === 'id' ? 'Nama Perusahaan' : 'Company Name'}
-                        </label>
-                        <input
-                          type="text"
-                          {...step3Form.register('companyName')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">Stage</label>
-                        <select
-                          {...step3Form.register('companyStage')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        >
-                          <option value="idea">Idea Stage</option>
-                          <option value="mvp">MVP</option>
-                          <option value="revenue">Generating Revenue</option>
-                          <option value="growth">Growth Stage</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
-                  {watchedCategory === 'corporate' && (
-                    <>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                          {language === 'id' ? 'Nama Korporasi' : 'Corporation Name'}
-                        </label>
-                        <input
-                          type="text"
-                          {...step3Form.register('corporationName')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                          {language === 'id' ? 'Posisi' : 'Position'}
-                        </label>
-                        <input
-                          type="text"
-                          {...step3Form.register('position')}
-                          className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                        />
-                      </div>
-                    </>
+              {/* Student Fields */}
+              <div className="grid md:grid-cols-2 gap-6 bg-white pt-2">
+                <div>
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'Nama Institusi/Universitas' : 'Institution/University Name'}
+                  </label>
+                  <input
+                    type="text"
+                    {...step3Form.register('institutionName')}
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder={language === 'id' ? 'Contoh: Institut Teknologi Bandung' : 'e.g. Institut Teknologi Bandung'}
+                  />
+                  {step3Form.formState.errors.institutionName && (
+                    <p className="mt-1 text-xs text-red-500">{step3Form.formState.errors.institutionName.message}</p>
                   )}
                 </div>
-              )}
+                <div>
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'NIM / Student ID' : 'Student ID Number'}
+                  </label>
+                  <input
+                    type="text"
+                    {...step3Form.register('studentId')}
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder={language === 'id' ? 'Masukkan NIM' : 'Enter Student ID'}
+                  />
+                  {step3Form.formState.errors.studentId && (
+                    <p className="mt-1 text-xs text-red-500">{step3Form.formState.errors.studentId.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                    {language === 'id' ? 'Jurusan / Program Studi' : 'Major / Study Program'}
+                  </label>
+                  <input
+                    type="text"
+                    {...step3Form.register('major')}
+                    className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                    placeholder={language === 'id' ? 'Contoh: Teknik Informatika' : 'e.g. Computer Science'}
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -670,51 +600,41 @@ const CIBCRegister = () => {
                 {language === 'id' ? 'Formasi Tim' : 'Team Details'}
               </h2>
 
-              <div className="flex gap-6 mb-8">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="hasTeam"
-                    checked={watchedHasTeam === false}
-                    onChange={() => step4Form.setValue('hasTeam', false, { shouldValidate: true })}
-                    className="w-5 h-5 text-[#FFB22C] focus:ring-[#FFB22C] border-gray-300"
-                  />
-                  <span className="font-semibold text-sm text-[#0F0F0F]">
-                    {language === 'id' ? 'Individu' : 'Solo'}
-                  </span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="hasTeam"
-                    checked={watchedHasTeam === true}
-                    onChange={() => step4Form.setValue('hasTeam', true, { shouldValidate: true })}
-                    className="w-5 h-5 text-[#FFB22C] focus:ring-[#FFB22C] border-gray-300"
-                  />
-                  <span className="font-semibold text-sm text-[#0F0F0F]">
-                    {language === 'id' ? 'Dengan Tim' : 'With Team'}
-                  </span>
-                </label>
+              <div className="bg-blue-50 rounded-2xl p-6 mb-8 border border-blue-200">
+                <div className="flex items-start gap-4">
+                  <Users className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-blue-800 mb-2">
+                      {language === 'id' ? 'Ketentuan Tim' : 'Team Requirements'}
+                    </h3>
+                    <p className="text-sm text-blue-700">
+                      {language === 'id'
+                        ? 'Setiap tim harus terdiri dari 2-3 mahasiswa. Tim dibuat oleh ketua tim, dan anggota lain dapat bergabung setelah pendaftaran selesai. Setelah pendaftaran selesai, perubahan komposisi tim tidak diperbolehkan.'
+                        : 'Each team must consist of 2 to 3 students. Teams are created by the team leader, and other members may join after registration. Once registered, changes to team composition are strictly prohibited.'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {watchedHasTeam && (
-                <div className="animate-in fade-in">
-                  <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                    {language === 'id' ? 'Nama Tim' : 'Team Name'}
-                  </label>
-                  <input
-                    type="text"
-                    {...step4Form.register('teamName')}
-                    className="w-full md:w-1/2 bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Enter Team Name"
-                  />
-                  <p className="text-xs text-gray-500 mt-3">
-                    {language === 'id'
-                      ? '* Anda dapat mengundang anggota tim via email setelah pendaftaran selesai.'
-                      : '* You can invite members via email after registration is complete.'}
-                  </p>
-                </div>
-              )}
+              <div className="animate-in fade-in">
+                <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
+                  {language === 'id' ? 'Nama Tim' : 'Team Name'}
+                </label>
+                <input
+                  type="text"
+                  {...step4Form.register('teamName')}
+                  className="w-full md:w-1/2 bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                  placeholder={language === 'id' ? 'Masukkan Nama Tim' : 'Enter Team Name'}
+                />
+                {step4Form.formState.errors.teamName && (
+                  <p className="mt-1 text-xs text-red-500">{step4Form.formState.errors.teamName.message}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-3">
+                  {language === 'id'
+                    ? '* Anda dapat mengundang anggota tim (2-3 orang total) setelah pendaftaran selesai melalui dashboard.'
+                    : '* You can invite team members (2-3 total) after registration is complete via the dashboard.'}
+                </p>
+              </div>
             </div>
           )}
 
@@ -739,8 +659,8 @@ const CIBCRegister = () => {
                         : 'Upload your registration payment proof to complete your team registration.'}
                     </p>
                     <div className="space-y-2 text-sm text-amber-700">
-                      <p>• {language === 'id' ? 'Student Category: Rp 150.000' : 'Student Category: Rp 150.000'}</p>
-                      <p>• {language === 'id' ? 'Startup/Open Category: Rp 250.000' : 'Startup/Open Category: Rp 250.000'}</p>
+                      <p>• {language === 'id' ? 'Wave 1 (19-23 April 2026): Rp 125.000/tim' : 'Wave 1 (Apr 19-23, 2026): Rp 125,000/team'}</p>
+                      <p>• {language === 'id' ? 'Wave 2 (24 April - 31 Mei 2026): Rp 150.000/tim' : 'Wave 2 (Apr 24 - May 31, 2026): Rp 150,000/team'}</p>
                     </div>
                   </div>
                 </div>

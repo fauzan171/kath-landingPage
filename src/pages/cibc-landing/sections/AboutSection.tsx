@@ -100,24 +100,30 @@ export const AboutSection = () => {
                                 {language === 'id' ? 'Tentang Kompetisi' : 'About The Competition'}
                             </span>
                             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-[#0F0F0F] font-bold leading-[1.15] tracking-tight">
-                                {language === 'id' ? 'Mendorong Inovasi untuk' : 'Driving Innovation for'}{' '}
+                                {language === 'id' ? 'Melahirkan Bisnis yang Berdampak untuk' : 'Building Impactful Businesses for'}{' '}
                                 <span className="text-[#FFB22C]">
-                                    {language === 'id' ? 'Masa Depan Berkelanjutan' : 'Sustainable Future'}
+                                    {language === 'id' ? 'Era Modern' : 'a Modern Era'}
                                 </span>
                             </h2>
                         </div>
                         
                         <p className="about-text-element font-body text-lg md:text-xl text-gray-600 leading-relaxed">
                             {language === 'id'
-                                ? 'CIBC Power adalah kompetisi business case berskala internasional yang menantang para inovator muda untuk memecahkan masalah bisnis nyata dengan fokus pada keberlanjutan dan teknologi.'
-                                : 'CIBC Power is an international business case competition that challenges young innovators to solve real business problems focusing on sustainability and technology.'}
+                                ? 'Berdasarkan data PDDikti, jumlah mahasiswa di Indonesia saat ini telah mencapai hampir 10 juta. Namun, potensi besar ini belum sepenuhnya berkembang menjadi bisnis nyata yang berkelanjutan. Data BRIN 2024 menunjukkan hanya sebagian kecil startup yang berasal dari inisiatif mahasiswa, dan sebagian besar masih menghadapi tantangan dalam melakukan scaling bisnis mereka.'
+                                : 'Based on the PDDikti, the number of students in Indonesia has currently reached nearly 10 million. However, this vast potential has not yet fully evolved into sustainable real-world businesses. Data from BRIN in 2024 shows that only a small fraction of startups originate from student initiatives, and most still face challenges in scaling their businesses.'}
+                        </p>
+                        
+                        <p className="about-text-element font-body text-lg md:text-xl text-gray-600 leading-relaxed">
+                            {language === 'id'
+                                ? 'CIBC 2026 hadir sebagai platform bagi mahasiswa untuk mengembangkan, menguji, dan mempresentasikan ide bisnis inovatif melalui kompetisi business plan berskala internasional. Melalui CIBC 2026, peserta diharapkan tidak hanya mampu menyusun business plan yang kuat secara konseptual, tetapi juga memiliki keberanian untuk membawa ide mereka ke level yang lebih kompetitif.'
+                                : 'CIBC 2026 is here as a platform for students to develop, test, and present innovative business ideas through an international-scale business plan competition. Through CIBC 2026, participants are expected not only to be able to draft conceptually strong business plans but also to have the courage to take their ideas to a more competitive level.'}
                         </p>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6">
                             {[
-                                { icon: Target, title: { id: 'Solusi Nyata', en: 'Real Solutions' }, desc: { id: 'Fokus pada implementasi', en: 'Focus on implementation' } },
-                                { icon: Users, title: { id: 'Jaringan Global', en: 'Global Network' }, desc: { id: 'Terhubung dengan ahli', en: 'Connect with experts' } },
-                                { icon: Globe, title: { id: 'Dampak Sosial', en: 'Social Impact' }, desc: { id: 'Menciptakan perubahan', en: 'Create positive change' } },
+                                { icon: Target, title: { id: 'Business Plan', en: 'Business Plan' }, desc: { id: 'Kompetisi rencana bisnis inovatif', en: 'Innovative business plan competition' } },
+                                { icon: Users, title: { id: 'Tim Internasional', en: 'International Teams' }, desc: { id: 'Terbuka untuk mahasiswa global', en: 'Open to global students' } },
+                                { icon: Globe, title: { id: 'Dampak Nyata', en: 'Real Impact' }, desc: { id: 'Solusi bisnis yang berkelanjutan', en: 'Sustainable business solutions' } },
                             ].map((item, index) => (
                                 <div key={index} className="about-text-element flex gap-4 group">
                                     <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
