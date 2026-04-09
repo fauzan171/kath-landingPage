@@ -7,10 +7,11 @@
 import { useState, useEffect } from 'react';
 import {
   Search, Users, Mail, Building, Loader2, Key, Copy, CheckCircle,
-  RefreshCw, Eye, EyeOff, Shield, UserX
+  RefreshCw, Eye, EyeOff, Shield, UserX, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabaseAdmin';
 
 // ============================================
 // Types
@@ -44,6 +45,48 @@ const AdminUserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'approved' | 'pending' | 'rejected'>('all');
+
+  // Delete User Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const openDeleteModal = (user: User) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete || !supabase) return;
+    setIsDeleting(true);
+    try {
+      // Delete from auth.users first (using admin client)
+      if (isAdminClientConfigured() && supabaseAdmin) {
+        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userToDelete.id);
+        if (authError && !authError.message?.includes('User not found')) {
+          console.warn('Auth deletion warning:', authError);
+        }
+      }
+
+      // Delete from users table
+      const { error: dbError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userToDelete.id);
+
+      if (dbError) throw dbError;
+
+      toast.success(`User ${userToDelete.email} berhasil dihapus`);
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+      loadUsers();
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      toast.error('Gagal menghapus user');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Reset Password Modal State
   const [showResetModal, setShowResetModal] = useState(false);
@@ -493,6 +536,14 @@ const AdminUserManagement = () => {
                         >
                           <Key className="w-5 h-5" />
                         </button>
+                        {/* Delete User Button */}
+                        <button
+                          onClick={() => openDeleteModal(user)}
+                          className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                          title="Hapus User"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -718,6 +769,61 @@ const AdminUserManagement = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Modal */}
+      {showDeleteModal && userToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">Hapus User</h3>
+                <p className="text-sm text-gray-500">Tindakan ini tidak dapat dibatalkan</p>
+              </div>
+            </div>
+
+            <div className="bg-red-50 rounded-xl p-4 border border-red-100 mb-5">
+              <p className="text-sm text-red-800 mb-2">
+                Anda akan menghapus user berikut:
+              </p>
+              <ul className="text-sm text-red-700 space-y-1">
+                <li>Email: {userToDelete.email}</li>
+                <li>Nama: {userToDelete.name || '-'}</li>
+                <li>Institution: {userToDelete.institution || '-'}</li>
+              </ul>
+            </div>
+
+            <div className="bg-amber-50 rounded-xl p-3 border border-amber-100 mb-5">
+              <p className="text-xs text-amber-700">
+                WARNING: User akan dihapus dari sistem. Semua data terkait user ini juga akan hilang.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => { setShowDeleteModal(false); setUserToDelete(null); }}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={isDeleting}
+                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Menghapus...</>
+                ) : (
+                  <><Trash2 className="w-4 h-4" /> Hapus User</>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
