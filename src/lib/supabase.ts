@@ -335,6 +335,7 @@ export async function uploadFileToR2(
     body: {
       fileName: file.name,
       contentType: file.type,
+      fileSize: file.size,
       taskId,
       teamId,
       uploadType: 'submission'
@@ -369,6 +370,26 @@ export async function uploadFileToR2(
 
 // Backward-compatible alias
 export const uploadFileToDrive = uploadFileToR2;
+
+// ============================================
+// FILE DELETE HELPER (via Cloudflare R2)
+// ============================================
+
+export async function deleteFileFromR2(storageKey: string): Promise<boolean> {
+  if (!supabase) throw new Error('Supabase is not configured');
+
+  const { data, error } = await supabase.functions.invoke('upload-r2', {
+    method: 'DELETE',
+    body: { key: storageKey },
+  });
+
+  if (error) {
+    console.error('Failed to delete file from R2:', error);
+    return false;
+  }
+
+  return data?.success ?? false;
+}
 
 // ============================================
 // SUBMISSION HELPERS

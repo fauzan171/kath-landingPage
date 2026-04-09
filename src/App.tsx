@@ -7,7 +7,7 @@ import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
 
 // Route Protection
-import { AdminRoute, JudgeRoute, ParticipantRoute, AuthenticatedRoute } from './components/ProtectedRoute';
+import { AdminRoute, JudgeRoute, ParticipantRoute } from './components/ProtectedRoute';
 
 // Sections (Landing Page Utama)
 import Navigation from './sections/Navigation';
@@ -25,20 +25,6 @@ import FAQ from './sections/FAQ';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 
-// Pages (Main App)
-import Register from './pages/Register';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import MyCompetitions from './pages/MyCompetitions';
-import EditProfile from './pages/EditProfile';
-import Settings from './pages/Settings';
-import MyTeam from './pages/MyTeam';
-import CompetitionDetail from './pages/CompetitionDetail';
-import SubmissionForm from './pages/SubmissionForm';
-import BMCCompetition from './pages/BMCCompetition';
-import PublicLeaderboard from './pages/PublicLeaderboard';
-import TermsAndConditions from './pages/TermsAndConditions';
-
 // CIBC Competition Pages
 import CIBCLanding from './pages/cibc-landing/CIBCLanding'; // Folder baru untuk Landing Page CIBC
 import CIBCRegister from './pages/cibc/CIBCRegister';
@@ -50,6 +36,8 @@ import VerifyEmail from './pages/cibc/VerifyEmail';
 import ResetPassword from './pages/cibc/ResetPassword';
 import ChangePassword from './pages/cibc/ChangePassword';
 import Rejected from './pages/cibc/Rejected';
+import PublicLeaderboard from './pages/PublicLeaderboard';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 // Admin Pages
 import {
@@ -157,20 +145,8 @@ function App() {
 
   return (
     <Routes>
-      {/* Main KATH Routes */}
+      {/* KATH Landing Page */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      {/* Authenticated Participant Routes */}
-      <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
-      <Route path="/my-competitions" element={<AuthenticatedRoute><MyCompetitions /></AuthenticatedRoute>} />
-      <Route path="/competition" element={<AuthenticatedRoute><MyCompetitions /></AuthenticatedRoute>} />
-      <Route path="/competition/:id" element={<AuthenticatedRoute><CompetitionDetail /></AuthenticatedRoute>} />
-      <Route path="/competition/:id/submit" element={<AuthenticatedRoute><SubmissionForm /></AuthenticatedRoute>} />
-      <Route path="/edit-profile" element={<AuthenticatedRoute><EditProfile /></AuthenticatedRoute>} />
-      <Route path="/settings" element={<AuthenticatedRoute><Settings /></AuthenticatedRoute>} />
-      <Route path="/my-teams" element={<AuthenticatedRoute><MyTeam /></AuthenticatedRoute>} />
-      <Route path="/bmc-competition" element={<AuthenticatedRoute><BMCCompetition /></AuthenticatedRoute>} />
 
       {/* CIBC Routes - Protected */}
       <Route path="/cibc" element={<CIBCLanding />} />
