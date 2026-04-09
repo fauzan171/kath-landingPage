@@ -50,16 +50,11 @@ const Navigation = () => {
               onClick={(e) => { e.preventDefault(); scrollToSection('#home'); }}
               className="flex items-center gap-2 group"
             >
-              {/* Jika menggunakan gambar logo dari config */}
-              {/* <img
-                src={navigationConfig.logo}
-                alt={navigationConfig.logoAlt}
-                className="h-6 md:h-7 object-contain transition-all duration-300 group-hover:scale-105"
-              /> */}
-              {/* Teks Logo: Warna Gelap */}
-              <span className="font-display font-bold text-lg md:text-xl text-[#0F0F0F] tracking-widest uppercase">
-                KATH
-              </span>
+              <img
+                src="/kath-logo-new.png"
+                alt="KATH Event Organizer Logo"
+                className="h-8 md:h-9 object-contain transition-all duration-300 group-hover:scale-105"
+              />
             </a>
           </div>
 

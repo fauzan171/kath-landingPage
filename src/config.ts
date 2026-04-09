@@ -978,7 +978,7 @@ export interface NavigationConfig {
 }
 
 export const navigationConfig: NavigationConfig = {
-  logo: "/kath-logo.png",
+  logo: "/kath-logo-new.png",
   logoAlt: "KATH Event Organizer Logo",
   items: [
     { label: t("Beranda", "Home"), href: "/" },
