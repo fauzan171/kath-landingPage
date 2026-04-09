@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Target, Users, Globe } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -119,16 +118,13 @@ export const AboutSection = () => {
                                 : 'CIBC 2026 is here as a platform for students to develop, test, and present innovative business ideas through an international-scale business plan competition. Through CIBC 2026, participants are expected not only to be able to draft conceptually strong business plans but also to have the courage to take their ideas to a more competitive level.'}
                         </p>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-6">
                             {[
-                                { icon: Target, title: { id: 'Business Plan', en: 'Business Plan' }, desc: { id: 'Kompetisi rencana bisnis inovatif', en: 'Innovative business plan competition' } },
-                                { icon: Users, title: { id: 'Tim Internasional', en: 'International Teams' }, desc: { id: 'Terbuka untuk mahasiswa global', en: 'Open to global students' } },
-                                { icon: Globe, title: { id: 'Dampak Nyata', en: 'Real Impact' }, desc: { id: 'Solusi bisnis yang berkelanjutan', en: 'Sustainable business solutions' } },
+                                { title: { id: 'Business Plan', en: 'Business Plan' }, desc: { id: 'Kompetisi rencana bisnis inovatif', en: 'Innovative business plan competition' } },
+                                { title: { id: 'Tim Internasional', en: 'International Teams' }, desc: { id: 'Terbuka untuk mahasiswa global', en: 'Open to global students' } },
+                                { title: { id: 'Dampak Nyata', en: 'Real Impact' }, desc: { id: 'Solusi bisnis yang berkelanjutan', en: 'Sustainable business solutions' } },
                             ].map((item, index) => (
                                 <div key={index} className="about-text-element flex gap-4 group">
-                                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                                        <item.icon className="w-6 h-6 text-[#FFB22C]" />
-                                    </div>
                                     <div className="flex flex-col justify-center">
                                         <h4 className="font-display font-bold text-lg text-[#0F0F0F] mb-1">{item.title[language]}</h4>
                                         <p className="font-body text-sm text-gray-500">{item.desc[language]}</p>
