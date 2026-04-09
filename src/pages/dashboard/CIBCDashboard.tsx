@@ -330,85 +330,86 @@ const CIBCDashboard = () => {
 
   // --- MAIN RENDER ---
   return (
-    <div className="min-h-screen bg-[#F9F8F6]">
-      <DashboardHeader
-        currentUser={currentUser}
-        unreadNotifications={unreadNotifications}
-        handleLogout={handleLogout}
-        handleMarkAsRead={handleMarkAsRead}
-        handleMarkAllRead={handleMarkAllRead}
+    <div className="min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <DashboardSidebar
         activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+        handleLogout={handleLogout}
       />
 
-      <div className="container mx-auto px-4 py-6 lg:py-8">
-        <div className="grid lg:grid-cols-4 gap-6 lg:gap-8 items-start relative">
-          <DashboardSidebar
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-          />
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen">
+        <DashboardHeader
+          currentUser={currentUser}
+          unreadNotifications={unreadNotifications}
+          handleLogout={handleLogout}
+          handleMarkAsRead={handleMarkAsRead}
+          handleMarkAllRead={handleMarkAllRead}
+          activeSection={activeSection}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
 
-          {/* Mobile overlay */}
-          {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-              onClick={() => setIsSidebarOpen(false)}
+        <div className="p-4 sm:p-6">
+          {activeSection === 'overview' && (
+            <OverviewSection
+              currentUser={currentUser}
+              team={team}
+              stages={stages}
+              tasks={tasks}
+              submissions={submissions}
+              announcements={announcements}
+              notifications={notifications}
+              progressPercentage={progressPercentage}
+              unreadNotifications={unreadNotifications}
+              handleMarkAsRead={handleMarkAsRead}
+              handleMarkAllRead={handleMarkAllRead}
+              competition={competition}
             />
           )}
 
-          <div className="lg:col-span-3 min-w-0">
-            {activeSection === 'overview' && (
-              <OverviewSection
-                currentUser={currentUser}
-                team={team}
-                stages={stages}
-                tasks={tasks}
-                submissions={submissions}
-                announcements={announcements}
-                notifications={notifications}
-                progressPercentage={progressPercentage}
-                unreadNotifications={unreadNotifications}
-                handleMarkAsRead={handleMarkAsRead}
-                handleMarkAllRead={handleMarkAllRead}
-                competition={competition}
-              />
-            )}
+          {activeSection === 'team' && (
+            <TeamSection
+              team={team}
+              currentUser={currentUser}
+              onRefresh={loadDashboardData}
+            />
+          )}
 
-            {activeSection === 'team' && (
-              <TeamSection
-                team={team}
-                currentUser={currentUser}
-                onRefresh={loadDashboardData}
-              />
-            )}
+          {activeSection === 'submission' && (
+            <SubmissionSection
+              team={team}
+              submissions={submissions}
+              tasks={tasks}
+              stages={stages}
+              competition={competition}
+              currentUser={currentUser}
+              onRefresh={loadDashboardData}
+            />
+          )}
 
-            {activeSection === 'submission' && (
-              <SubmissionSection
-                team={team}
-                submissions={submissions}
-                tasks={tasks}
-                stages={stages}
-                competition={competition}
-                currentUser={currentUser}
-                onRefresh={loadDashboardData}
-              />
-            )}
+          {activeSection === 'resources' && (
+            <ResourcesSection competition={competition} />
+          )}
 
-            {activeSection === 'resources' && (
-              <ResourcesSection competition={competition} />
-            )}
-
-            {activeSection === 'settings' && (
-              <SettingsSection
-                currentUser={currentUser}
-                onRefresh={loadDashboardData}
-              />
-            )}
-          </div>
+          {activeSection === 'settings' && (
+            <SettingsSection
+              currentUser={currentUser}
+              onRefresh={loadDashboardData}
+            />
+          )}
         </div>
-      </div>
+      </main>
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };
