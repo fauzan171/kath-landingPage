@@ -1,852 +1,357 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import {
-  Mail, Calendar, Users, Trophy, Award, Medal, Flag, Crown,
-  FileText, FileCheck, Upload, Download, FolderOpen, CheckCircle2,
-  Clock, AlertCircle, XCircle, Activity, LogOut, Bell, ChevronRight,
-  Edit3, Eye, Settings, Menu, X, FileSearch, Target, Zap
-} from '../icons';
-import {
-  supabaseNotificationService,
-  supabaseCompetitionService,
-} from '../services/supabase.service';
-import type { Notification as SupabaseNotification } from '../types';
+import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-// Local display types for dashboard
-interface DashboardNotification {
-  id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'urgent';
-  read: boolean;
-  time: string;
-  actionUrl?: string;
-}
+// Icons as simple SVG components
+const HomeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+  </svg>
+);
 
-interface DashboardCompetition {
-  id: string;
-  name: string;
-  status: string;
-  deadline?: string;
-  progress: number;
-  teamName?: string;
-  teamSize: number;
-  hasSubmitted: boolean;
-  submissionDate?: string;
-}
+const TrophyIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+  </svg>
+);
 
-interface DashboardStats {
-  totalCompetitions: number;
-  active: number;
-  wins: number;
-  certificates: number;
-}
+const FileIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
 
-interface TimelineEvent {
-  id: string;
-  date: string;
-  title: string;
-  description: string;
-  status: 'completed' | 'current' | 'upcoming';
-  icon: React.ReactNode;
-}
+const UserIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
 
-const Dashboard = () => {
+const BellIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+);
+
+const ClockIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const ChevronRightIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+  </svg>
+);
+
+export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'timeline'>('overview');
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
-  const [competitions, setCompetitions] = useState<DashboardCompetition[]>([]);
-  const [stats, setStats] = useState<DashboardStats>({
-    totalCompetitions: 0,
-    active: 0,
-    wins: 0,
-    certificates: 0
-  });
-  const [showAllNotifications, setShowAllNotifications] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  const [activeTab, setActiveTab] = useState<'ringkasan' | 'dokumen' | 'timeline'>('ringkasan');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications] = useState([
+    { id: 1, title: 'Batas Akhir Submission', message: 'Submission deadline tomorrow!', time: '2 jam lalu', unread: true },
+    { id: 2, title: 'Skor Diperbarui', message: 'Grading results are now available', time: '1 hari lalu', unread: true },
+    { id: 3, title: 'Pengumuman Baru', message: 'New announcement from admin', time: '2 hari lalu', unread: false },
+  ]);
 
-  // Load data from Supabase
-  const loadData = useCallback(async () => {
-    setIsLoadingData(true);
-    try {
-      // Load notifications
-      const notifs = await supabaseNotificationService.getMy();
-      const mappedNotifs: DashboardNotification[] = notifs.map((n: SupabaseNotification) => ({
-        id: n.id,
-        title: n.title,
-        message: n.message || '',
-        type: (['info', 'success', 'warning', 'urgent'].includes(n.type) ? n.type : 'info') as DashboardNotification['type'],
-        read: n.is_read,
-        time: new Date(n.created_at).toLocaleDateString('id-ID'),
-        actionUrl: n.link,
-      }));
-      setNotifications(mappedNotifs);
-
-      // Load competition stats
-      const compStats = await supabaseCompetitionService.getStats();
-      if (compStats) {
-        setStats({
-          totalCompetitions: 1,
-          active: compStats.totalTeams > 0 ? 1 : 0,
-          wins: 0,
-          certificates: 0,
-        });
-      }
-
-      // Load competition data
-      const competition = await supabaseCompetitionService.getActive();
-      if (competition) {
-        setCompetitions([{
-          id: competition.id,
-          name: competition.name,
-          status: competition.is_active ? 'in_progress' : 'upcoming',
-          deadline: competition.competition_end || competition.registration_end,
-          progress: 0,
-          teamSize: 0,
-          hasSubmitted: false,
-        }]);
-      }
-    } catch (e) {
-      console.error('Error loading dashboard data:', e);
-    } finally {
-      setIsLoadingData(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, isLoading, navigate]);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
-
-  const handleMarkAsRead = async (id: string) => {
-    try {
-      await supabaseNotificationService.markRead(id);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    } catch (e) {
-      console.error('Error marking notification as read:', e);
-    }
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await supabaseNotificationService.markAllRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    } catch (e) {
-      console.error('Error marking all notifications as read:', e);
-    }
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case 'active':
-        return {
-          badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-success/10 text-kath-success rounded-full text-sm font-medium border border-kath-success/20">
-              <CheckCircle2 className="w-4 h-4" />
-              Aktif
-            </span>
-          ),
-          message: 'Akun Anda telah terverifikasi dan aktif',
-        };
-      case 'pending':
-        return {
-          badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-gold/10 text-kath-gold rounded-full text-sm font-medium border border-kath-gold/20">
-              <Clock className="w-4 h-4" />
-              Menunggu Verifikasi
-            </span>
-          ),
-          message: 'Akun Anda sedang dalam proses verifikasi admin',
-        };
-      case 'rejected':
-        return {
-          badge: (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-kath-error/10 text-kath-error rounded-full text-sm font-medium border border-kath-error/20">
-              <XCircle className="w-4 h-4" />
-              Ditolak
-            </span>
-          ),
-          message: 'Pendaftaran Anda ditolak. Hubungi support untuk info lebih lanjut.',
-        };
-      default:
-        return {
-          badge: null,
-          message: 'Status tidak diketahui',
-        };
-    }
-  };
-
-  const timelineEvents: TimelineEvent[] = [
-    {
-      id: '1',
-      date: '1 Maret 2025',
-      title: 'Pendaftaran Dibuka',
-      description: 'Registrasi online dibuka untuk semua kategori',
-      status: 'completed',
-      icon: <Flag className="w-4 h-4" />,
-    },
-    {
-      id: '2',
-      date: '25 Maret 2025',
-      title: 'Workshop Persiapan',
-      description: 'Workshop gratis untuk peserta terdaftar',
-      status: 'completed',
-      icon: <Award className="w-4 h-4" />,
-    },
-    {
-      id: '3',
-      date: '15 April 2025',
-      title: 'Deadline Pendaftaran',
-      description: 'Batas akhir pengiriman form pendaftaran',
-      status: 'current',
-      icon: <Clock className="w-4 h-4" />,
-    },
-    {
-      id: '4',
-      date: '30 April 2025',
-      title: 'Pengumpulan Karya',
-      description: 'Deadline submit proposal dan portofolio',
-      status: 'upcoming',
-      icon: <Upload className="w-4 h-4" />,
-    },
-    {
-      id: '5',
-      date: '15 Mei 2025',
-      title: 'Semi Final',
-      description: 'Pengumuman finalis dan presentasi',
-      status: 'upcoming',
-      icon: <Trophy className="w-4 h-4" />,
-    },
-    {
-      id: '6',
-      date: '20 Juni 2025',
-      title: 'Final & Awarding',
-      description: 'Presentasi final dan pengumuman pemenang',
-      status: 'upcoming',
-      icon: <Crown className="w-4 h-4" />,
-    },
+  // Mock data - replace with actual data from services
+  const myCompetitions = [
+    { id: '1', name: 'CIBC Competition', status: 'active', stage: 'Final', deadline: '2026-04-15', tasks: 3, submitted: 2 },
+    { id: '2', name: 'Design Challenge', status: 'active', stage: 'Proposal', deadline: '2026-04-20', tasks: 1, submitted: 0 },
   ];
 
-  const documents = [
-    { name: 'KTP/Kartu Pelajar', status: 'uploaded', date: '10 Mar 2025', size: '2.4 MB', type: 'ID Card' },
-    { name: 'Portofolio', status: 'pending', date: '-', size: '-', type: 'Portfolio' },
-    { name: 'Surat Rekomendasi', status: 'uploaded', date: '12 Mar 2025', size: '1.1 MB', type: 'Recommendation' },
-    { name: 'Proposal Kompetisi', status: 'uploaded', date: '15 Mar 2025', size: '5.8 MB', type: 'Proposal' },
+  const stats = [
+    { label: 'Kompetisi', value: '2', icon: '🏆', color: 'bg-amber-500' },
+    { label: 'Submission', value: '5/12', icon: '📄', color: 'bg-indigo-500' },
+    { label: 'Skor', value: '85', icon: '⭐', color: 'bg-emerald-500' },
+    { label: 'Rank', value: '#3', icon: '🎯', color: 'bg-rose-500' },
   ];
 
-  const activeCompetitions = competitions.filter(c => c.status === 'in_progress' || c.status === 'registered');
-  const currentCompetition = activeCompetitions[0];
+  const timeline = [
+    { date: '2026-04-15', event: 'Final Submission Deadline', type: 'deadline' },
+    { date: '2026-04-10', event: 'Grading Started', type: 'info' },
+    { date: '2026-04-05', event: 'Proposal Submitted', type: 'success' },
+    { date: '2026-04-01', event: 'Competition Started', type: 'info' },
+  ];
 
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen bg-kath-bg-main flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-3 border-kath-primary/30 border-t-kath-primary rounded-full animate-spin" />
-          <p className="font-body text-kath-primary text-sm">Memuat dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const getUserName = () => {
+    if (user?.name) return user.name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'Participant';
+  };
 
-  // Use name from AuthUser (could be from user_metadata)
-  const displayName = user.name || user.email?.split('@')[0] || 'User';
-  const statusConfig = getStatusConfig('active'); // Default to active for Supabase auth users
+  const getNavIcon = (path: string) => {
+    const currentPath = window.location.pathname;
+    const isActive = currentPath === path || currentPath.startsWith(path + '/');
+    switch (path) {
+      case '/dashboard': return <HomeIcon className={`w-5 h-5 ${isActive ? 'stroke-indigo-600' : 'stroke-slate-500'}`} />;
+      case '/my-competitions': return <TrophyIcon className={`w-5 h-5 ${isActive ? 'stroke-indigo-600' : 'stroke-slate-500'}`} />;
+      case '/submission': return <FileIcon className={`w-5 h-5 ${isActive ? 'stroke-indigo-600' : 'stroke-slate-500'}`} />;
+      case '/profile': return <UserIcon className={`w-5 h-5 ${isActive ? 'stroke-indigo-600' : 'stroke-slate-500'}`} />;
+      default: return null;
+    }
+  };
+
+  const getNavLabel = (path: string) => {
+    switch (path) {
+      case '/dashboard': return language === 'id' ? 'Beranda' : 'Home';
+      case '/my-competitions': return language === 'id' ? 'Kompetisi' : 'Competitions';
+      case '/submission': return language === 'id' ? 'Submit' : 'Submit';
+      case '/profile': return language === 'id' ? 'Profil' : 'Profile';
+      default: return '';
+    }
+  };
+
+  const navItems = [
+    { path: '/dashboard', label: getNavLabel('/dashboard') },
+    { path: '/my-competitions', label: getNavLabel('/my-competitions') },
+    { path: '/submission', label: getNavLabel('/submission') },
+    { path: '/profile', label: getNavLabel('/profile') },
+  ];
 
   return (
-    <div className="min-h-screen bg-kath-bg-main">
-      {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-kath-bg-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <span className="font-display text-kath-primary text-xl tracking-wide">KATH</span>
-                <span className="font-body text-kath-text-secondary text-sm ml-2">Dashboard</span>
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {[
-                { id: 'overview', label: 'Overview', icon: Activity },
-                { id: 'documents', label: 'Dokumen', icon: FileText },
-                { id: 'timeline', label: 'Timeline', icon: Calendar },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id as 'overview' | 'documents' | 'timeline')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body text-sm transition-all ${
-                    activeTab === item.id
-                      ? 'bg-kath-primary/10 text-kath-primary'
-                      : 'text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section'
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <button
-                onClick={() => setShowAllNotifications(!showAllNotifications)}
-                className="relative p-2 text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section rounded-lg transition-all"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {/* User Menu */}
-              <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-kath-bg-section">
-                <div className="text-right">
-                  <p className="font-body text-kath-text-primary text-sm font-medium">{displayName}</p>
-                  <p className="font-body text-kath-text-muted text-xs">{user.role || 'Participant'}</p>
-                </div>
-                <div
-                  onClick={() => navigate('/edit-profile')}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
-                >
-                  <span className="font-display text-white text-lg">
-                    {displayName.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="md:hidden p-2 text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section rounded-lg transition-all"
-              >
-                {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 text-kath-text-secondary hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="font-body text-sm">Logout</span>
-              </button>
-            </div>
+    <div className="min-h-screen bg-slate-50 pb-20 lg:pb-8">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-4 py-6 lg:rounded-b-3xl lg:mb-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold">
+              {language === 'id' ? 'Halo,' : 'Hello,'} {getUserName()}! 👋
+            </h1>
+            <p className="text-indigo-200 text-sm mt-1">
+              {language === 'id' ? 'Semangat kompetisi hari ini!' : 'Ready for today\'s competition!'}
+            </p>
           </div>
+          <button 
+            onClick={() => setShowNotifications(true)}
+            className="relative p-2 hover:bg-indigo-700 rounded-full transition-colors"
+          >
+            <BellIcon className="w-6 h-6" />
+            {notifications.some(n => n.unread) && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full"></span>
+            )}
+          </button>
         </div>
 
-        {/* Mobile Menu */}
-        {showMobileMenu && (
-          <div className="md:hidden border-t border-kath-bg-section bg-white/95 backdrop-blur-xl">
-            <div className="px-4 py-4 space-y-2">
-              {[
-                { id: 'overview', label: 'Overview', icon: Activity },
-                { id: 'documents', label: 'Dokumen', icon: FileText },
-                { id: 'timeline', label: 'Timeline', icon: Calendar },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id as 'overview' | 'documents' | 'timeline');
-                    setShowMobileMenu(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm transition-all ${
-                    activeTab === item.id
-                      ? 'bg-kath-primary/10 text-kath-primary'
-                      : 'text-kath-text-secondary hover:text-kath-text-primary hover:bg-kath-bg-section'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
+        {/* Stats Cards - Horizontal Scroll on Mobile */}
+        <div className="max-w-6xl mx-auto mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          {stats.map((stat, idx) => (
+            <div 
+              key={idx}
+              className="flex-shrink-0 bg-white/10 backdrop-blur rounded-xl p-3 min-w-[80px] lg:flex-1"
+            >
+              <div className="text-2xl mb-1">{stat.icon}</div>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-xs text-indigo-200">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4">
+        {/* Tab Navigation */}
+        <div className="flex gap-1 bg-slate-200 p-1 rounded-xl mb-6">
+          {(['ringkasan', 'dokumen', 'timeline'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab
+                  ? 'bg-white text-indigo-600 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {tab === 'ringkasan' && (language === 'id' ? 'Ringkasan' : 'Overview')}
+              {tab === 'dokumen' && (language === 'id' ? 'Dokumen' : 'Documents')}
+              {tab === 'timeline' && (language === 'id' ? 'Timeline' : 'Timeline')}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'ringkasan' && (
+          <div className="space-y-4">
+            {/* My Competitions */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  {language === 'id' ? 'Kompetisi Saya' : 'My Competitions'}
+                </h2>
+                <button className="text-indigo-600 text-sm font-medium flex items-center gap-1">
+                  {language === 'id' ? 'Lihat Semua' : 'View All'}
+                  <ChevronRightIcon className="w-4 h-4" />
                 </button>
-              ))}
-              <div className="pt-2 border-t border-kath-bg-section">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              </div>
+              <div className="space-y-3">
+                {myCompetitions.map((comp) => (
+                  <div
+                    key={comp.id}
+                    onClick={() => navigate(`/competition/${comp.id}`)}
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-800">{comp.name}</h3>
+                        <div className="flex items-center gap-3 mt-2 text-sm text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <FileIcon className="w-4 h-4" />
+                            {comp.tasks} {language === 'id' ? 'Task' : 'Tasks'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <ClockIcon className="w-4 h-4" />
+                            {comp.submitted}/{comp.tasks} {language === 'id' ? 'Submit' : 'Submitted'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          comp.status === 'active' 
+                            ? 'bg-emerald-100 text-emerald-700' 
+                            : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {comp.status === 'active' ? (language === 'id' ? 'Aktif' : 'Active') : 'Ended'}
+                        </span>
+                        <p className="text-xs text-slate-400 mt-1">{comp.stage}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Quick Actions */}
+            <section>
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">
+                {language === 'id' ? 'Aksi Cepat' : 'Quick Actions'}
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => navigate('/submission')}
+                  className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 rounded-2xl text-left hover:from-indigo-600 hover:to-indigo-700 transition-all"
                 >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-body text-sm">Logout</span>
+                  <FileIcon className="w-6 h-6 mb-2" />
+                  <div className="font-semibold">{language === 'id' ? 'Upload Submission' : 'Upload'}</div>
+                  <div className="text-xs text-indigo-200">{language === 'id' ? 'Submit tugas kamu' : 'Submit your task'}</div>
                 </button>
+                <button 
+                  onClick={() => navigate('/my-team')}
+                  className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-2xl text-left hover:from-amber-600 hover:to-amber-700 transition-all"
+                >
+                  <UserIcon className="w-6 h-6 mb-2" />
+                  <div className="font-semibold">{language === 'id' ? 'Tim Saya' : 'My Team'}</div>
+                  <div className="text-xs text-amber-100">{language === 'id' ? 'Kelola anggota' : 'Manage members'}</div>
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === 'dokumen' && (
+          <div className="space-y-4">
+            <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <FileIcon className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800">
+                    {language === 'id' ? 'Belum Ada Dokumen' : 'No Documents Yet'}
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    {language === 'id' ? 'Dokumen akan muncul setelah submit' : 'Documents will appear after submission'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         )}
-      </header>
 
-      {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="font-display text-3xl sm:text-4xl text-kath-text-primary mb-2">
-                  Selamat Datang, <span className="text-kath-primary">{displayName.split(' ')[0]}</span>
-                </h1>
-                <p className="font-body text-kath-text-secondary">
-                  Kelola pendaftaran dan persiapan kompetisi Anda di sini
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                {statusConfig.badge}
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              {
-                label: 'Total Competitions',
-                value: stats.totalCompetitions.toString(),
-                icon: Trophy,
-                trend: '+2',
-                onClick: () => navigate('/my-competitions')
-              },
-              {
-                label: 'Active',
-                value: stats.active.toString(),
-                icon: Target,
-                trend: '2',
-                onClick: () => navigate('/my-competitions')
-              },
-              {
-                label: 'Wins',
-                value: stats.wins.toString(),
-                icon: Award,
-                trend: '+1',
-                onClick: () => navigate('/my-competitions')
-              },
-              {
-                label: 'Certificates',
-                value: stats.certificates.toString(),
-                icon: FileText,
-                trend: '3',
-                onClick: () => navigate('/my-competitions')
-              },
-            ].map((stat, index) => (
-              <div
-                key={index}
-                onClick={stat.onClick}
-                className="bg-white border border-kath-bg-section rounded-2xl p-5 hover:border-kath-primary/30 hover:shadow-lg transition-all group cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center text-kath-primary group-hover:bg-kath-primary/20 transition-all">
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-medium text-kath-success">{stat.trend}</span>
+        {activeTab === 'timeline' && (
+          <div className="space-y-0">
+            {timeline.map((item, idx) => (
+              <div key={idx} className="flex gap-4 pb-4 relative">
+                {idx < timeline.length - 1 && (
+                  <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-slate-200"></div>
+                )}
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  item.type === 'deadline' ? 'bg-amber-500' :
+                  item.type === 'success' ? 'bg-emerald-500' : 'bg-indigo-500'
+                }`}>
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
-                <p className="font-display text-2xl text-kath-text-primary mb-1">{stat.value}</p>
-                <p className="font-body text-kath-text-muted text-sm">{stat.label}</p>
+                <div className="flex-1 bg-white rounded-xl p-3 shadow-sm">
+                  <p className="font-medium text-slate-800">{item.event}</p>
+                  <p className="text-sm text-slate-400">{item.date}</p>
+                </div>
               </div>
             ))}
           </div>
+        )}
+      </main>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Current Competition Card */}
-              {currentCompetition && (
-                <div className="bg-gradient-to-br from-kath-primary/10 via-kath-primary/5 to-transparent border border-kath-primary/20 rounded-2xl p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-kath-primary/20 flex items-center justify-center">
-                        <Trophy className="w-7 h-7 text-kath-primary" />
-                      </div>
-                      <div>
-                        <p className="font-body text-kath-primary text-sm uppercase tracking-wider mb-1">
-                          Kompetisi Aktif
-                        </p>
-                        <h2 className="font-display text-xl text-kath-text-primary">{currentCompetition.name}</h2>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => navigate('/my-competitions')}
-                      className="flex items-center gap-2 px-4 py-2 bg-kath-primary hover:bg-kath-primary-dark text-white font-body text-sm font-medium rounded-full transition-all"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View Details
-                    </button>
-                  </div>
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 lg:hidden z-50">
+        <div className="flex justify-around py-2">
+          {navItems.map((item) => {
+            const isActive = window.location.pathname === item.path || window.location.pathname.startsWith(item.path + '/');
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center gap-1 px-4 py-2 ${
+                  isActive ? 'text-indigo-600' : 'text-slate-500'
+                }`}
+              >
+                {getNavIcon(item.path)}
+                <span className="text-xs font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-body text-kath-text-secondary text-sm">Progress</span>
-                      <span className="font-body text-kath-primary text-sm">{currentCompetition.progress}%</span>
-                    </div>
-                    <div className="h-2 bg-kath-bg-section rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-kath-primary to-kath-primary-light rounded-full transition-all"
-                        style={{ width: `${currentCompetition.progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    {currentCompetition.deadline && (
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-kath-text-muted" />
-                        <span className="font-body text-kath-text-secondary">
-                          Deadline: {new Date(currentCompetition.deadline).toLocaleDateString('id-ID')}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-kath-text-muted" />
-                      <span className="font-body text-kath-text-secondary">
-                        {currentCompetition.teamName || 'Individual'} ({currentCompetition.teamSize})
-                      </span>
-                    </div>
-                  </div>
-
-                  {!currentCompetition.hasSubmitted && (
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        onClick={() => navigate(`/competition/${currentCompetition.id}/submit`)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-kath-gold hover:bg-kath-gold-dark text-white font-body font-medium rounded-xl transition-all"
-                      >
-                        <Upload className="w-5 h-5" />
-                        Submit Now
-                      </button>
-                      <button
-                        onClick={() => navigate(`/competition/${currentCompetition.id}`)}
-                        className="flex items-center justify-center gap-2 px-4 py-3 border border-kath-bg-section text-kath-text-secondary hover:bg-kath-bg-section rounded-xl transition-all"
-                      >
-                        <FileSearch className="w-5 h-5" />
-                        Details
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Documents Section */}
-              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
-                      <FolderOpen className="w-5 h-5 text-kath-primary" />
-                    </div>
-                    <h3 className="font-display text-lg text-kath-text-primary">Dokumen Persyaratan</h3>
-                  </div>
-                  <button
-                    onClick={() => alert('Upload document feature coming soon!')}
-                    className="flex items-center gap-2 px-4 py-2 border border-kath-primary/30 text-kath-primary hover:bg-kath-primary/10 rounded-full font-body text-sm transition-all"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {documents.map((doc, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 bg-kath-bg-main border border-kath-bg-section rounded-xl hover:border-kath-primary/20 transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            doc.status === 'uploaded'
-                              ? 'bg-kath-success/10 text-kath-success'
-                              : 'bg-kath-gold/10 text-kath-gold'
-                          }`}
-                        >
-                          {doc.status === 'uploaded' ? (
-                            <FileCheck className="w-5 h-5" />
-                          ) : (
-                            <Clock className="w-5 h-5" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-body text-kath-text-primary text-sm">{doc.name}</p>
-                          <p className="font-body text-kath-text-muted text-xs">
-                            {doc.status === 'uploaded'
-                              ? `${doc.date} • ${doc.size}`
-                              : 'Belum diupload'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {doc.status === 'uploaded' ? (
-                          <>
-                            <button
-                              onClick={() => alert(`View ${doc.name}`)}
-                              className="p-2 text-kath-text-muted hover:text-kath-primary hover:bg-kath-primary/10 rounded-lg transition-all"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => alert(`Download ${doc.name}`)}
-                              className="p-2 text-kath-text-muted hover:text-kath-primary hover:bg-kath-primary/10 rounded-lg transition-all"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => alert(`Upload ${doc.name}`)}
-                            className="px-3 py-1.5 bg-kath-gold/10 text-kath-gold rounded-full font-body text-xs hover:bg-kath-gold/20 transition-all"
-                          >
-                            Upload
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-kath-primary" />
-                  </div>
-                  <h3 className="font-display text-lg text-kath-text-primary">Timeline Kompetisi</h3>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute left-5 top-0 bottom-0 w-px bg-kath-bg-section" />
-                  <div className="space-y-6">
-                    {timelineEvents.map((event) => (
-                      <div key={event.id} className="relative flex gap-4">
-                        <div
-                          className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                            event.status === 'completed'
-                              ? 'bg-kath-success/10 border-kath-success text-kath-success'
-                              : event.status === 'current'
-                              ? 'bg-kath-primary/10 border-kath-primary text-kath-primary'
-                              : 'bg-kath-bg-section border-kath-bg-section text-kath-text-muted'
-                          }`}
-                        >
-                          {event.icon}
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-1">
-                            <h4 className={`font-body font-medium ${event.status === 'upcoming' ? 'text-kath-text-muted' : 'text-kath-text-primary'}`}>
-                              {event.title}
-                            </h4>
-                            <span className={`font-body text-xs ${event.status === 'current' ? 'text-kath-primary' : 'text-kath-text-muted'}`}>
-                              {event.date}
-                            </span>
-                          </div>
-                          <p className={`font-body text-sm ${event.status === 'upcoming' ? 'text-kath-bg-section' : 'text-kath-text-secondary'}`}>
-                            {event.description}
-                          </p>
-                          {event.status === 'current' && (
-                            <span className="inline-block mt-2 px-3 py-1 bg-kath-primary/10 text-kath-primary rounded-full font-body text-xs">
-                              Sedang Berlangsung
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Profile Card */}
-              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
-                <div className="flex items-center gap-4 mb-6">
-                  <div
-                    onClick={() => navigate('/edit-profile')}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-kath-primary to-kath-primary-dark flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-kath-primary/50 transition-all"
-                  >
-                    <span className="font-display text-white text-2xl">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg text-kath-text-primary">{displayName}</h3>
-                    <p className="font-body text-kath-primary text-sm">{user.role || 'Participant'}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Mail className="w-4 h-4 text-kath-text-muted" />
-                    <span className="font-body text-kath-text-secondary">{user.email}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => navigate('/edit-profile')}
-                  className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 border border-kath-bg-section hover:border-kath-primary/50 text-kath-text-secondary hover:text-kath-primary rounded-xl font-body text-sm transition-all"
+      {/* Notification Modal */}
+      {showNotifications && (
+        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setShowNotifications(false)}>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[80vh] overflow-y-auto">
+            <div className="p-4 border-b border-slate-200 sticky top-0 bg-white">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-lg">
+                  {language === 'id' ? 'Notifikasi' : 'Notifications'}
+                </h2>
+                <button 
+                  onClick={() => setShowNotifications(false)}
+                  className="text-slate-400 hover:text-slate-600"
                 >
-                  <Edit3 className="w-4 h-4" />
-                  Edit Profil
+                  ✕
                 </button>
               </div>
-
-              {/* Notifications */}
-              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-kath-primary/10 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-kath-primary" />
+            </div>
+            <div className="p-4 space-y-3">
+              {notifications.map((notif) => (
+                <div 
+                  key={notif.id}
+                  className={`p-3 rounded-xl border ${notif.unread ? 'bg-indigo-50 border-indigo-100' : 'bg-white border-slate-100'}`}
+                >
+                  <div className="flex items-start gap-3">
+                    {notif.unread && <span className="w-2 h-2 bg-indigo-500 rounded-full mt-2"></span>}
+                    <div className="flex-1">
+                      <h3 className="font-medium text-slate-800">{notif.title}</h3>
+                      <p className="text-sm text-slate-500 mt-1">{notif.message}</p>
+                      <p className="text-xs text-slate-400 mt-2">{notif.time}</p>
                     </div>
-                    <h3 className="font-display text-lg text-kath-text-primary">Notifikasi</h3>
-                  </div>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllAsRead}
-                      className="text-xs text-kath-primary hover:text-kath-primary-dark font-body"
-                    >
-                      Mark all read
-                    </button>
-                  )}
-                </div>
-
-                {isLoadingData ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-kath-primary/30 border-t-kath-primary rounded-full animate-spin" />
-                  </div>
-                ) : notifications.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Bell className="w-8 h-8 text-kath-text-muted mx-auto mb-2" />
-                    <p className="font-body text-kath-text-muted text-sm">Tidak ada notifikasi</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((notif) => (
-                      <div
-                        key={notif.id}
-                        onClick={() => {
-                          handleMarkAsRead(notif.id);
-                          if (notif.actionUrl) navigate(notif.actionUrl);
-                        }}
-                        className={`p-3 rounded-xl cursor-pointer transition-all ${
-                          notif.read ? 'bg-kath-bg-main' : 'bg-kath-primary/5 border border-kath-primary/20'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              notif.type === 'success'
-                                ? 'bg-kath-success/10 text-kath-success'
-                                : notif.type === 'warning'
-                                ? 'bg-kath-gold/10 text-kath-gold'
-                                : notif.type === 'urgent'
-                                ? 'bg-kath-error/10 text-kath-error'
-                                : 'bg-kath-primary/10 text-kath-primary'
-                            }`}
-                          >
-                            {notif.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> :
-                             notif.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
-                             notif.type === 'urgent' ? <Zap className="w-4 h-4" /> :
-                             <Bell className="w-4 h-4" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-body text-kath-text-primary text-sm font-medium truncate">{notif.title}</p>
-                            <p className="font-body text-kath-text-secondary text-xs line-clamp-2">{notif.message}</p>
-                            <p className="font-body text-kath-text-muted text-xs mt-1">{notif.time}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {notifications.length > 3 && (
-                  <button
-                    onClick={() => setShowAllNotifications(!showAllNotifications)}
-                    className="w-full mt-4 flex items-center justify-center gap-2 text-kath-primary hover:text-kath-primary-dark font-body text-sm transition-all"
-                  >
-                    {showAllNotifications ? 'Show Less' : 'View All Notifications'}
-                    <ChevronRight className={`w-4 h-4 transition-transform ${showAllNotifications ? 'rotate-90' : ''}`} />
-                  </button>
-                )}
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-white border border-kath-bg-section rounded-2xl p-6">
-                <h3 className="font-display text-lg text-kath-text-primary mb-4">Aksi Cepat</h3>
-                <div className="space-y-2">
-                  {[
-                    { icon: Trophy, label: 'My Competitions', desc: 'Lihat semua kompetisi', action: () => navigate('/my-competitions') },
-                    { icon: Users, label: 'My Teams', desc: 'Kelola tim Anda', action: () => navigate('/my-teams') },
-                    { icon: Upload, label: 'Upload Dokumen', desc: 'Submit file persyaratan', action: () => alert('Upload feature coming soon!') },
-                    { icon: Settings, label: 'Settings', desc: 'Pengaturan akun', action: () => navigate('/settings') },
-                  ].map((action) => (
-                    <button
-                      key={action.label}
-                      onClick={action.action}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-kath-bg-section transition-all group"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-kath-primary/10 flex items-center justify-center text-kath-primary group-hover:bg-kath-primary/20 transition-all">
-                        <action.icon className="w-5 h-5" />
-                      </div>
-                      <div className="text-left flex-1">
-                        <p className="font-body text-kath-text-primary text-sm">{action.label}</p>
-                        <p className="font-body text-kath-text-muted text-xs">{action.desc}</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-kath-bg-section group-hover:text-kath-primary transition-all" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Prize Info */}
-              <div className="bg-gradient-to-br from-kath-gold/10 to-transparent border border-kath-gold/20 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Medal className="w-6 h-6 text-kath-gold" />
-                  <h3 className="font-display text-lg text-kath-text-primary">Total Hadiah</h3>
-                </div>
-                <p className="font-display text-3xl text-kath-gold mb-2">Rp 500.000.000</p>
-                <p className="font-body text-kath-text-secondary text-sm mb-4">
-                  Hadiah uang tunai dan merchandise eksklusif
-                </p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-kath-text-secondary">Juara 1</span>
-                    <span className="font-body text-kath-gold">Rp 200jt</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-kath-text-secondary">Juara 2</span>
-                    <span className="font-body text-kath-text-primary">Rp 100jt</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-kath-text-secondary">Juara 3</span>
-                    <span className="font-body text-kath-text-primary">Rp 50jt</span>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
-};
-
-export default Dashboard;
+}
