@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Rocket, Lightbulb, Code } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
 
@@ -13,7 +12,7 @@ export const ThemesSection = () => {
     const stickyRef = useRef<HTMLDivElement>(null);
     const cardsWrapperRef = useRef<HTMLDivElement>(null);
 
-    const themeIcons = [Rocket, Lightbulb, Code];
+    const themeColors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -92,15 +91,14 @@ export const ThemesSection = () => {
                     {/* BAGIAN KANAN: Scrolling Cards */}
                     <div ref={cardsWrapperRef} className="lg:w-2/3 flex flex-col gap-8 md:gap-12">
                         {COMPETITION_DATA.themes.map((theme, index) => {
-                            const Icon = themeIcons[index % themeIcons.length];
                             return (
                                 <div 
                                     key={index} 
                                     className="theme-card relative bg-white border border-gray-100 p-8 md:p-10 rounded-[2rem] shadow-xl shadow-black/5 hover:border-gray-200 transition-colors duration-300 transform-gpu"
                                 >
                                     <div className="flex items-center gap-6 mb-8 border-b border-gray-100 pb-8">
-                                        <div className="w-16 h-16 shrink-0 rounded-2xl bg-[#FFB22C]/10 flex items-center justify-center">
-                                            <Icon className="w-8 h-8 text-[#FFB22C]" />
+                                        <div className={`w-16 h-16 shrink-0 rounded-2xl ${themeColors[index % themeColors.length]} flex items-center justify-center`}>
+                                            <span className="text-white font-display text-2xl font-bold">{index + 1}</span>
                                         </div>
                                         <h3 className="font-display text-2xl md:text-3xl text-[#0F0F0F] font-bold">{theme.title[language]}</h3>
                                     </div>
