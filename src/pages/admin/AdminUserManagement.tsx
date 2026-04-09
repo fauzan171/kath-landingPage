@@ -60,7 +60,14 @@ const AdminUserManagement = () => {
     if (!userToDelete || !supabase) return;
     setIsDeleting(true);
     try {
-      // Delete from auth.users first (using admin client)
+      // Delete from all related tables first (to handle foreign keys)
+      await supabase.from('team_members').delete().eq('user_id', userToDelete.id);
+      await supabase.from('notifications').delete().eq('user_id', userToDelete.id);
+      await supabase.from('submissions').delete().eq('user_id', userToDelete.id);
+      await supabase.from('audit_logs').delete().eq('user_id', userToDelete.id);
+      await supabase.from('password_reset_requests').delete().eq('user_id', userToDelete.id);
+      
+      // Delete from auth.users (using admin client)
       if (isAdminClientConfigured() && supabaseAdmin) {
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userToDelete.id);
         if (authError && !authError.message?.includes('User not found')) {
