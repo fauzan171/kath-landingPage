@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
-import type { CompetitionCategory } from '../../types/cibc';
 import { isSupabaseConfigured } from '@/config/environment';
 import { supabase } from '@/lib/supabase';
 import { supabaseAuthService } from '@/services/supabase.service';
@@ -119,7 +118,7 @@ const CIBCRegister = () => {
   const step3Form = useForm({
     resolver: zodResolver(step3Schema),
     defaultValues: {
-      category: 'student' as CompetitionCategory,
+      category: 'student' as const,
       institutionName: '',
       major: '',
       studentId: '',
@@ -138,8 +137,6 @@ const CIBCRegister = () => {
       agreeToPayment: false,
     },
   });
-
-  const watchedCategory = step3Form.watch('category');
 
   // Step navigation
   const nextStep = useCallback(async () => {
@@ -194,7 +191,7 @@ const CIBCRegister = () => {
         // Update user with additional data (trigger already created basic entry)
         const { error: userError } = await supabase.from('users').update({
           phone: step2Data.phone,
-          institution: step3Data.institutionName || step3Data.companyName || step3Data.corporationName,
+          institution: step3Data.institutionName,
           category: step3Data.category,
         }).eq('id', user.id);
         if (userError) console.error('Error updating user record:', userError);
