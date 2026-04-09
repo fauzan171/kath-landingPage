@@ -60,36 +60,65 @@ const AdminUserManagement = () => {
     if (!userToDelete || !supabase) return;
     setIsDeleting(true);
     try {
+      const userId = userToDelete.id;
+
+      // Use admin client for all deletions to bypass RLS
+      const client = (isAdminClientConfigured() && supabaseAdmin) ? supabaseAdmin : supabase;
+
       // Delete from all related tables first (to handle foreign keys)
-      await supabase.from('team_members').delete().eq('user_id', userToDelete.id);
-      await supabase.from('notifications').delete().eq('user_id', userToDelete.id);
-      await supabase.from('submissions').delete().eq('user_id', userToDelete.id);
-      await supabase.from('audit_logs').delete().eq('user_id', userToDelete.id);
-      await supabase.from('password_reset_requests').delete().eq('user_id', userToDelete.id);
-      
+      // Tables with implicit RESTRICT on FK to users(id)
+      const relatedDeletes = [
+        client.from('submissions').delete().eq('submitted_by', userId),
+        client.from('submissions').delete().eq('graded_by', userId),
+        client.from('judge_scores').delete().eq('judge_id', userId),
+        client.from('notifications').delete().eq('user_id', userId),
+        client.from('team_members').delete().eq('user_id', userId),
+        // judge_assignments.assigned_by has no CASCADE - set to null instead
+        client.from('judge_assignments').update({ assigned_by: null }).eq('assigned_by', userId),
+        // password_reset_requests.processed_by has no CASCADE
+        client.from('password_reset_requests').update({ processed_by: null }).eq('processed_by', userId),
+        // audit_logs has ON DELETE SET NULL, but delete explicitly too
+        client.from('audit_logs').delete().eq('user_id', userId),
+        // password_reset_requests with CASCADE on user_id
+        client.from('password_reset_requests').delete().eq('user_id', userId),
+      ];
+
+      // Execute all related deletes
+      const results = await Promise.allSettled(relatedDeletes);
+      results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+          console.warn(`Related delete [${i}] failed:`, result.reason);
+        }
+      });
+
       // Delete from auth.users (using admin client)
       if (isAdminClientConfigured() && supabaseAdmin) {
-        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userToDelete.id);
+        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
         if (authError && !authError.message?.includes('User not found')) {
           console.warn('Auth deletion warning:', authError);
         }
       }
 
       // Delete from users table
-      const { error: dbError } = await supabase
+      const { error: dbError } = await client
         .from('users')
         .delete()
-        .eq('id', userToDelete.id);
+        .eq('id', userId);
 
       if (dbError) throw dbError;
+
+      // Optimistic update: remove from local state immediately
+      setUsers(prev => prev.filter(u => u.id !== userId));
 
       toast.success(`User ${userToDelete.email} berhasil dihapus`);
       setShowDeleteModal(false);
       setUserToDelete(null);
+
+      // Also re-fetch from server for consistency
       loadUsers();
     } catch (err) {
       console.error('Error deleting user:', err);
-      toast.error('Gagal menghapus user');
+      toast.error('Gagal menghapus user: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setIsDeleting(false);
     }
