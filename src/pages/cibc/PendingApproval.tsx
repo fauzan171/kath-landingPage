@@ -9,9 +9,11 @@ import React, { useEffect } from 'react';
 import { MessageCircle, ArrowLeft } from 'lucide-react';
 import { gsap } from 'gsap';
 import { supabaseAuthService } from '@/services/supabase.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { appContactConfig } from '@/config';
 
 const PendingApproval: React.FC = () => {
+  const { t } = useLanguage();
   useEffect(() => {
     // GSAP Animation
     gsap.fromTo(
@@ -49,27 +51,27 @@ const PendingApproval: React.FC = () => {
         </div>
 
         <h1 className="font-display text-xl md:text-2xl font-bold text-[#0F0F0F] text-center mb-2">
-          Menunggu Persetujuan
+          {t('Menunggu Persetujuan', 'Pending Approval')}
         </h1>
         <p className="font-body text-[11px] md:text-xs text-gray-500 text-center mb-5 leading-relaxed">
-          Terima kasih telah mendaftar! Akun Anda sedang dalam proses verifikasi oleh tim panitia.
+          {t('Terima kasih telah mendaftar! Akun Anda sedang dalam proses verifikasi oleh tim panitia.', 'Thank you for registering! Your account is currently being verified by the committee team.')}
         </p>
 
         {/* Info Steps */}
         <div className="bg-[#F9F8F6] rounded-xl p-4 mb-4 border border-gray-50">
-          <h3 className="font-body text-[13px] font-bold text-[#0F0F0F] mb-3">Langkah Selanjutnya:</h3>
+          <h3 className="font-body text-[13px] font-bold text-[#0F0F0F] mb-3">{t('Langkah Selanjutnya:', 'Next Steps:')}</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Tunggu konfirmasi via WhatsApp dari panitia (1-3 hari kerja)</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Tunggu konfirmasi via WhatsApp dari panitia (1-3 hari kerja)', 'Wait for confirmation via WhatsApp from the committee (1-3 business days)')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Cek WhatsApp secara berkala untuk update status</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Cek WhatsApp secara berkala untuk update status', 'Check WhatsApp periodically for status updates')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Setelah disetujui, login ke dashboard</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Setelah disetujui, login ke dashboard', 'Once approved, log in to the dashboard')}</p>
             </div>
           </div>
         </div>
@@ -79,19 +81,19 @@ const PendingApproval: React.FC = () => {
           <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-body text-xs text-green-800 font-bold">
-              Konfirmasi via WhatsApp
+              {t('Konfirmasi via WhatsApp', 'Confirmation via WhatsApp')}
             </p>
             <p className="font-body text-[10px] text-green-600 mt-1 leading-relaxed">
-              Pastikan nomor WhatsApp Anda aktif. Panitia akan menghubungi via WhatsApp untuk konfirmasi pendaftaran dan pembayaran.
+              {t('Pastikan nomor WhatsApp Anda aktif. Panitia akan menghubungi via WhatsApp untuk konfirmasi pendaftaran dan pembayaran.', 'Make sure your WhatsApp number is active. The committee will contact you via WhatsApp to confirm your registration and payment.')}
             </p>
             <a
-              href={`${appContactConfig.whatsappUrl}?text=${encodeURIComponent('Halo panitia CIBC, saya sudah mendaftar dan ingin mengonfirmasi status pendaftaran saya.')}`}
+              href={`${appContactConfig.whatsappUrl}?text=${encodeURIComponent(t('Halo panitia CIBC, saya sudah mendaftar dan ingin mengonfirmasi status pendaftaran saya.', 'Hello CIBC committee, I have registered and would like to confirm my registration status.'))}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold rounded-lg transition-colors"
             >
               <MessageCircle className="w-3 h-3" />
-              Chat Panitia via WA
+              {t('Chat Panitia via WA', 'Chat Committee via WA')}
             </a>
           </div>
         </div>
@@ -103,14 +105,14 @@ const PendingApproval: React.FC = () => {
             className="w-full py-3 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-sm mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Login
+            {t('Kembali ke Login', 'Back to Login')}
           </button>
 
           {/* Hubungi Panitia dipindah ke bawah */}
           <p className="text-center text-xs text-gray-500 font-body">
-            Butuh bantuan?{' '}
+            {t('Butuh bantuan?', 'Need help?')}{' '}
             <a href="mailto:cibc@kathevent.com" className="text-[#FFB22C] hover:underline font-bold">
-              Hubungi Panitia
+              {t('Hubungi Panitia', 'Contact Committee')}
             </a>
           </p>
         </div>

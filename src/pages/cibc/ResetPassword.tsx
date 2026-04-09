@@ -11,9 +11,11 @@ import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2, ArrowLeft } from 
 import { gsap } from 'gsap';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { validatePassword } from '@/utils/validate';
 
 const ResetPassword: React.FC = () => {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'form' | 'success' | 'error'>('loading');
@@ -37,7 +39,7 @@ const ResetPassword: React.FC = () => {
 
     if (!isSupabaseConfigured() || !supabase) {
       setStatus('error');
-      setMessage('Password reset is not available at this time.');
+      setMessage(t('Reset kata sandi tidak tersedia saat ini.', 'Password reset is not available at this time.'));
       return;
     }
 
@@ -56,12 +58,12 @@ const ResetPassword: React.FC = () => {
         const errorDesc = searchParams.get('error_description');
         if (urlError) {
           setStatus('error');
-          setMessage(errorDesc || 'Link reset tidak valid atau sudah kedaluwarsa.');
+          setMessage(errorDesc || t('Link reset tidak valid atau sudah kedaluwarsa.', 'Invalid or expired reset link.'));
         } else {
           // Tunggu sebentar — hash mungkin belum diproses
           setTimeout(() => {
             setStatus((prev) => prev === 'loading' ? 'error' : prev);
-            setMessage('Link reset tidak valid atau sudah kedaluwarsa. Silakan minta link baru.');
+            setMessage(t('Link reset tidak valid atau sudah kedaluwarsa. Silakan minta link baru.', 'Invalid or expired reset link. Please request a new one.'));
           }, 2000);
         }
       }
@@ -79,7 +81,7 @@ const ResetPassword: React.FC = () => {
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('Kata sandi tidak cocok', 'Passwords do not match');
     }
 
     setErrors(newErrors);
@@ -95,7 +97,7 @@ const ResetPassword: React.FC = () => {
 
     try {
       if (!supabase) {
-        throw new Error('Supabase not configured');
+        throw new Error(t('Supabase belum dikonfigurasi', 'Supabase not configured'));
       }
 
       const { error } = await supabase.auth.updateUser({
@@ -107,7 +109,7 @@ const ResetPassword: React.FC = () => {
         setMessage(error.message);
       } else {
         setStatus('success');
-        setMessage('Your password has been reset successfully!');
+        setMessage(t('Kata sandi Anda berhasil direset!', 'Your password has been reset successfully!'));
 
         // Sign out and redirect to login after 3 seconds
         setTimeout(async () => {
@@ -119,7 +121,7 @@ const ResetPassword: React.FC = () => {
       }
     } catch {
       setStatus('error');
-      setMessage('Failed to reset password. Please try again.');
+      setMessage(t('Gagal mereset kata sandi. Silakan coba lagi.', 'Failed to reset password. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +133,7 @@ const ResetPassword: React.FC = () => {
         return (
           <div className="text-center py-8">
             <Loader2 className="w-12 h-12 text-[#FFB22C] animate-spin mx-auto mb-4" />
-            <p className="font-body text-gray-600">Verifying reset link...</p>
+            <p className="font-body text-gray-600">{t('Memverifikasi link reset...', 'Verifying reset link...')}</p>
           </div>
         );
 
@@ -142,16 +144,16 @@ const ResetPassword: React.FC = () => {
               <Lock className="w-10 h-10 text-amber-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Reset Password
+              {t('Reset Kata Sandi', 'Reset Password')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-8">
-              Enter your new password below.
+              {t('Masukkan kata sandi baru Anda di bawah ini.', 'Enter your new password below.')}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block font-body text-sm font-medium text-gray-700 mb-2">
-                  New Password
+                  {t('Kata Sandi Baru', 'New Password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -162,7 +164,7 @@ const ResetPassword: React.FC = () => {
                     className={`w-full pl-12 pr-12 py-3.5 bg-gray-50 border rounded-xl focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-gray-800 transition-all ${
                       errors.password ? 'border-red-500' : 'border-gray-200'
                     }`}
-                    placeholder="Enter new password"
+                    placeholder={t('Masukkan kata sandi baru', 'Enter new password')}
                   />
                   <button
                     type="button"
@@ -179,7 +181,7 @@ const ResetPassword: React.FC = () => {
 
               <div>
                 <label className="block font-body text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password
+                  {t('Konfirmasi Kata Sandi Baru', 'Confirm New Password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -190,7 +192,7 @@ const ResetPassword: React.FC = () => {
                     className={`w-full pl-12 pr-12 py-3.5 bg-gray-50 border rounded-xl focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-gray-800 transition-all ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
                     }`}
-                    placeholder="Confirm new password"
+                    placeholder={t('Konfirmasi kata sandi baru', 'Confirm new password')}
                   />
                   <button
                     type="button"
@@ -207,19 +209,19 @@ const ResetPassword: React.FC = () => {
 
               {/* Password Requirements */}
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="font-body text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+                <p className="font-body text-sm font-medium text-gray-700 mb-2">{t('Persyaratan Kata Sandi:', 'Password Requirements:')}</p>
                 <ul className="space-y-1 text-xs text-gray-600">
                   <li className={formData.password.length >= 8 ? 'text-green-600' : ''}>
-                    • At least 8 characters
+                    • {t('Minimal 8 karakter', 'At least 8 characters')}
                   </li>
                   <li className={/[A-Z]/.test(formData.password) ? 'text-green-600' : ''}>
-                    • At least one uppercase letter
+                    • {t('Minimal satu huruf besar', 'At least one uppercase letter')}
                   </li>
                   <li className={/[a-z]/.test(formData.password) ? 'text-green-600' : ''}>
-                    • At least one lowercase letter
+                    • {t('Minimal satu huruf kecil', 'At least one lowercase letter')}
                   </li>
                   <li className={/[0-9]/.test(formData.password) ? 'text-green-600' : ''}>
-                    • At least one number
+                    • {t('Minimal satu angka', 'At least one number')}
                   </li>
                 </ul>
               </div>
@@ -232,10 +234,10 @@ const ResetPassword: React.FC = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Resetting...
+                    {t('Meriset...', 'Resetting...')}
                   </>
                 ) : (
-                  'Reset Password'
+                  t('Reset Kata Sandi', 'Reset Password')
                 )}
               </button>
             </form>
@@ -249,13 +251,13 @@ const ResetPassword: React.FC = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Password Reset!
+              {t('Kata Sandi Direset!', 'Password Reset!')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
               {message}
             </p>
             <p className="font-body text-gray-500 text-center text-sm">
-              Redirecting to login...
+              {t('Mengalihkan ke halaman masuk...', 'Redirecting to login...')}
             </p>
           </>
         );
@@ -267,7 +269,7 @@ const ResetPassword: React.FC = () => {
               <AlertCircle className="w-10 h-10 text-red-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Reset Failed
+              {t('Reset Gagal', 'Reset Failed')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
               {message}
@@ -276,7 +278,7 @@ const ResetPassword: React.FC = () => {
               to="/cibc/forgot-password"
               className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
             >
-              Request New Reset Link
+              {t('Minta Link Reset Baru', 'Request New Reset Link')}
             </Link>
           </>
         );
@@ -296,7 +298,7 @@ const ResetPassword: React.FC = () => {
         <div className="text-center mb-8">
           <img
             src="/CIBC-logo-white.png"
-            alt="CIBC Power Logo"
+            alt={t('Logo CIBC Power', 'CIBC Power Logo')}
             className="h-12 mx-auto object-contain"
             style={{ filter: 'brightness(0)', opacity: 0.9 }}
           />
@@ -313,7 +315,7 @@ const ResetPassword: React.FC = () => {
                 className="flex items-center justify-center gap-2 text-gray-600 hover:text-[#FFB22C] font-body text-sm transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Login
+                {t('Kembali ke Login', 'Back to Login')}
               </Link>
             </div>
           )}
@@ -321,9 +323,9 @@ const ResetPassword: React.FC = () => {
 
         {/* Footer */}
         <p className="text-center mt-6 text-gray-500 text-sm font-body">
-          Need help?{' '}
+          {t('Butuh bantuan? ', 'Need help? ')}
           <a href="mailto:cibc@kathevent.com" className="text-[#FFB22C] hover:underline font-medium">
-            Contact Support
+            {t('Hubungi Support', 'Contact Support')}
           </a>
         </p>
       </div>

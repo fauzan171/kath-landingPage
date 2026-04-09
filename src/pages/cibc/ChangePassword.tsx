@@ -10,9 +10,11 @@ import { Lock, Eye, EyeOff, CheckCircle, Loader2, ShieldCheck } from 'lucide-rea
 import { gsap } from 'gsap';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ChangePassword: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,10 +36,10 @@ const ChangePassword: React.FC = () => {
   }, [navigate]);
 
   const passwordRules = [
-    { label: 'Minimal 8 karakter', ok: password.length >= 8 },
-    { label: 'Ada huruf besar (A-Z)', ok: /[A-Z]/.test(password) },
-    { label: 'Ada huruf kecil (a-z)', ok: /[a-z]/.test(password) },
-    { label: 'Ada angka (0-9)', ok: /[0-9]/.test(password) },
+    { label: t('Minimal 8 karakter', 'At least 8 characters'), ok: password.length >= 8 },
+    { label: t('Ada huruf besar (A-Z)', 'Contains uppercase letter (A-Z)'), ok: /[A-Z]/.test(password) },
+    { label: t('Ada huruf kecil (a-z)', 'Contains lowercase letter (a-z)'), ok: /[a-z]/.test(password) },
+    { label: t('Ada angka (0-9)', 'Contains number (0-9)'), ok: /[0-9]/.test(password) },
   ];
   const isPasswordValid = passwordRules.every(r => r.ok);
 
@@ -45,18 +47,18 @@ const ChangePassword: React.FC = () => {
     e.preventDefault();
 
     if (!isPasswordValid) {
-      toast.error('Password belum memenuhi syarat.');
+      toast.error(t('Password belum memenuhi syarat.', 'Password does not meet requirements.'));
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Konfirmasi password tidak cocok.');
+      toast.error(t('Konfirmasi password tidak cocok.', 'Password confirmation does not match.'));
       return;
     }
 
     setIsLoading(true);
 
     try {
-      if (!supabase) throw new Error('Supabase tidak tersedia');
+      if (!supabase) throw new Error(t('Supabase tidak tersedia', 'Supabase is not available'));
 
       // 1. Update password di Supabase Auth (user yang sedang login)
       const { error: authError } = await supabase.auth.updateUser({ password });
@@ -72,13 +74,13 @@ const ChangePassword: React.FC = () => {
       }
 
       setIsDone(true);
-      toast.success('Password berhasil diganti!');
+      toast.success(t('Password berhasil diganti!', 'Password changed successfully!'));
 
       // 3. Redirect ke dashboard setelah 2 detik
       setTimeout(() => navigate('/cibc/dashboard'), 2000);
     } catch (err) {
       console.error('[ChangePassword] Error:', err);
-      const msg = err instanceof Error ? err.message : 'Gagal mengganti password.';
+      const msg = err instanceof Error ? err.message : t('Gagal mengganti password.', 'Failed to change password.');
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -106,12 +108,12 @@ const ChangePassword: React.FC = () => {
                 <ShieldCheck className="w-10 h-10 text-amber-600" />
               </div>
               <h1 className="font-display text-2xl font-bold text-[#0F0F0F] text-center mb-2">
-                Buat Password Baru
+                {t('Buat Password Baru', 'Create New Password')}
               </h1>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
                 <p className="text-sm text-amber-800 text-center">
-                  🔐 Anda sedang menggunakan <strong>password sementara</strong> dari admin.<br />
-                  Buat password permanen Anda sebelum melanjutkan.
+                  {t('🔐 Anda sedang menggunakan', '🔐 You are using')} <strong>{t('password sementara', 'temporary password')}</strong> {t('dari admin.', 'from admin.')}<br />
+                  {t('Buat password permanen Anda sebelum melanjutkan.', 'Create your permanent password before continuing.')}
                 </p>
               </div>
 
@@ -119,7 +121,7 @@ const ChangePassword: React.FC = () => {
                 {/* Password Baru */}
                 <div>
                   <label className="block font-body font-semibold text-sm text-[#0F0F0F] mb-2">
-                    Password Baru
+                    {t('Password Baru', 'New Password')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -127,7 +129,7 @@ const ChangePassword: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Buat password baru"
+                      placeholder={t('Buat password baru', 'Create new password')}
                       className="w-full bg-[#F4F6F8] pl-11 pr-12 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -154,7 +156,7 @@ const ChangePassword: React.FC = () => {
                 {/* Konfirmasi Password */}
                 <div>
                   <label className="block font-body font-semibold text-sm text-[#0F0F0F] mb-2">
-                    Konfirmasi Password
+                    {t('Konfirmasi Password', 'Confirm Password')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -162,7 +164,7 @@ const ChangePassword: React.FC = () => {
                       type={showConfirm ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Ulangi password baru"
+                      placeholder={t('Ulangi password baru', 'Repeat new password')}
                       className={`w-full bg-[#F4F6F8] pl-11 pr-12 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm ${
                         confirmPassword && password !== confirmPassword ? 'border-red-300 bg-red-50' : ''
                       }`}
@@ -173,7 +175,7 @@ const ChangePassword: React.FC = () => {
                     </button>
                   </div>
                   {confirmPassword && password !== confirmPassword && (
-                    <p className="mt-1 text-xs text-red-500">Password tidak cocok</p>
+                    <p className="mt-1 text-xs text-red-500">{t('Password tidak cocok', 'Passwords do not match')}</p>
                   )}
                 </div>
 
@@ -183,9 +185,9 @@ const ChangePassword: React.FC = () => {
                   className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 disabled:opacity-50 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
                 >
                   {isLoading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {t('Menyimpan...', 'Saving...')}</>
                   ) : (
-                    <><ShieldCheck className="w-4 h-4" /> Simpan Password Baru</>
+                    <><ShieldCheck className="w-4 h-4" /> {t('Simpan Password Baru', 'Save New Password')}</>
                   )}
                 </button>
               </form>
@@ -196,8 +198,8 @@ const ChangePassword: React.FC = () => {
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
-              <h1 className="font-display text-2xl font-bold text-[#0F0F0F] mb-3">Password Berhasil Diganti!</h1>
-              <p className="text-gray-500 text-sm">Mengalihkan ke dashboard...</p>
+              <h1 className="font-display text-2xl font-bold text-[#0F0F0F] mb-3">{t('Password Berhasil Diganti!', 'Password Changed Successfully!')}</h1>
+              <p className="text-gray-500 text-sm">{t('Mengalihkan ke dashboard...', 'Redirecting to dashboard...')}</p>
               <div className="mt-6 flex justify-center">
                 <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
               </div>

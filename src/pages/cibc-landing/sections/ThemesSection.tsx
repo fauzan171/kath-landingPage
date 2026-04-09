@@ -12,8 +12,6 @@ export const ThemesSection = () => {
     const stickyRef = useRef<HTMLDivElement>(null);
     const cardsWrapperRef = useRef<HTMLDivElement>(null);
 
-    const themeColors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
-
     useEffect(() => {
         const section = sectionRef.current;
         const stickyContent = stickyRef.current;
@@ -42,19 +40,16 @@ export const ThemesSection = () => {
         });
 
         // --- 2. Efek Parallax/Stacking pada Kartu (Sticky Progression) ---
-        // Kita menggunakan ScrollTrigger murni untuk mendeteksi progress
         const cards = gsap.utils.toArray('.theme-card') as HTMLElement[];
         
         cards.forEach((card, i) => {
-            // Kita atur agar kartu sedikit memudar saat kartu berikutnya menutupi
             ScrollTrigger.create({
                 trigger: card,
-                start: 'top 50%', // Ketika bagian atas kartu mencapai tengah layar
-                end: 'bottom 20%', // Ketika bagian bawah kartu mau hilang
+                start: 'top 50%',
+                end: 'bottom 20%',
                 scrub: true,
                 animation: gsap.fromTo(card, 
                     { scale: 1, opacity: 1 }, 
-                    // Jika ini bukan kartu terakhir, buat dia sedikit mengecil dan memudar saat di-scroll lewat
                     { scale: i === cards.length - 1 ? 1 : 0.95, opacity: i === cards.length - 1 ? 1 : 0.4, ease: "none" }
                 )
             });
@@ -73,7 +68,6 @@ export const ThemesSection = () => {
                 <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 relative items-start">
                     
                     {/* BAGIAN KIRI: Sticky Header */}
-                    {/* Menggunakan position sticky CSS standar untuk performa terbaik */}
                     <div ref={stickyRef} className="lg:w-1/3 lg:sticky lg:top-32 self-start flex flex-col pt-4">
                         <span className="theme-header-elem inline-block self-start px-5 py-2 bg-[#FFB22C]/10 border border-[#FFB22C]/20 rounded-full text-[#FFB22C] font-body text-xs uppercase tracking-widest font-bold mb-6">
                             {language === 'id' ? 'Tema & Topik' : 'Themes & Topics'}
@@ -96,12 +90,7 @@ export const ThemesSection = () => {
                                     key={index} 
                                     className="theme-card relative bg-white border border-gray-100 p-8 md:p-10 rounded-[2rem] shadow-xl shadow-black/5 hover:border-gray-200 transition-colors duration-300 transform-gpu"
                                 >
-                                    <div className="flex items-center gap-6 mb-8 border-b border-gray-100 pb-8">
-                                        <div className={`w-16 h-16 shrink-0 rounded-2xl ${themeColors[index % themeColors.length]} flex items-center justify-center`}>
-                                            <span className="text-white font-display text-2xl font-bold">{index + 1}</span>
-                                        </div>
-                                        <h3 className="font-display text-2xl md:text-3xl text-[#0F0F0F] font-bold">{theme.title[language]}</h3>
-                                    </div>
+                                    <h3 className="font-display text-2xl md:text-3xl text-[#0F0F0F] font-bold mb-6">{theme.title[language]}</h3>
                                     
                                     <p className="font-body text-lg text-gray-600 mb-8 leading-relaxed">
                                         {theme.desc[language]}

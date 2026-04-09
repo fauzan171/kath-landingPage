@@ -7,8 +7,10 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Mail, ArrowLeft, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ForgotPassword: React.FC = () => {
+  const { t } = useLanguage();
   useEffect(() => {
     // GSAP Animation
     gsap.fromTo(
@@ -40,27 +42,27 @@ const ForgotPassword: React.FC = () => {
         </div>
 
         <h1 className="font-display text-xl md:text-2xl font-bold text-[#0F0F0F] text-center mb-2">
-          Lupa Password?
+          {t('Lupa Password?', 'Forgot Password?')}
         </h1>
         <p className="font-body text-xs text-gray-500 text-center mb-5 leading-relaxed">
-          Silakan hubungi admin untuk reset password akun Anda.
+          {t('Silakan hubungi admin untuk reset password akun Anda.', 'Please contact admin to reset your account password.')}
         </p>
 
         {/* Info Steps - Dibuat lebih compact */}
         <div className="bg-[#F9F8F6] rounded-xl p-4 mb-5 border border-gray-50">
-          <h3 className="font-body text-[13px] font-bold text-[#0F0F0F] mb-3">Cara Reset Password:</h3>
+          <h3 className="font-body text-[13px] font-bold text-[#0F0F0F] mb-3">{t('Cara Reset Password:', 'How to Reset Password:')}</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Hubungi admin via Email atau WA</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Hubungi admin via Email atau WA', 'Contact admin via Email or WhatsApp')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Admin akan memverifikasi akun Anda</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Admin akan memverifikasi akun Anda', 'Admin will verify your account')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-5 h-5 rounded-full bg-[#FFB22C] text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</div>
-              <p className="font-body text-xs text-gray-600 mt-0.5">Menerima password baru (Max 1x24 jam)</p>
+              <p className="font-body text-xs text-gray-600 mt-0.5">{t('Menerima password baru (Max 1x24 jam)', 'Receive new password (Max 1x24 hours)')}</p>
             </div>
           </div>
         </div>
@@ -74,7 +76,7 @@ const ForgotPassword: React.FC = () => {
           >
             <Mail className="w-4 h-4 text-[#FFB22C] flex-shrink-0" />
             <div className="overflow-hidden">
-              <p className="text-[10px] text-gray-500">Email Admin</p>
+              <p className="text-[10px] text-gray-500">{t('Email Admin', 'Admin Email')}</p>
               <p className="text-[11px] font-bold text-[#0F0F0F] truncate">cibc@kathevent</p>
             </div>
           </a>
@@ -87,7 +89,7 @@ const ForgotPassword: React.FC = () => {
               className="w-4 h-4 object-contain flex-shrink-0"
             />
             <div className="overflow-hidden">
-              <p className="text-[10px] text-gray-500">WA Admin</p>
+              <p className="text-[10px] text-gray-500">{t('WA Admin', 'Admin WhatsApp')}</p>
               <p className="text-[10px] sm:text-[11px] font-bold text-[#0F0F0F] truncate">+62 812-3456-7890</p>
             </div>
           </div>
@@ -97,7 +99,7 @@ const ForgotPassword: React.FC = () => {
         <div className="flex items-center justify-center gap-1.5 mb-6">
           <Clock className="w-3.5 h-3.5 text-red-500" />
           <p className="font-body text-[10px] text-red-600 font-bold">
-            Admin akan merespon dalam waktu 1x24 jam kerja
+            {t('Admin akan merespon dalam waktu 1x24 jam kerja', 'Admin will respond within 1x24 business hours')}
           </p>
         </div>
 
@@ -108,14 +110,14 @@ const ForgotPassword: React.FC = () => {
             className="w-full py-3 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-sm mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Login
+            {t('Kembali ke Login', 'Back to Login')}
           </Link>
 
           {/* Tulisan Ingat Password ada di bawah button */}
           <p className="text-center text-xs text-gray-500 font-body">
-            Ingat password?{' '}
+            {t('Ingat password?', 'Remember your password?')}{' '}
             <Link to="/cibc/login" className="text-[#FFB22C] hover:underline font-bold">
-              Masuk
+              {t('Masuk', 'Sign In')}
             </Link>
           </p>
         </div>

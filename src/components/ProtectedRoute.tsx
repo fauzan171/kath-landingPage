@@ -9,6 +9,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Allowed roles as defined in database schema
 type UserRole = 'participant' | 'admin' | 'super_admin' | 'finance_admin' | 'judge';
@@ -52,6 +53,7 @@ const ProtectedRoute = ({
   requireApproved = true,
   redirectTo = '/login',
 }: ProtectedRouteProps) => {
+  const { t } = useLanguage();
   const location = useLocation();
   const [authState, setAuthState] = useState<UserAuthState>({
     isLoading: true,
@@ -101,7 +103,7 @@ const ProtectedRoute = ({
           isLoading: false,
           isAuthenticated: false,
           user: null,
-          error: 'Account not properly configured. Please contact support.',
+          error: t('Akun belum dikonfigurasi dengan benar. Silakan hubungi dukungan.', 'Account not properly configured. Please contact support.'),
         });
         return;
       }
@@ -123,7 +125,7 @@ const ProtectedRoute = ({
         isLoading: false,
         isAuthenticated: false,
         user: null,
-        error: 'Failed to verify authentication',
+        error: t('Gagal memverifikasi autentikasi', 'Failed to verify authentication'),
       });
     }
   }, []);
@@ -138,7 +140,7 @@ const ProtectedRoute = ({
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-amber-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 font-medium">Verifying access...</p>
+          <p className="text-gray-600 font-medium">{t('Memverifikasi akses...', 'Verifying access...')}</p>
         </div>
       </div>
     );

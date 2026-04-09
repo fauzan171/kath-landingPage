@@ -17,8 +17,10 @@ import { Label } from '@/components/ui/label';
 import { supabaseAuthService } from '@/services/supabase.service';
 import { isSupabaseConfigured } from '@/config/environment';
 import { useCSRFToken } from '@/components/CSRFProtectedForm';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CIBCLogin: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,15 +120,15 @@ const CIBCLogin: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('Email wajib diisi', 'Email is required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = t('Masukkan email yang valid', 'Please enter a valid email');
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('Password wajib diisi', 'Password is required');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('Password minimal 6 karakter', 'Password must be at least 6 characters');
     }
 
     setErrors(newErrors);
@@ -140,7 +142,7 @@ const CIBCLogin: React.FC = () => {
     const formElement = e.target as HTMLFormElement;
     const submittedToken = new FormData(formElement).get('csrfToken') as string;
     if (!validateCSRF(submittedToken)) {
-      toast.error('Security validation failed. Please try again.');
+      toast.error(t('Validasi keamanan gagal. Silakan coba lagi.', 'Security validation failed. Please try again.'));
       setIsLoading(false);
       return;
     }
@@ -153,7 +155,7 @@ const CIBCLogin: React.FC = () => {
     try {
       // Supabase Auth only - no mock data
       if (!isSupabaseConfigured()) {
-        toast.error('Supabase is not configured. Please check your .env file.');
+        toast.error(t('Supabase belum dikonfigurasi. Silakan cek file .env Anda.', 'Supabase is not configured. Please check your .env file.'));
         setIsLoading(false);
         return;
       }
@@ -199,8 +201,8 @@ const CIBCLogin: React.FC = () => {
                   role: 'participant',
                 });
 
-              toast.warning('Account Pending Approval', {
-                description: 'Your account is waiting for admin approval. Please check your email for confirmation.',
+              toast.warning(t('Akun Menunggu Persetujuan', 'Account Pending Approval'), {
+                description: t('Akun Anda sedang menunggu persetujuan admin. Silakan cek email untuk konfirmasi.', 'Your account is waiting for admin approval. Please check your email for confirmation.'),
               });
               await supabaseAuthService.signOut();
               navigate('/cibc/pending-approval');
@@ -211,8 +213,8 @@ const CIBCLogin: React.FC = () => {
             const userStatus = userData.status || 'pending';
             if (userStatus === 'rejected') {
               await supabaseAuthService.signOut();
-              toast.error('Account Rejected', {
-                description: userData?.rejection_reason || 'Registrasi Anda tidak disetujui. Hubungi panitia.',
+              toast.error(t('Akun Ditolak', 'Account Rejected'), {
+                description: userData?.rejection_reason || t('Registrasi Anda tidak disetujui. Hubungi panitia.', 'Your registration was not approved. Please contact the committee.'),
               });
               return;
             }
@@ -237,8 +239,8 @@ const CIBCLogin: React.FC = () => {
               if (teamPaymentStatus === 'pending' || (!teamPaymentStatus && teamStatus !== 'verified')) {
                 // Payment not yet verified — user must wait
                 await supabaseAuthService.signOut();
-                toast.warning('Pembayaran Belum Diverifikasi', {
-                  description: 'Bukti pembayaran Anda sedang diverifikasi oleh panitia. Silakan coba lagi nanti.',
+                toast.warning(t('Pembayaran Belum Diverifikasi', 'Payment Pending Verification'), {
+                  description: t('Bukti pembayaran Anda sedang diverifikasi oleh panitia. Silakan coba lagi nanti.', 'Your payment proof is being verified by the committee. Please try again later.'),
                 });
                 navigate('/cibc/pending-approval');
                 return;
@@ -246,8 +248,8 @@ const CIBCLogin: React.FC = () => {
 
               if (teamPaymentStatus === 'rejected') {
                 await supabaseAuthService.signOut();
-                toast.error('Pembayaran Ditolak', {
-                  description: 'Bukti pembayaran Anda ditolak. Silakan upload ulang bukti pembayaran yang valid.',
+                toast.error(t('Pembayaran Ditolak', 'Payment Rejected'), {
+                  description: t('Bukti pembayaran Anda ditolak. Silakan upload ulang bukti pembayaran yang valid.', 'Your payment proof was rejected. Please upload a valid payment proof.'),
                 });
                 return;
               }
@@ -263,8 +265,8 @@ const CIBCLogin: React.FC = () => {
               // No team yet — check user status
               if (userStatus === 'pending') {
                 await supabaseAuthService.signOut();
-                toast.warning('Account Pending Approval', {
-                  description: 'Akun Anda sedang menunggu persetujuan admin.',
+                toast.warning(t('Akun Menunggu Persetujuan', 'Account Pending Approval'), {
+                  description: t('Akun Anda sedang menunggu persetujuan admin.', 'Your account is waiting for admin approval.'),
                 });
                 navigate('/cibc/pending-approval');
                 return;
@@ -273,16 +275,16 @@ const CIBCLogin: React.FC = () => {
 
             // ✅ Cek force_password_change — user pakai password sementara dari admin
             if (userData?.force_password_change === true) {
-              toast.warning('Ganti Password', {
-                description: 'Anda login dengan password sementara. Harap buat password permanen Anda.',
+              toast.warning(t('Ganti Password', 'Change Password'), {
+                description: t('Anda login dengan password sementara. Harap buat password permanen Anda.', 'You logged in with a temporary password. Please create your permanent password.'),
               });
               navigate('/cibc/change-password');
               return;
             }
           }
 
-          toast.success('Welcome back!', {
-            description: 'Login successful. Redirecting to dashboard...',
+          toast.success(t('Selamat datang kembali!', 'Welcome back!'), {
+            description: t('Login berhasil. Mengalihkan ke dashboard...', 'Login successful. Redirecting to dashboard...'),
           });
 
           // Redirect based on role from Supabase query
@@ -295,9 +297,9 @@ const CIBCLogin: React.FC = () => {
       }
     } catch (error: unknown) {
       console.error('Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : t('Email atau password salah. Silakan coba lagi.', 'Invalid email or password. Please try again.');
       setAlertError(errorMessage);
-      toast.error('Login failed', {
+      toast.error(t('Login gagal', 'Login failed'), {
         description: errorMessage,
       });
     } finally {
@@ -306,9 +308,9 @@ const CIBCLogin: React.FC = () => {
   };
 
   const stats = [
-    { icon: Trophy, value: '500+', label: 'Teams Registered' },
-    { icon: Users, value: '2,000+', label: 'Participants' },
-    { icon: Shield, value: '$100K+', label: 'Total Prizes' },
+    { icon: Trophy, value: '500+', label: t('Tim Terdaftar', 'Teams Registered') },
+    { icon: Users, value: '2,000+', label: t('Peserta', 'Participants') },
+    { icon: Shield, value: '$100K+', label: t('Total Hadiah', 'Total Prizes') },
   ];
 
   return (
@@ -338,11 +340,11 @@ const CIBCLogin: React.FC = () => {
           </Link>
 
           <h2 className="text-4xl font-bold text-[#0F0F0F] mb-4 font-display leading-tight">
-            Innovate for a<br />
-            <span className="text-[#FFB22C]">Sustainable Future</span>
+            {t('Berinovasi untuk', 'Innovate for a')}<br />
+            <span className="text-[#FFB22C]">{t('Masa Depan Berkelanjutan', 'Sustainable Future')}</span>
           </h2>
           <p className="text-gray-500 text-lg mb-12 max-w-md">
-            Join thousands of innovators competing to solve real-world sustainability challenges.
+            {t('Bergabunglah dengan ribuan inovator yang berkompetisi memecahkan tantangan keberlanjutan dunia nyata.', 'Join thousands of innovators competing to solve real-world sustainability challenges.')}
           </p>
 
           <div className="space-y-4">
@@ -384,8 +386,8 @@ const CIBCLogin: React.FC = () => {
           </div>
 
           <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0F0F0F] mb-3 font-display">Welcome Back</h2>
-            <p className="text-gray-500 font-medium text-sm sm:text-base">Sign in to access your competition dashboard</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0F0F0F] mb-3 font-display">{t('Selamat Datang', 'Welcome Back')}</h2>
+            <p className="text-gray-500 font-medium text-sm sm:text-base">{t('Masuk untuk mengakses dashboard kompetisi Anda', 'Sign in to access your competition dashboard')}</p>
           </div>
 
           {/* Error Alert */}
@@ -397,7 +399,7 @@ const CIBCLogin: React.FC = () => {
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-red-800">Login Failed</p>
+                <p className="text-sm font-semibold text-red-800">{t('Login Gagal', 'Login Failed')}</p>
                 <p className="text-xs text-red-600 mt-0.5">{alertError}</p>
               </div>
               <button onClick={() => setAlertError(null)} className="text-red-400 hover:text-red-600 flex-shrink-0">
@@ -412,7 +414,7 @@ const CIBCLogin: React.FC = () => {
             <input type="hidden" name="csrfToken" value={csrfToken} />
             <div>
               <Label htmlFor="email" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                Email Address
+                {t('Alamat Email', 'Email Address')}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -430,7 +432,7 @@ const CIBCLogin: React.FC = () => {
 
             <div>
               <Label htmlFor="password" className="block font-semibold text-sm text-[#0F0F0F] mb-2">
-                Password
+                {t('Password', 'Password')}
               </Label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -463,11 +465,11 @@ const CIBCLogin: React.FC = () => {
                   className="w-4 h-4 rounded border-gray-300 text-[#FFB22C] focus:ring-[#FFB22C] cursor-pointer"
                 />
                 <Label htmlFor="remember" className="text-gray-500 text-sm cursor-pointer font-medium select-none">
-                  Remember me
+                  {t('Ingat saya', 'Remember me')}
                 </Label>
               </div>
               <Link to="/cibc/forgot-password" className="text-[#FFB22C] text-sm font-bold hover:text-[#FFB22C]/80 transition-colors">
-                Forgot password?
+                {t('Lupa password?', 'Forgot password?')}
               </Link>
             </div>
 
@@ -479,11 +481,11 @@ const CIBCLogin: React.FC = () => {
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-[#0F0F0F]/30 border-t-[#0F0F0F] rounded-full animate-spin" />
-                  Signing in...
+                  {t('Sedang masuk...', 'Signing in...')}
                 </>
               ) : (
                 <>
-                  Sign In
+                  {t('Masuk', 'Sign In')}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -495,7 +497,7 @@ const CIBCLogin: React.FC = () => {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-400 font-medium">New to CIBC?</span>
+              <span className="px-4 bg-white text-gray-400 font-medium">{t('Baru di CIBC?', 'New to CIBC?')}</span>
             </div>
           </div>
 
@@ -503,14 +505,14 @@ const CIBCLogin: React.FC = () => {
             to="/cibc/register"
             className="flex items-center justify-center w-full py-3.5 px-4 border-2 border-[#F4F6F8] text-[#0F0F0F] font-bold text-sm rounded-xl hover:border-[#FFB22C] hover:bg-[#FFB22C]/5 transition-all"
           >
-            Create Your Team Account
+            {t('Buat Akun Tim Anda', 'Create Your Team Account')}
           </Link>
 
           <Link
             to="/cibc"
             className="block w-full text-center mt-6 text-gray-400 hover:text-[#0F0F0F] transition-colors text-sm font-medium"
           >
-            ← Back to Competition Info
+            {t('← Kembali ke Info Kompetisi', '← Back to Competition Info')}
           </Link>
         </div>
       </div>

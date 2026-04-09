@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import { Users, GraduationCap, Briefcase, Loader2 } from 'lucide-react';
 import { cibcContentService } from '@/services/cibc.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Category {
   name: string;
@@ -13,6 +14,7 @@ interface Category {
 }
 
 const CompetitionCategories = () => {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,13 +37,13 @@ const CompetitionCategories = () => {
 
   const defaultCategories: Category[] = [
     {
-      name: 'Student Category',
-      description: 'Open to all undergraduate students with valid student ID',
+      name: t('Kategori Mahasiswa', 'Student Category'),
+      description: t('Terbuka untuk semua mahasiswa S1 dengan kartu mahasiswa yang valid', 'Open to all undergraduate students with valid student ID'),
       icon: 'graduation'
     },
     {
-      name: 'Open Category',
-      description: 'Open to professionals, graduates, and general public',
+      name: t('Kategori Umum', 'Open Category'),
+      description: t('Terbuka untuk profesional, lulusan, dan masyarakat umum', 'Open to professionals, graduates, and general public'),
       icon: 'briefcase'
     }
   ];
@@ -69,10 +71,10 @@ const CompetitionCategories = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
-            Competition Categories
+            {t('Kategori Kompetisi', 'Competition Categories')}
           </h2>
           <p className="text-cibc-textSecondary max-w-2xl mx-auto">
-            Choose the category that fits your profile
+            {t('Pilih kategori yang sesuai dengan profil Anda', 'Choose the category that fits your profile')}
           </p>
         </div>
 

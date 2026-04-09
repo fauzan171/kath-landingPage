@@ -10,8 +10,10 @@ import { Mail, CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react
 import { gsap } from 'gsap';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const VerifyEmail: React.FC = () => {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'resent'>('loading');
@@ -22,7 +24,7 @@ const VerifyEmail: React.FC = () => {
   const verifyEmail = useCallback(async (token: string) => {
     if (!isSupabaseConfigured() || !supabase) {
       setStatus('error');
-      setMessage('Email verification is not available at this time.');
+      setMessage(t('Verifikasi email tidak tersedia saat ini.', 'Email verification is not available at this time.'));
       return;
     }
 
@@ -37,7 +39,7 @@ const VerifyEmail: React.FC = () => {
         setMessage(error.message);
       } else {
         setStatus('success');
-        setMessage('Your email has been verified successfully!');
+        setMessage(t('Email Anda telah berhasil diverifikasi!', 'Your email has been verified successfully!'));
         // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate('/cibc/login');
@@ -45,7 +47,7 @@ const VerifyEmail: React.FC = () => {
       }
     } catch (_err) {
       setStatus('error');
-      setMessage('An unexpected error occurred during verification.');
+      setMessage(t('Terjadi kesalahan tak terduga saat verifikasi.', 'An unexpected error occurred during verification.'));
     }
   }, [navigate]);
 
@@ -68,7 +70,7 @@ const VerifyEmail: React.FC = () => {
     } else if (!email) {
       // No email and no token - show instructions
       setStatus('error');
-      setMessage('No email address provided. Please check your verification email.');
+      setMessage(t('Tidak ada alamat email yang diberikan. Silakan periksa email verifikasi Anda.', 'No email address provided. Please check your verification email.'));
     } else {
       // Just show the "check your email" message
       setStatus('loading');
@@ -77,7 +79,7 @@ const VerifyEmail: React.FC = () => {
 
   const handleResendEmail = async () => {
     if (!email || !isSupabaseConfigured() || !supabase) {
-      setMessage('Please provide your email address.');
+      setMessage(t('Harap berikan alamat email Anda.', 'Please provide your email address.'));
       return;
     }
 
@@ -91,10 +93,10 @@ const VerifyEmail: React.FC = () => {
         setMessage(error.message);
       } else {
         setStatus('resent');
-        setMessage('Verification email has been resent!');
+        setMessage(t('Email verifikasi telah dikirim ulang!', 'Verification email has been resent!'));
       }
     } catch (_err) {
-      setMessage('Failed to resend verification email.');
+      setMessage(t('Gagal mengirim ulang email verifikasi.', 'Failed to resend verification email.'));
     }
   };
 
@@ -111,16 +113,16 @@ const VerifyEmail: React.FC = () => {
               )}
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Check Your Email
+              {t('Periksa Email Anda', 'Check Your Email')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
-              We've sent a verification link to:
+              {t("Kami telah mengirim tautan verifikasi ke:", "We've sent a verification link to:")}
             </p>
             <p className="font-body font-semibold text-[#0F0F0F] text-center mb-6 bg-gray-100 py-2 px-4 rounded-lg">
               {email || 'your@email.com'}
             </p>
             <p className="font-body text-gray-500 text-center text-sm mb-8">
-              Click the link in the email to verify your account. The link will expire in 24 hours.
+              {t('Klik tautan dalam email untuk memverifikasi akun Anda. Tautan akan kedaluwarsa dalam 24 jam.', 'Click the link in the email to verify your account. The link will expire in 24 hours.')}
             </p>
           </>
         );
@@ -132,13 +134,13 @@ const VerifyEmail: React.FC = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Email Verified!
+              {t('Email Terverifikasi!', 'Email Verified!')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
               {message}
             </p>
             <p className="font-body text-gray-500 text-center text-sm">
-              Redirecting to login...
+              {t('Mengalihkan ke halaman login...', 'Redirecting to login...')}
             </p>
           </>
         );
@@ -150,7 +152,7 @@ const VerifyEmail: React.FC = () => {
               <AlertCircle className="w-10 h-10 text-red-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Verification Failed
+              {t('Verifikasi Gagal', 'Verification Failed')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
               {message}
@@ -165,7 +167,7 @@ const VerifyEmail: React.FC = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold text-[#0F0F0F] text-center mb-4">
-              Email Resent!
+              {t('Email Dikirim Ulang!', 'Email Resent!')}
             </h1>
             <p className="font-body text-gray-600 text-center mb-6">
               {message}
@@ -188,7 +190,7 @@ const VerifyEmail: React.FC = () => {
         <div className="text-center mb-8">
           <img
             src="/CIBC-logo-white.png"
-            alt="CIBC Power Logo"
+            alt={t('Logo CIBC Power', 'CIBC Power Logo')}
             className="h-12 mx-auto object-contain"
             style={{ filter: 'brightness(0)', opacity: 0.9 }}
           />
@@ -205,7 +207,7 @@ const VerifyEmail: React.FC = () => {
               className="w-full py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-body font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Login
+              {t('Kembali ke Login', 'Back to Login')}
             </Link>
 
             {email && status !== 'success' && (
@@ -214,7 +216,7 @@ const VerifyEmail: React.FC = () => {
                 className="w-full py-3.5 border-2 border-gray-200 hover:border-[#FFB22C] text-gray-700 font-body font-medium rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Mail className="w-4 h-4" />
-                Resend Verification Email
+                {t('Kirim Ulang Email Verifikasi', 'Resend Verification Email')}
               </button>
             )}
           </div>
@@ -222,9 +224,9 @@ const VerifyEmail: React.FC = () => {
 
         {/* Footer */}
         <p className="text-center mt-6 text-gray-500 text-sm font-body">
-          Need help?{' '}
+          {t('Butuh bantuan?', 'Need help?')}{' '}
           <a href="mailto:cibc@kathevent.com" className="text-[#FFB22C] hover:underline font-medium">
-            Contact Support
+            {t('Hubungi Dukungan', 'Contact Support')}
           </a>
         </p>
       </div>

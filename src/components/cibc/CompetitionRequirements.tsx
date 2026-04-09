@@ -5,8 +5,10 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { cibcContentService } from '@/services/cibc.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CompetitionRequirements = () => {
+  const { t } = useLanguage();
   const [requirements, setRequirements] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,11 +30,11 @@ const CompetitionRequirements = () => {
   };
 
   const defaultRequirements = [
-    'Team of 3-5 members',
-    'Valid student ID (for student category)',
-    'Registration fee: $50/team',
-    'Original work only - no plagiarism',
-    'Submit before deadline'
+    t('Tim terdiri dari 3-5 anggota', 'Team of 3-5 members'),
+    t('Kartu mahasiswa yang valid (untuk kategori mahasiswa)', 'Valid student ID (for student category)'),
+    t('Biaya pendaftaran: $50/tim', 'Registration fee: $50/team'),
+    t('Karya asli saja - dilarang plagiarisme', 'Original work only - no plagiarism'),
+    t('Kumpulkan sebelum tenggat waktu', 'Submit before deadline')
   ];
 
   const displayRequirements = requirements.length > 0 ? requirements : defaultRequirements;
@@ -50,10 +52,10 @@ const CompetitionRequirements = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
-            Requirements
+            {t('Persyaratan', 'Requirements')}
           </h2>
           <p className="text-cibc-textSecondary max-w-2xl mx-auto">
-            Make sure your team meets all requirements before registering
+            {t('Pastikan tim Anda memenuhi semua persyaratan sebelum mendaftar', 'Make sure your team meets all requirements before registering')}
           </p>
         </div>
 

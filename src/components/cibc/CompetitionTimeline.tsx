@@ -7,12 +7,14 @@ import { useEffect, useState } from 'react';
 import { Clock, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 import { stagesService, type Stage } from '@/services/cibc.service';
 import { competitionService } from '@/services/cibc.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TimelineProps {
   competitionId?: string;
 }
 
 const CompetitionTimeline = ({ competitionId }: TimelineProps) => {
+  const { t } = useLanguage();
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,10 +79,10 @@ const CompetitionTimeline = ({ competitionId }: TimelineProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
-            Competition Timeline
+            {t('Linimasa Kompetisi', 'Competition Timeline')}
           </h2>
           <p className="text-cibc-textSecondary max-w-2xl mx-auto">
-            Follow the journey from registration to the grand final
+            {t('Ikuti perjalanan dari pendaftaran hingga babak final', 'Follow the journey from registration to the grand final')}
           </p>
         </div>
 
@@ -126,7 +128,7 @@ const CompetitionTimeline = ({ competitionId }: TimelineProps) => {
                         </h3>
                         {status === 'active' && (
                           <span className="px-2 py-0.5 bg-cibc-primary text-cibc-textDark text-xs font-medium rounded-full">
-                            Current
+                            {t('Saat Ini', 'Current')}
                           </span>
                         )}
                       </div>

@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { Trophy, DollarSign, Award, Loader2 } from 'lucide-react';
 import { cibcContentService } from '@/services/cibc.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Prize {
   rank: string;
@@ -14,6 +15,7 @@ interface Prize {
 }
 
 const CompetitionPrizes = () => {
+  const { t } = useLanguage();
   const [prizes, setPrizes] = useState<Prize[]>([]);
   const [totalPrize, setTotalPrize] = useState('');
   const [loading, setLoading] = useState(true);
@@ -38,9 +40,9 @@ const CompetitionPrizes = () => {
 
   // Default prizes if not loaded
   const defaultPrizes: Prize[] = [
-    { rank: '1st Place', prize: '$5,000', description: 'Grand Champion' },
-    { rank: '2nd Place', prize: '$3,000', description: 'First Runner Up' },
-    { rank: '3rd Place', prize: '$2,000', description: 'Second Runner Up' },
+    { rank: t('Juara 1', '1st Place'), prize: '$5,000', description: t('Juara Utama', 'Grand Champion') },
+    { rank: t('Juara 2', '2nd Place'), prize: '$3,000', description: t('Juara Harapan 1', 'First Runner Up') },
+    { rank: t('Juara 3', '3rd Place'), prize: '$2,000', description: t('Juara Harapan 2', 'Second Runner Up') },
   ];
 
   const displayPrizes = prizes.length > 0 ? prizes : defaultPrizes;
@@ -59,10 +61,10 @@ const CompetitionPrizes = () => {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cibc-primary/10 rounded-full mb-4">
             <Trophy className="w-5 h-5 text-cibc-primary" />
-            <span className="text-cibc-primary font-medium">Prizes</span>
+            <span className="text-cibc-primary font-medium">{t('Hadiah', 'Prizes')}</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
-            Win Amazing Prizes
+            {t('Menangkan Hadiah Menarik', 'Win Amazing Prizes')}
           </h2>
           <div className="flex items-center justify-center gap-2">
             <DollarSign className="w-6 h-6 text-cibc-primary" />
@@ -71,7 +73,7 @@ const CompetitionPrizes = () => {
             </span>
           </div>
           <p className="text-cibc-textSecondary mt-4 max-w-2xl mx-auto">
-            Compete for the grand prize and showcase your innovative business solutions
+            {t('Bersainglah untuk hadiah utama dan tunjukkan solusi bisnis inovatif Anda', 'Compete for the grand prize and showcase your innovative business solutions')}
           </p>
         </div>
 
@@ -91,7 +93,7 @@ const CompetitionPrizes = () => {
                 {index === 0 && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <div className="bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-bold">
-                      GRAND PRIZE
+                      {t('HADIAH UTAMA', 'GRAND PRIZE')}
                     </div>
                   </div>
                 )}
