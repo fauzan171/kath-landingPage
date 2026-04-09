@@ -6,26 +6,63 @@
  */
 
 export const WIB_TIMEZONE = 'Asia/Jakarta';
+export const WIB_OFFSET_MS = 7 * 60 * 60 * 1000; // UTC+7 in milliseconds
 
 /**
- * Get the current time in WIB as a Date object.
- * Works regardless of the user's local timezone.
+ * Get the current time as a "WIB-equivalent" Date object.
+ * Returns a Date whose getHours/getMinutes/etc. return WIB time values,
+ * regardless of the user's local timezone.
+ *
+ * Uses the Intl API's timezone-aware formatter to extract WIB components,
+ * then constructs a clean Date from those components.
  */
 export function nowWIB(): Date {
-  // Create a date string in WIB timezone, then parse it back to a Date
   const now = new Date();
-  const wibStr = now.toLocaleString('en-US', { timeZone: WIB_TIMEZONE });
-  return new Date(wibStr);
+  const parts = getWIBParts(now);
+  return new Date(parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second);
 }
 
 /**
- * Convert a UTC/ISO date string to a WIB Date object for comparison.
- * This ensures we compare "apples to apples" when calculating countdowns.
+ * Convert a UTC/ISO date string to a "WIB-equivalent" Date object.
+ * Returns a Date whose getHours/getMinutes/etc. return WIB time values,
+ * so it can be directly compared with nowWIB() for countdown calculations.
  */
 export function toWIB(dateStr: string): Date {
   const date = new Date(dateStr);
-  const wibStr = date.toLocaleString('en-US', { timeZone: WIB_TIMEZONE });
-  return new Date(wibStr);
+  const parts = getWIBParts(date);
+  return new Date(parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second);
+}
+
+/**
+ * Extract WIB date/time components from a Date using Intl.DateTimeFormat.
+ * This is the most reliable cross-browser way to get timezone-specific values.
+ */
+function getWIBParts(date: Date): { year: number; month: number; day: number; hour: number; minute: number; second: number } {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: WIB_TIMEZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const get = (type: string) => {
+    const p = parts.find(p => p.type === type);
+    return p ? parseInt(p.value, 10) : 0;
+  };
+
+  return {
+    year: get('year'),
+    month: get('month') - 1, // JS months are 0-indexed
+    day: get('day'),
+    hour: get('hour') === 24 ? 0 : get('hour'), // midnight can be 24 in some locales
+    minute: get('minute'),
+    second: get('second'),
+  };
 }
 
 /**

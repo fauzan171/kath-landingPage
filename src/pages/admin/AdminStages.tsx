@@ -10,6 +10,132 @@ import { stagesService, tasksService, competitionService, type Stage, type Task 
 import type { LegacyRubricCriterion } from '@/lib/supabase';
 import { createWIBISOString, nowWIB, toWIB } from '@/utils/timezone';
 
+/** Real-time countdown display component */
+const AdminCountdown = ({ stages, onEditStage, onToggleActive, onToggleVisible }: {
+  stages: Stage[];
+  onEditStage: (stage: Partial<Stage>) => void;
+  onToggleActive: (stage: Stage) => void;
+  onToggleVisible: (stage: Stage) => void;
+}) => {
+  const [now, setNow] = useState(nowWIB());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(nowWIB()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activeStage = stages.find(s => s.is_active);
+  const countdownDeadline = activeStage?.end_date;
+  const diff = countdownDeadline ? toWIB(countdownDeadline).getTime() - now.getTime() : null;
+  const isExpired = diff !== null && diff <= 0;
+  const days = diff && diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0;
+  const hours = diff && diff > 0 ? Math.floor((diff / (1000 * 60 * 60)) % 24) : 0;
+  const minutes = diff && diff > 0 ? Math.floor((diff / 1000 / 60) % 60) : 0;
+  const seconds = diff && diff > 0 ? Math.floor((diff / 1000) % 60) : 0;
+
+  return (
+    <div className={`rounded-xl border-2 overflow-hidden ${activeStage ? (isExpired ? 'border-red-300 bg-red-50' : 'border-green-300 bg-green-50') : 'border-gray-200 bg-gray-50'}`}>
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStage ? (isExpired ? 'bg-red-500' : 'bg-green-500') : 'bg-gray-400'}`}>
+              <Timer className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-800">Landing Page Countdown</h3>
+              <p className="text-xs text-gray-500">Timer yang tampil di landing page (real-time WIB)</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {activeStage && (
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${isExpired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                {isExpired ? 'EXPIRED' : 'ACTIVE'}
+              </span>
+            )}
+            <button
+              onClick={() => onEditStage(activeStage || { name: 'Registration', order_index: 0, is_active: true, is_visible: true })}
+              className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors"
+            >
+              <Edit2 className="w-3.5 h-3.5 inline mr-1" />
+              {activeStage ? 'Edit Deadline' : 'Set Deadline'}
+            </button>
+          </div>
+        </div>
+
+        {activeStage ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">Stage Aktif</p>
+              <p className="font-bold text-gray-800 text-lg">{activeStage.name}</p>
+              <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                <Play className="w-3 h-3" />
+                <span>{activeStage.start_date ? new Date(activeStage.start_date).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
+                <span>-</span>
+                <Pause className="w-3 h-3" />
+                <span>{activeStage.end_date ? new Date(activeStage.end_date).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">Sisa Waktu di Landing Page</p>
+              {isExpired ? (
+                <div className="text-red-600 font-bold text-lg">Deadline sudah lewat!</div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-800">{days}</div>
+                    <div className="text-[10px] text-gray-400 uppercase">Days</div>
+                  </div>
+                  <span className="text-gray-300 text-xl">:</span>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-800">{hours}</div>
+                    <div className="text-[10px] text-gray-400 uppercase">Hours</div>
+                  </div>
+                  <span className="text-gray-300 text-xl">:</span>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-800">{minutes}</div>
+                    <div className="text-[10px] text-gray-400 uppercase">Mins</div>
+                  </div>
+                  <span className="text-gray-300 text-xl">:</span>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-800">{seconds}</div>
+                    <div className="text-[10px] text-gray-400 uppercase">Secs</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">Quick Actions</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => onToggleActive(activeStage)}
+                  className="w-full text-left px-3 py-2 bg-yellow-50 text-yellow-700 rounded-lg text-sm hover:bg-yellow-100 transition-colors"
+                >
+                  {activeStage.is_active ? '⏸ Deactivate Stage' : '▶ Activate Stage'}
+                </button>
+                <button
+                  onClick={() => onToggleVisible(activeStage)}
+                  className="w-full text-left px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm hover:bg-blue-100 transition-colors flex items-center gap-2"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  {activeStage.is_visible ? 'Hide from Participants' : 'Show to Participants'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl p-6 border border-gray-100 text-center">
+            <Timer className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 text-sm">Tidak ada stage aktif. Landing page menampilkan countdown fallback (30 hari dari sekarang).</p>
+            <p className="text-gray-400 text-xs mt-1">Aktifkan salah satu stage di bawah, atau buat stage baru dengan <strong>is_active</strong> dicentang.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Use the legacy rubric criterion type (matches admin UI format)
 type RubricCriterion = LegacyRubricCriterion;
 
@@ -228,121 +354,12 @@ const AdminStages = () => {
       </div>
 
       {/* Countdown Control Panel */}
-      {(() => {
-        const activeStage = stages.find(s => s.is_active);
-        const countdownDeadline = activeStage?.end_date;
-        const now = nowWIB();
-        const diff = countdownDeadline ? toWIB(countdownDeadline).getTime() - now.getTime() : null;
-        const isExpired = diff !== null && diff <= 0;
-        const days = diff && diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0;
-        const hours = diff && diff > 0 ? Math.floor((diff / (1000 * 60 * 60)) % 24) : 0;
-        const minutes = diff && diff > 0 ? Math.floor((diff / 1000 / 60) % 60) : 0;
-
-        return (
-          <div className={`rounded-xl border-2 overflow-hidden ${activeStage ? (isExpired ? 'border-red-300 bg-red-50' : 'border-green-300 bg-green-50') : 'border-gray-200 bg-gray-50'}`}>
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStage ? (isExpired ? 'bg-red-500' : 'bg-green-500') : 'bg-gray-400'}`}>
-                    <Timer className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800">Landing Page Countdown</h3>
-                    <p className="text-xs text-gray-500">Timer "Registration closes in" yang tampil di landing page</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {activeStage && (
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${isExpired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                      {isExpired ? 'EXPIRED' : 'ACTIVE'}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => setEditingStage(activeStage || {
-                      name: 'Registration',
-                      order_index: 0,
-                      is_active: true,
-                      is_visible: true
-                    })}
-                    className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors"
-                  >
-                    <Edit2 className="w-3.5 h-3.5 inline mr-1" />
-                    {activeStage ? 'Edit Deadline' : 'Set Deadline'}
-                  </button>
-                </div>
-              </div>
-
-              {activeStage ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Active Stage Info */}
-                  <div className="bg-white rounded-xl p-4 border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">Stage Aktif</p>
-                    <p className="font-bold text-gray-800 text-lg">{activeStage.name}</p>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                      <Play className="w-3 h-3" />
-                      <span>{formatDate(activeStage.start_date)}</span>
-                      <span>-</span>
-                      <Pause className="w-3 h-3" />
-                      <span>{formatDate(activeStage.end_date)}</span>
-                    </div>
-                  </div>
-
-                  {/* Countdown Display */}
-                  <div className="bg-white rounded-xl p-4 border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">Sisa Waktu di Landing Page</p>
-                    {isExpired ? (
-                      <div className="text-red-600 font-bold text-lg">Deadline sudah lewat!</div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-800">{days}</div>
-                          <div className="text-[10px] text-gray-400 uppercase">Days</div>
-                        </div>
-                        <span className="text-gray-300 text-xl">:</span>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-800">{hours}</div>
-                          <div className="text-[10px] text-gray-400 uppercase">Hours</div>
-                        </div>
-                        <span className="text-gray-300 text-xl">:</span>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-800">{minutes}</div>
-                          <div className="text-[10px] text-gray-400 uppercase">Mins</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="bg-white rounded-xl p-4 border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">Quick Actions</p>
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => toggleActive(activeStage)}
-                        className="w-full text-left px-3 py-2 bg-yellow-50 text-yellow-700 rounded-lg text-sm hover:bg-yellow-100 transition-colors"
-                      >
-                        {activeStage.is_active ? '⏸ Deactivate Stage' : '▶ Activate Stage'}
-                      </button>
-                      <button
-                        onClick={() => toggleVisible(activeStage)}
-                        className="w-full text-left px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm hover:bg-blue-100 transition-colors flex items-center gap-2"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        {activeStage.is_visible ? 'Hide from Participants' : 'Show to Participants'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl p-6 border border-gray-100 text-center">
-                  <Timer className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">Tidak ada stage aktif. Landing page menampilkan countdown fallback (30 hari dari sekarang).</p>
-                  <p className="text-gray-400 text-xs mt-1">Aktifkan salah satu stage di bawah, atau buat stage baru dengan <strong>is_active</strong> dicentang.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      <AdminCountdown
+        stages={stages}
+        onEditStage={(stage) => setEditingStage(stage)}
+        onToggleActive={toggleActive}
+        onToggleVisible={toggleVisible}
+      />
 
       {/* Timeline Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -732,10 +749,19 @@ const AdminStages = () => {
                 <p className="text-sm font-medium text-red-800 mb-2">⏰ Deadline Task</p>
                 <input
                   type="datetime-local"
-                  value={editingTask.deadline?.replace('Z', '').slice(0, 16) || ''}
+                  value={editingTask.deadline ? (() => {
+                    const d = new Date(editingTask.deadline);
+                    const parts = new Intl.DateTimeFormat('en-CA', {
+                      timeZone: 'Asia/Jakarta',
+                      year: 'numeric', month: '2-digit', day: '2-digit',
+                      hour: '2-digit', minute: '2-digit', hour12: false
+                    }).formatToParts(d);
+                    const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+                    return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+                  })() : ''}
                   onChange={(e) => setEditingTask({
                     ...editingTask,
-                    deadline: e.target.value ? new Date(e.target.value).toISOString() : undefined
+                    deadline: e.target.value ? createWIBISOString(e.target.value.split('T')[0], e.target.value.split('T')[1] || '23:59:59') : undefined
                   })}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none"
                 />
