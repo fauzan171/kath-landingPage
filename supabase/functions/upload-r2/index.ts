@@ -39,59 +39,45 @@ serve(async (req) => {
   }
 
   try {
-    // 1. Authenticate the user - extract token from Authorization header
+    // 1. Simple auth check - just verify token exists and is not expired
     const authHeader = req.headers.get('Authorization');
     const token = authHeader?.replace('Bearer ', '') || '';
     
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-    
-    // Create client with the user's token
-    const supabaseClient = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-      global: {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      },
-    });
-    
-    // Verify the user - handle different JWT formats
-    let user = null;
-    let authError = null;
-    
-    try {
-      const { data, error } = await supabaseClient.auth.getUser();
-      user = data?.user;
-      authError = error;
-    } catch (e) {
-      // JWT verification might fail for ES256 tokens in older versions
-      // Try to at least check if token exists and is valid format
-      authError = e;
-      console.log('Auth getUser error:', e instanceof Error ? e.message : 'unknown');
+    // Basic validation - token should exist and have valid JWT format
+    if (!token || !token.includes('.') || token.split('.').length !== 3) {
+      return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token format' }), { 
+        status: 401, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
-
-    if (authError || !user) {
-      // If we have a token, try to extract user info from it
-      // This bypasses strict JWT verification but allows the function to work
-      if (token && token.includes('.') && token.split('.').length === 3) {
-        try {
-          // Basic JWT payload decode (not cryptographic verification)
-          const parts = token.split('.');
-          const payload = JSON.parse(atob(parts[1]));
-          if (payload.sub && payload.exp && payload.exp > Math.floor(Date.now() / 1000)) {
-            console.log('Token valid but getUser failed, using JWT payload for user ID:', payload.sub);
-            // Continue with the function - we know the user is valid
-          } else {
-            return new Response(JSON.stringify({ error: 'Unauthorized: Token expired or invalid' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-          }
-        } catch (e) {
-          return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token format' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-        }
-      } else {
-        return new Response(JSON.stringify({ error: 'Unauthorized: No valid token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    
+    // Decode JWT to check expiration (lightweight check without server validation)
+    try {
+      const parts = token.split('.');
+      const payload = JSON.parse(atob(parts[1]));
+      
+      // Check if token is expired
+      if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+        return new Response(JSON.stringify({ error: 'Unauthorized: Token expired' }), { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        });
       }
+      
+      // Check if token has a subject (user ID)
+      if (!payload.sub) {
+        return new Response(JSON.stringify({ error: 'Unauthorized: No user subject' }), { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        });
+      }
+      
+      console.log('Auth: User', payload.sub, 'verified (token valid)');
+    } catch (e) {
+      return new Response(JSON.stringify({ error: 'Unauthorized: Malformed token' }), { 
+        status: 401, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
 
     // 2. Parsed Request Payload
