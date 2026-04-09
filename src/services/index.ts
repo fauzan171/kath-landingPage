@@ -111,4 +111,4 @@ export {
 } from '@/lib/supabase';
 
 // Environment helpers
-export { isSupabaseConfigured, isN8nConfigured } from '@/config/environment';
+export { isSupabaseConfigured, isR2StorageConfigured } from '@/config/environment';

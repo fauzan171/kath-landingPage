@@ -7,7 +7,7 @@
 
 import {
   supabase as _supabase,
-  uploadFileToDrive,
+  uploadFileToR2,
   type Competition,
   type Stage,
   type Task,
@@ -16,7 +16,7 @@ import {
   type Submission,
   type Announcement,
 } from '@/lib/supabase';
-import { env, isSupabaseConfigured, isN8nConfigured } from '@/config/environment';
+import { env, isSupabaseConfigured, isR2StorageConfigured } from '@/config/environment';
 
 // Non-null alias - always check isSupabaseConfigured() before using
 const supabase = _supabase!;
@@ -983,7 +983,7 @@ export const supabaseTeamService = {
 };
 
 // ============================================
-// Submission Service (Supabase + n8n)
+// Submission Service (Supabase + Cloudflare R2)
 // ============================================
 
 /**
@@ -1233,12 +1233,12 @@ export const supabaseSubmissionService = {
     competitionId: string,
     file: File
   ): Promise<Submission> => {
-    if (!isN8nConfigured()) {
-      throw new Error('File upload requires n8n configuration');
+    if (!isR2StorageConfigured()) {
+      throw new Error('File upload requires Supabase and R2 storage configuration');
     }
 
-    // 1. Upload file to Google Drive via n8n
-    const uploadResult = await uploadFileToDrive(file, taskId, teamId);
+    // 1. Upload file to Cloudflare R2 via Edge Function
+    const uploadResult = await uploadFileToR2(file, taskId, teamId);
 
     // 2. Save metadata to Supabase
     const payload: Record<string, unknown> = {
@@ -1249,7 +1249,7 @@ export const supabaseSubmissionService = {
       file_name: uploadResult.fileName,
       file_size: uploadResult.fileSize,
       file_type: file.type,
-      drive_file_id: uploadResult.driveFileId,
+      drive_file_id: uploadResult.storageKey,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
       is_late: false,
@@ -1748,114 +1748,81 @@ export const supabaseContentService = {
 };
 
 // ============================================
-// Payment Service (Supabase + n8n)
+// Payment Service (Supabase + Cloudflare R2)
 // ============================================
 
 export interface PaymentUploadResult {
   fileUrl: string;
-  driveFileId: string;
+  storageKey: string;
   fileName: string;
   fileSize: number;
 }
 
 /**
- * Upload payment proof via n8n to Google Drive
- * Falls back to Supabase Storage if n8n is not configured
+ * Upload payment proof to Cloudflare R2 via Supabase Edge Function
+ * Uses the same upload-r2 Edge Function with uploadType 'payment'
  */
 export async function uploadPaymentProof(
   file: File,
   teamId: string,
   competitionId: string
 ): Promise<PaymentUploadResult> {
-  const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
-
-  // Check if n8n is properly configured (not placeholder URL)
-  if (isN8nConfigured()) {
-    // Upload via n8n webhook to Google Drive
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('teamId', teamId);
-    formData.append('competitionId', competitionId);
-    formData.append('uploadType', 'payment');
-    formData.append('fileName', file.name);
-    formData.append('fileSize', file.size.toString());
-
-    const response = await fetch(`${n8nWebhookUrl}/upload-payment`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || 'Failed to upload payment proof');
-    }
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.error || 'Upload failed');
-    }
+  // Upload to Cloudflare R2 via Supabase Edge Function
+  try {
+    const uploadResult = await uploadFileToR2(file, `payment-${competitionId}`, teamId);
 
     return {
-      fileUrl: result.fileUrl,
-      driveFileId: result.driveFileId,
-      fileName: result.fileName,
-      fileSize: parseInt(result.fileSize, 10),
+      fileUrl: uploadResult.fileUrl,
+      storageKey: uploadResult.storageKey,
+      fileName: uploadResult.fileName,
+      fileSize: uploadResult.fileSize,
     };
-  }
+  } catch (err) {
+    console.error('[Payment] R2 upload error:', err);
 
-  // Fallback: Upload to Supabase Storage
-  console.log('[Payment] n8n not configured, using Supabase Storage fallback');
+    // Fallback: try Supabase Storage
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `payment-proofs/${competitionId}/${teamId}/${Date.now()}.${fileExt}`;
 
-  try {
-    // Create a unique file path
-    const fileExt = file.name.split('.').pop();
-    const fileName = `payment-proofs/${competitionId}/${teamId}/${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage
+        .from('payments')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
 
-    // Upload to Supabase Storage bucket 'payments'
-    const { data, error } = await supabase.storage
-      .from('payments')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+      if (error) {
+        console.warn('[Payment] Storage upload failed:', error.message);
+        const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return {
+          fileUrl: `https://mock-storage.local/payments/${fileName}`,
+          storageKey: mockFileId,
+          fileName: file.name,
+          fileSize: file.size,
+        };
+      }
 
-    if (error) {
-      // If bucket doesn't exist, use mock URL for development
-      console.warn('[Payment] Storage upload failed, using mock URL:', error.message);
+      const { data: urlData } = supabase.storage
+        .from('payments')
+        .getPublicUrl(data.path);
 
-      // Return mock URL for development
+      return {
+        fileUrl: urlData.publicUrl,
+        storageKey: data.path,
+        fileName: file.name,
+        fileSize: file.size,
+      };
+    } catch (fallbackErr) {
+      console.error('[Payment] All upload methods failed:', fallbackErr);
       const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       return {
-        fileUrl: `https://mock-storage.local/payments/${fileName}`,
-        driveFileId: mockFileId,
+        fileUrl: `https://mock-storage.local/payments/${teamId}/${file.name}`,
+        storageKey: mockFileId,
         fileName: file.name,
         fileSize: file.size,
       };
     }
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('payments')
-      .getPublicUrl(data.path);
-
-    return {
-      fileUrl: urlData.publicUrl,
-      driveFileId: data.path,
-      fileName: file.name,
-      fileSize: file.size,
-    };
-  } catch (err) {
-    console.error('[Payment] Upload error:', err);
-
-    // Final fallback: return mock URL so registration can continue
-    const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return {
-      fileUrl: `https://mock-storage.local/payments/${teamId}/${file.name}`,
-      driveFileId: mockFileId,
-      fileName: file.name,
-      fileSize: file.size,
-    };
   }
 }
 
@@ -1877,7 +1844,7 @@ export const supabasePaymentService = {
   updateTeamPayment: async (
     teamId: string,
     paymentProofUrl: string,
-    driveFileId?: string
+    storageKey?: string
   ): Promise<Team> => {
     // Build update payload — only include columns that exist in the DB
     const updatePayload: Record<string, unknown> = {
@@ -1887,7 +1854,7 @@ export const supabasePaymentService = {
     // These columns may not exist yet if migration v6.6.0 hasn't been run
     try {
       updatePayload.payment_uploaded_at = new Date().toISOString();
-      if (driveFileId) updatePayload.payment_drive_id = driveFileId;
+      if (storageKey) updatePayload.payment_drive_id = storageKey;
     } catch (_e) { /* ignore */ }
 
     const { data, error } = await supabase

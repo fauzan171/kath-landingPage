@@ -7,7 +7,7 @@ import {
   supabaseCompetitionService,
   supabaseSubmissionService,
 } from '../services/supabase.service';
-import { supabase, uploadFileToDrive } from '../lib/supabase';
+import { supabase, uploadFileToR2 } from '../lib/supabase';
 import type { Competition, Submission } from '../types';
 
 // ============================================
@@ -264,7 +264,7 @@ const SubmissionForm = () => {
   };
 
   // ============================================
-  // Submit Handler (with file upload via n8n -> Google Drive)
+  // Submit Handler (with file upload via Cloudflare R2)
   // ============================================
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -281,10 +281,10 @@ const SubmissionForm = () => {
       const teamId = await getCurrentUserTeamId();
       const { submissionContent, fieldValues } = buildSubmissionData();
 
-      // Upload files to Google Drive via n8n webhook
+      // Upload files to Cloudflare R2 via Supabase Edge Function
       const uploadedFiles: Array<{
         fileUrl: string;
-        driveFileId: string;
+        storageKey: string;
         fileName: string;
         fileSize: number;
         fileType: string;
@@ -297,10 +297,10 @@ const SubmissionForm = () => {
         setUploadingFileName(file.name);
 
         try {
-          const result = await uploadFileToDrive(file, 'default', teamId);
+          const result = await uploadFileToR2(file, 'default', teamId);
           uploadedFiles.push({
             fileUrl: result.fileUrl,
-            driveFileId: result.driveFileId,
+            storageKey: result.storageKey,
             fileName: result.fileName,
             fileSize: result.fileSize,
             fileType: file.type,
@@ -326,7 +326,7 @@ const SubmissionForm = () => {
             files: uploadedFiles.map(f => ({
               name: f.fileName,
               url: f.fileUrl,
-              driveFileId: f.driveFileId,
+              storageKey: f.storageKey,
               size: f.fileSize,
             })),
             file_count: uploadedFiles.length,
@@ -343,7 +343,7 @@ const SubmissionForm = () => {
             file_name: primaryFile.fileName,
             file_size: primaryFile.fileSize,
             file_type: primaryFile.fileType,
-            drive_file_id: primaryFile.driveFileId,
+            drive_file_id: primaryFile.storageKey,
           }),
           field_values: allFilesMeta
             ? { ...fieldValues, ...allFilesMeta }
@@ -370,7 +370,7 @@ const SubmissionForm = () => {
               file_name: primaryFile.fileName,
               file_size: primaryFile.fileSize,
               file_type: primaryFile.fileType,
-              drive_file_id: primaryFile.driveFileId,
+              drive_file_id: primaryFile.storageKey,
               status: 'submitted',
               submitted_at: new Date().toISOString(),
             })
@@ -730,7 +730,7 @@ const SubmissionForm = () => {
             </h3>
             <p className="font-body text-white/60 text-sm mb-2">
               {files.length > 0
-                ? `${files.length} file berhasil diupload ke Google Drive.`
+                ? `${files.length} file berhasil diupload ke Cloud Storage.`
                 : 'Submission berhasil disimpan.'
               }
             </p>

@@ -264,7 +264,7 @@ const CIBCRegister = () => {
             await paymentService.updateTeamPayment(
               team.id,
               paymentResult.fileUrl,
-              paymentResult.driveFileId
+              paymentResult.storageKey
             );
 
             toast.success(language === 'id' ? 'Bukti pembayaran berhasil diupload' : 'Payment proof uploaded');

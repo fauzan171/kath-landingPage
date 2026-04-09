@@ -19,7 +19,7 @@ import {
 import { toast } from 'sonner';
 import { submissionsService, tasksService, stagesService, paymentService } from '@/services/cibc.service';
 import type { Task, Stage } from '@/services/cibc.service';
-import { uploadFileToDrive } from '@/lib/supabase';
+import { uploadFileToR2 } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Use a simplified type for existing submissions
@@ -130,7 +130,7 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
     setUploadingPayment(true);
     try {
       const result = await paymentService.uploadProof(paymentFile, teamId, competitionId);
-      await paymentService.updateTeamPayment(teamId, result.fileUrl, result.driveFileId);
+      await paymentService.updateTeamPayment(teamId, result.fileUrl, result.storageKey);
 
       setCurrentPaymentStatus('pending');
       toast.success(language === 'id' ? 'Bukti pembayaran berhasil diupload!' : 'Payment proof uploaded!');
@@ -205,8 +205,8 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      // Upload file to Google Drive via n8n
-      const uploadResult = await uploadFileToDrive(file, selectedTask.id, teamId);
+      // Upload file to Cloudflare R2 via Supabase Edge Function
+      const uploadResult = await uploadFileToR2(file, selectedTask.id, teamId);
 
       clearInterval(progressInterval);
       setUploadProgress(100);

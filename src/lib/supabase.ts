@@ -4,7 +4,7 @@
 //
 // Architecture:
 // - Database: Supabase PostgreSQL (FREE 500MB)
-// - Storage: Google Drive via n8n (FREE 15GB)
+// - Storage: Cloudflare R2 via Supabase Edge Function
 // - Total Cost: $0/month
 //
 // ============================================
@@ -14,7 +14,6 @@ import { createClient } from '@supabase/supabase-js';
 // Environment variables (set in .env)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
 // Warn if Supabase is not configured (but don't throw error)
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -316,16 +315,16 @@ export async function getSession() {
 }
 
 // ============================================
-// FILE UPLOAD HELPER (via n8n -> Google Drive)
+// FILE UPLOAD HELPER (via Cloudflare R2)
 // ============================================
 
-export async function uploadFileToDrive(
+export async function uploadFileToR2(
   file: File,
   taskId: string,
   teamId: string
 ): Promise<{
   fileUrl: string;
-  driveFileId: string;
+  storageKey: string;
   fileName: string;
   fileSize: number;
 }> {
@@ -337,7 +336,8 @@ export async function uploadFileToDrive(
       fileName: file.name,
       contentType: file.type,
       taskId,
-      teamId
+      teamId,
+      uploadType: 'submission'
     }
   });
 
@@ -361,11 +361,14 @@ export async function uploadFileToDrive(
 
   return {
     fileUrl: data.finalUrl,
-    driveFileId: data.key, 
+    storageKey: data.key,
     fileName: file.name,
     fileSize: file.size
   };
 }
+
+// Backward-compatible alias
+export const uploadFileToDrive = uploadFileToR2;
 
 // ============================================
 // SUBMISSION HELPERS
@@ -378,7 +381,7 @@ export async function createSubmission(
   file: File
 ): Promise<Submission> {
   if (!supabase) throw new Error('Supabase is not configured');
-  const uploadResult = await uploadFileToDrive(file, taskId, teamId);
+  const uploadResult = await uploadFileToR2(file, taskId, teamId);
 
   const { data, error } = await supabase
     .from('submissions')
@@ -390,7 +393,7 @@ export async function createSubmission(
       file_name: uploadResult.fileName,
       file_size: uploadResult.fileSize,
       file_type: file.type,
-      drive_file_id: uploadResult.driveFileId,
+      drive_file_id: uploadResult.storageKey,
       status: 'submitted',
       submitted_at: new Date().toISOString()
     })
@@ -601,5 +604,4 @@ export async function getPublishedAnnouncements(competitionId: string): Promise<
 // EXPORTS
 // ============================================
 
-export { n8nWebhookUrl };
 export default supabase;

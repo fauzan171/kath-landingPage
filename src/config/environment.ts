@@ -1,7 +1,8 @@
 /**
  * Environment Configuration
  *
- * Architecture: Supabase + Google Drive + n8n (100% FREE)
+ * Architecture: Supabase + Cloudflare R2 (100% FREE)
+ * Storage: Cloudflare R2 for photos and PDFs via Supabase Edge Function
  * Controls switching between mock and real API
  */
 
@@ -13,7 +14,6 @@ export interface EnvironmentConfig {
   // Supabase Configuration
   supabaseUrl: string;
   supabaseAnonKey: string;
-  n8nWebhookUrl: string;
 
   // App Configuration
   appName: string;
@@ -53,7 +53,6 @@ const getEnvironment = (): EnvironmentConfig => {
     // Supabase config
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
     supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-    n8nWebhookUrl: import.meta.env.VITE_N8N_WEBHOOK_URL || '',
 
     // App config
     appName: import.meta.env.VITE_APP_NAME || 'KATH Event Organizer',
@@ -73,12 +72,19 @@ export const isSupabaseConfigured = (): boolean => {
 };
 
 /**
- * Check if n8n webhook is configured
- * Returns false if URL is empty or contains placeholder values
+ * Check if Cloudflare R2 storage is available
+ * R2 is configured via Supabase Edge Function secrets (not client-side env vars)
+ * Returns true if Supabase is configured (R2 secrets are set server-side)
+ */
+export const isR2StorageConfigured = (): boolean => {
+  return isSupabaseConfigured();
+};
+
+/**
+ * @deprecated Use isR2StorageConfigured() instead. n8n is no longer used.
  */
 export const isN8nConfigured = (): boolean => {
-  const url = env.n8nWebhookUrl;
-  return Boolean(url && !url.includes('your-n8n-instance') && !url.includes('example.com'));
+  return isR2StorageConfigured();
 };
 
 /**
@@ -89,7 +95,7 @@ if (env.debug) {
     apiUrl: env.apiUrl,
     useMockData: env.useMockData,
     supabaseConfigured: isSupabaseConfigured(),
-    n8nConfigured: isN8nConfigured(),
+    r2StorageConfigured: isR2StorageConfigured(),
     environment: env.environment,
   });
 }
