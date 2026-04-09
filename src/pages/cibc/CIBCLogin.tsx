@@ -28,6 +28,7 @@ const CIBCLogin: React.FC = () => {
     rememberMe: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [alertError, setAlertError] = useState<string | null>(null);
   const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
 
   // Scroll to top on mount
@@ -146,6 +147,7 @@ const CIBCLogin: React.FC = () => {
 
     if (!validateForm()) return;
 
+    setAlertError(null);
     setIsLoading(true);
 
     try {
@@ -294,6 +296,7 @@ const CIBCLogin: React.FC = () => {
     } catch (error: unknown) {
       console.error('Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
+      setAlertError(errorMessage);
       toast.error('Login failed', {
         description: errorMessage,
       });
@@ -384,6 +387,26 @@ const CIBCLogin: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-[#0F0F0F] mb-3 font-display">Welcome Back</h2>
             <p className="text-gray-500 font-medium text-sm sm:text-base">Sign in to access your competition dashboard</p>
           </div>
+
+          {/* Error Alert */}
+          {alertError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-800">Login Failed</p>
+                <p className="text-xs text-red-600 mt-0.5">{alertError}</p>
+              </div>
+              <button onClick={() => setAlertError(null)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <input type="hidden" name="csrfToken" value={csrfToken} />

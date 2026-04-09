@@ -5,7 +5,31 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
-import { Award } from 'lucide-react';
+import { Award, User } from 'lucide-react';
+import { useState } from 'react';
+
+// Avatar component with error fallback
+const JudgeAvatar = ({ src, name }: { src: string; name: string }) => {
+    const [imgError, setImgError] = useState(false);
+
+    if (imgError || !src) {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-amber-50">
+                <User className="w-10 h-10 text-amber-400" />
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={src}
+            alt={name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setImgError(true)}
+        />
+    );
+};
 
 export const JudgesSection = () => {
     const { language } = useLanguage();
@@ -43,13 +67,8 @@ export const JudgesSection = () => {
                             className="group bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-xl hover:border-amber-200 transition-all duration-300 hover:-translate-y-1"
                         >
                             {/* Avatar */}
-                            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-gray-100 group-hover:border-amber-300 transition-colors duration-300">
-                                <img
-                                    src={judge.avatar}
-                                    alt={judge.name}
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                />
+                            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-gray-100 group-hover:border-amber-300 transition-colors duration-300 bg-gray-100">
+                                <JudgeAvatar src={judge.avatar} name={judge.name} />
                             </div>
 
                             {/* Info */}

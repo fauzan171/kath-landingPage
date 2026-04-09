@@ -23,6 +23,7 @@ const AdminLogin = () => {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [alertError, setAlertError] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,6 +82,7 @@ const AdminLogin = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setAlertError(null);
     setIsLoading(true);
 
     try {
@@ -134,7 +136,8 @@ const AdminLogin = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
+      setAlertError(errorMessage);
       toast.error('Login failed', { description: errorMessage });
     } finally {
       setIsLoading(false);
@@ -174,6 +177,25 @@ const AdminLogin = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Error Alert */}
+            {alertError && (
+              <div className="mb-2 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-800">Login Failed</p>
+                  <p className="text-xs text-red-600 mt-0.5">{alertError}</p>
+                </div>
+                <button onClick={() => setAlertError(null)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
