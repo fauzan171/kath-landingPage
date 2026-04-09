@@ -31,13 +31,13 @@ const competitionItems = [
 ];
 
 const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 bg-white border-r border-gray-200
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 shadow-lg`}
+      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-gray-200
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 lg:translate-x-0 shadow-lg lg:shadow-none`}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -47,7 +47,7 @@ const AdminLayout = () => {
             </div>
             <span className="font-bold text-gray-800">Admin</span>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -79,6 +79,7 @@ const AdminLayout = () => {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors
                     ${isActive ? 'bg-amber-50 text-amber-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
@@ -101,6 +102,7 @@ const AdminLayout = () => {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors
                     ${isActive ? 'bg-amber-50 text-amber-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
@@ -127,29 +129,29 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className={`${sidebarOpen ? 'lg:ml-64' : ''} min-h-screen`}>
+      <main className="lg:ml-64 min-h-screen">
         {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-30">
+        <header className="h-14 lg:h-16 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-30">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 text-gray-500 hover:text-gray-700 lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg lg:hidden"
           >
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1" />
-          <span className="text-sm text-gray-500">Content Management System</span>
+          <span className="text-xs sm:text-sm text-gray-500">Content Management System</span>
         </header>
 
         {/* Page Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <Outlet />
         </div>
       </main>
 
-      {/* Overlay */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

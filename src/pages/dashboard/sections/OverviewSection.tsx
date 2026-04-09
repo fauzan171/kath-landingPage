@@ -51,13 +51,13 @@ const OverviewSection = ({
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-[#0F0F0F] rounded-3xl p-8 relative overflow-hidden shadow-lg">
+      <div className="bg-[#0F0F0F] rounded-2xl lg:rounded-3xl p-6 lg:p-8 relative overflow-hidden shadow-lg">
         <div className="relative z-10">
-          <h2 className="font-display font-bold text-3xl text-white mb-2">
+          <h2 className="font-display font-bold text-xl sm:text-2xl lg:text-3xl text-white mb-2">
             {language === 'id' ? 'Selamat Datang,' : 'Welcome,'}{' '}
             <span className="text-[#FFB22C]">{team?.name || currentUser?.fullName}</span>!
           </h2>
-          <p className="font-body text-white/60 font-medium">
+          <p className="font-body text-white/60 font-medium text-sm lg:text-base">
             {language === 'id'
               ? 'Pantau progres tim dan submission Anda di sini.'
               : 'Monitor your team progress and submissions here.'}
@@ -65,21 +65,21 @@ const OverviewSection = ({
 
           {/* Quick Stats */}
           {team && (
-            <div className="flex flex-wrap gap-4 mt-6">
+            <div className="flex flex-wrap gap-3 lg:gap-4 mt-4 lg:mt-6">
               {team.institution && (
-                <div className="px-4 py-2 bg-white/10 rounded-xl">
-                  <span className="text-white/60 text-xs font-body">{language === 'id' ? 'Institusi' : 'Institution'}</span>
-                  <p className="text-white font-body font-bold">{team.institution}</p>
+                <div className="px-3 lg:px-4 py-1.5 lg:py-2 bg-white/10 rounded-xl">
+                  <span className="text-white/60 text-[10px] lg:text-xs font-body">{language === 'id' ? 'Institusi' : 'Institution'}</span>
+                  <p className="text-white font-body font-bold text-sm lg:text-base">{team.institution}</p>
                 </div>
               )}
-              <div className="px-4 py-2 bg-white/10 rounded-xl">
-                <span className="text-white/60 text-xs font-body">{language === 'id' ? 'Kategori' : 'Category'}</span>
-                <p className="text-white font-body font-bold capitalize">{team.category}</p>
+              <div className="px-3 lg:px-4 py-1.5 lg:py-2 bg-white/10 rounded-xl">
+                <span className="text-white/60 text-[10px] lg:text-xs font-body">{language === 'id' ? 'Kategori' : 'Category'}</span>
+                <p className="text-white font-body font-bold text-sm lg:text-base capitalize">{team.category}</p>
               </div>
               {avgScore !== null && (
-                <div className="px-4 py-2 bg-[#FFB22C]/20 rounded-xl">
-                  <span className="text-[#FFB22C]/80 text-xs font-body">{language === 'id' ? 'Rata-rata Nilai' : 'Avg Score'}</span>
-                  <p className="text-[#FFB22C] font-display font-bold">{avgScore}/100</p>
+                <div className="px-3 lg:px-4 py-1.5 lg:py-2 bg-[#FFB22C]/20 rounded-xl">
+                  <span className="text-[#FFB22C]/80 text-[10px] lg:text-xs font-body">{language === 'id' ? 'Rata-rata Nilai' : 'Avg Score'}</span>
+                  <p className="text-[#FFB22C] font-display font-bold text-sm lg:text-base">{avgScore}/100</p>
                 </div>
               )}
             </div>
@@ -88,18 +88,18 @@ const OverviewSection = ({
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#FFB22C] opacity-20 blur-3xl rounded-full"></div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Left Column: Progress & Stages */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
 
           {/* Competition Progress */}
-          <div className="bg-white border border-[#0F0F0F]/5 rounded-3xl p-6 lg:p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-display font-bold text-xl text-[#0F0F0F]">
+          <div className="bg-white border border-[#0F0F0F]/5 rounded-2xl lg:rounded-3xl p-5 lg:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 lg:mb-6">
+              <h3 className="font-display font-bold text-lg lg:text-xl text-[#0F0F0F]">
                 {language === 'id' ? 'Progres Kompetisi' : 'Competition Progress'}
               </h3>
               {activeStage && (
-                <span className="font-body font-bold text-sm px-4 py-1.5 bg-green-100 text-green-700 rounded-full">
+                <span className="font-body font-bold text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-1.5 bg-green-100 text-green-700 rounded-full w-fit">
                   {language === 'id' ? 'Tahap Aktif:' : 'Active Stage:'} {activeStage.name}
                 </span>
               )}
@@ -120,25 +120,25 @@ const OverviewSection = ({
             </div>
 
             {/* Task Stats */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 bg-[#F9F8F6] rounded-2xl text-center">
-                <p className="font-display font-bold text-2xl text-[#0F0F0F]">{tasks.length}</p>
-                <p className="font-body text-xs text-[#0F0F0F]/60">{language === 'id' ? 'Total Task' : 'Total Tasks'}</p>
+            <div className="grid grid-cols-3 gap-2 lg:gap-4">
+              <div className="p-3 lg:p-4 bg-[#F9F8F6] rounded-xl lg:rounded-2xl text-center">
+                <p className="font-display font-bold text-lg lg:text-2xl text-[#0F0F0F]">{tasks.length}</p>
+                <p className="font-body text-[10px] lg:text-xs text-[#0F0F0F]/60">{language === 'id' ? 'Total Task' : 'Total Tasks'}</p>
               </div>
-              <div className="p-4 bg-green-50 rounded-2xl text-center">
-                <p className="font-display font-bold text-2xl text-green-600">{completedTasksCount}</p>
-                <p className="font-body text-xs text-green-600/60">{language === 'id' ? 'Selesai' : 'Completed'}</p>
+              <div className="p-3 lg:p-4 bg-green-50 rounded-xl lg:rounded-2xl text-center">
+                <p className="font-display font-bold text-lg lg:text-2xl text-green-600">{completedTasksCount}</p>
+                <p className="font-body text-[10px] lg:text-xs text-green-600/60">{language === 'id' ? 'Selesai' : 'Completed'}</p>
               </div>
-              <div className="p-4 bg-amber-50 rounded-2xl text-center">
-                <p className="font-display font-bold text-2xl text-amber-600">{totalRequiredTasks - completedTasksCount}</p>
-                <p className="font-body text-xs text-amber-600/60">{language === 'id' ? 'Belum Selesai' : 'Remaining'}</p>
+              <div className="p-3 lg:p-4 bg-amber-50 rounded-xl lg:rounded-2xl text-center">
+                <p className="font-display font-bold text-lg lg:text-2xl text-amber-600">{totalRequiredTasks - completedTasksCount}</p>
+                <p className="font-body text-[10px] lg:text-xs text-amber-600/60">{language === 'id' ? 'Belum Selesai' : 'Remaining'}</p>
               </div>
             </div>
           </div>
 
           {/* Stages & Deadlines */}
-          <div className="bg-white border border-[#0F0F0F]/5 rounded-3xl p-6 lg:p-8 shadow-sm">
-            <h3 className="font-display font-bold text-xl text-[#0F0F0F] mb-6">
+          <div className="bg-white border border-[#0F0F0F]/5 rounded-2xl lg:rounded-3xl p-5 lg:p-8 shadow-sm">
+            <h3 className="font-display font-bold text-lg lg:text-xl text-[#0F0F0F] mb-4 lg:mb-6">
               {language === 'id' ? 'Tahapan & Tenggat Waktu' : 'Stages & Deadlines'}
             </h3>
 
@@ -163,8 +163,8 @@ const OverviewSection = ({
                           : 'bg-[#F9F8F6] border-transparent hover:border-[#0F0F0F]/5'
                       }`}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    <div className="flex items-center gap-3 lg:gap-4">
+                      <div className={`w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                           stage.is_active ? 'bg-[#FFB22C] text-white' :
                           stage.status === 'completed' ? 'bg-green-500 text-white' :
                           'bg-[#0F0F0F]/10 text-[#0F0F0F]/40'
@@ -176,9 +176,9 @@ const OverviewSection = ({
                           )}
                         </div>
 
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-body text-[#0F0F0F] font-bold">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-body text-[#0F0F0F] font-bold text-sm lg:text-base">
                               {language === 'id' && stage.name_id ? stage.name_id : stage.name}
                             </h4>
                             {stage.is_active && (
@@ -188,9 +188,9 @@ const OverviewSection = ({
                             )}
                           </div>
 
-                          <div className="flex items-center gap-4 mt-2">
+                          <div className="flex items-center gap-3 lg:gap-4 mt-1.5 lg:mt-2">
                             {stage.end_date && (
-                              <span className="text-xs text-[#0F0F0F]/50 font-body">
+                              <span className="text-[10px] lg:text-xs text-[#0F0F0F]/50 font-body">
                                 <Clock className="w-3 h-3 inline mr-1" />
                                 {language === 'id' ? 'Deadline:' : 'Deadline:'}{' '}
                                 {new Date(stage.end_date).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
@@ -202,7 +202,7 @@ const OverviewSection = ({
                             )}
 
                             {stageTasks.length > 0 && (
-                              <span className="text-xs text-[#0F0F0F]/50 font-body">
+                              <span className="text-[10px] lg:text-xs text-[#0F0F0F]/50 font-body">
                                 {stageSubmissions.length}/{stageTasks.length} {language === 'id' ? 'task' : 'tasks'}
                               </span>
                             )}
@@ -240,11 +240,11 @@ const OverviewSection = ({
         </div>
 
         {/* Right Column: Announcements & Notifications */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
 
           {/* Announcements */}
-          <div className="bg-white border border-[#0F0F0F]/5 rounded-3xl p-6 lg:p-8 shadow-sm">
-            <h3 className="font-display font-bold text-xl text-[#0F0F0F] mb-6">
+          <div className="bg-white border border-[#0F0F0F]/5 rounded-2xl lg:rounded-3xl p-5 lg:p-8 shadow-sm">
+            <h3 className="font-display font-bold text-lg lg:text-xl text-[#0F0F0F] mb-4 lg:mb-6">
               {language === 'id' ? 'Pengumuman' : 'Announcements'}
             </h3>
 
@@ -293,9 +293,9 @@ const OverviewSection = ({
           </div>
 
           {/* Notifications */}
-          <div className="bg-white border border-[#0F0F0F]/5 rounded-3xl p-6 lg:p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-display font-bold text-xl text-[#0F0F0F]">
+          <div className="bg-white border border-[#0F0F0F]/5 rounded-2xl lg:rounded-3xl p-5 lg:p-8 shadow-sm">
+            <div className="flex justify-between items-center mb-4 lg:mb-6">
+              <h3 className="font-display font-bold text-lg lg:text-xl text-[#0F0F0F]">
                 {language === 'id' ? 'Notifikasi' : 'Notifications'}
               </h3>
               <div className="flex items-center gap-2">

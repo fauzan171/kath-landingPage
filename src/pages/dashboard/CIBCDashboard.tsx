@@ -109,6 +109,7 @@ const CIBCDashboard = () => {
 
   // --- STATE MANAGEMENT ---
   const [activeSection, setActiveSection] = useState<DashboardSection>('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -336,16 +337,28 @@ const CIBCDashboard = () => {
         handleLogout={handleLogout}
         handleMarkAsRead={handleMarkAsRead}
         handleMarkAllRead={handleMarkAllRead}
+        activeSection={activeSection}
+        setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-4 gap-8 items-start relative">
+      <div className="container mx-auto px-4 py-6 lg:py-8">
+        <div className="grid lg:grid-cols-4 gap-6 lg:gap-8 items-start relative">
           <DashboardSidebar
             activeSection={activeSection}
             setActiveSection={setActiveSection}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
           />
 
-          <div className="lg:col-span-3">
+          {/* Mobile overlay */}
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
+          <div className="lg:col-span-3 min-w-0">
             {activeSection === 'overview' && (
               <OverviewSection
                 currentUser={currentUser}

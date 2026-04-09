@@ -28,12 +28,12 @@ const StatCard = ({
   color: string;
   trend?: { value: number; positive: boolean };
 }) => (
-  <div className="bg-white rounded-xl p-6 border border-gray-200">
+  <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
     <div className="flex items-start justify-between">
-      <div>
-        <p className="text-sm text-gray-500 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-800">{value}</p>
-        {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
+      <div className="min-w-0">
+        <p className="text-xs sm:text-sm text-gray-500 mb-1">{title}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-gray-800">{value}</p>
+        {subtitle && <p className="text-[10px] sm:text-xs text-gray-400 mt-1">{subtitle}</p>}
         {trend && (
           <p className={`text-xs mt-2 flex items-center gap-1 ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
             <TrendingUp className={`w-3 h-3 ${!trend.positive && 'rotate-180'}`} />
@@ -41,8 +41,8 @@ const StatCard = ({
           </p>
         )}
       </div>
-      <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center`}>
-        <Icon className="w-6 h-6 text-white" />
+      <div className={`w-10 h-10 sm:w-12 sm:h-12 ${color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
       </div>
     </div>
   </div>
@@ -64,14 +64,14 @@ const QuickAction = ({
 }) => (
   <Link
     to={to}
-    className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all group"
+    className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all group"
   >
-    <div className={`w-10 h-10 ${color} rounded-lg flex items-center justify-center`}>
-      <Icon className="w-5 h-5 text-white" />
+    <div className={`w-9 h-9 sm:w-10 sm:h-10 ${color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
     </div>
-    <div className="flex-1">
-      <h3 className="font-medium text-gray-800">{label}</h3>
-      <p className="text-sm text-gray-500">{desc}</p>
+    <div className="flex-1 min-w-0">
+      <h3 className="font-medium text-gray-800 text-sm sm:text-base">{label}</h3>
+      <p className="text-xs sm:text-sm text-gray-500">{desc}</p>
     </div>
     <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-amber-500 transition-colors" />
   </Link>
@@ -145,12 +145,12 @@ const AdminDashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600">CIBC Power by KATH 2026 - Competition Management</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Dashboard</h1>
+        <p className="text-sm text-gray-600">CIBC Power by KATH 2026 - Competition Management</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Total Teams"
           value={stats.totalTeams}
@@ -182,22 +182,22 @@ const AdminDashboard = () => {
       </div>
 
       {/* Current Phase Banner */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-4 sm:p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-amber-100 text-sm mb-1">Current Phase</p>
-            <h2 className="text-2xl font-bold">{stats.activeStage}</h2>
+            <p className="text-amber-100 text-xs sm:text-sm mb-1">Current Phase</p>
+            <h2 className="text-lg sm:text-2xl font-bold">{stats.activeStage}</h2>
           </div>
-          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-            <Calendar className="w-8 h-8" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {stats.pendingTeams > 0 && (
             <QuickAction
               to="/admin/registrations"
@@ -248,88 +248,88 @@ const AdminDashboard = () => {
       </div>
 
       {/* Competition Progress */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Registration Status */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-800 mb-4">Registration Status</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Verified Teams</span>
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+          <h3 className="font-semibold text-gray-800 mb-3 sm:mb-4 text-sm sm:text-base">Registration Status</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Verified Teams</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-green-500 h-2 rounded-full"
                     style={{ width: `${stats.totalTeams > 0 ? (stats.verifiedTeams / stats.totalTeams) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.verifiedTeams}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.verifiedTeams}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Pending Verification</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Pending Verification</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-amber-500 h-2 rounded-full"
                     style={{ width: `${stats.totalTeams > 0 ? (stats.pendingTeams / stats.totalTeams) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.pendingTeams}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.pendingTeams}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Draft/Other</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Draft/Other</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-gray-400 h-2 rounded-full"
                     style={{ width: `${stats.totalTeams > 0 ? ((stats.totalTeams - stats.verifiedTeams - stats.pendingTeams) / stats.totalTeams) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.totalTeams - stats.verifiedTeams - stats.pendingTeams}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.totalTeams - stats.verifiedTeams - stats.pendingTeams}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Submission Status */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-800 mb-4">Submission Progress</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Graded</span>
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+          <h3 className="font-semibold text-gray-800 mb-3 sm:mb-4 text-sm sm:text-base">Submission Progress</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Graded</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-green-500 h-2 rounded-full"
                     style={{ width: `${stats.totalSubmissions > 0 ? (stats.gradedSubmissions / stats.totalSubmissions) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.gradedSubmissions}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.gradedSubmissions}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Pending Review</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Pending Review</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-amber-500 h-2 rounded-full"
                     style={{ width: `${stats.totalSubmissions > 0 ? (stats.pendingSubmissions / stats.totalSubmissions) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.pendingSubmissions}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.pendingSubmissions}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Draft</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-gray-600 text-xs sm:text-sm">Draft</span>
               <div className="flex items-center gap-2">
-                <div className="w-32 bg-gray-100 rounded-full h-2">
+                <div className="w-20 sm:w-32 bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-gray-400 h-2 rounded-full"
                     style={{ width: `${stats.totalSubmissions > 0 ? ((stats.totalSubmissions - stats.gradedSubmissions - stats.pendingSubmissions) / stats.totalSubmissions) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{stats.totalSubmissions - stats.gradedSubmissions - stats.pendingSubmissions}</span>
+                <span className="text-xs sm:text-sm font-medium">{stats.totalSubmissions - stats.gradedSubmissions - stats.pendingSubmissions}</span>
               </div>
             </div>
           </div>
@@ -338,35 +338,35 @@ const AdminDashboard = () => {
 
       {/* Content Management Quick Links */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Landing Page Content</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link to="/admin/hero" className="p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
-            <FileText className="w-5 h-5 text-blue-500 mb-2" />
-            <h3 className="font-medium text-gray-800">Hero Section</h3>
-            <p className="text-xs text-gray-500">Edit hero banner</p>
+        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Landing Page Content</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Link to="/admin/hero" className="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 mb-2" />
+            <h3 className="font-medium text-gray-800 text-xs sm:text-sm">Hero Section</h3>
+            <p className="text-[10px] sm:text-xs text-gray-500">Edit hero banner</p>
           </Link>
-          <Link to="/admin/services" className="p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
-            <FileText className="w-5 h-5 text-green-500 mb-2" />
-            <h3 className="font-medium text-gray-800">Services</h3>
-            <p className="text-xs text-gray-500">Manage services</p>
+          <Link to="/admin/services" className="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 mb-2" />
+            <h3 className="font-medium text-gray-800 text-xs sm:text-sm">Services</h3>
+            <p className="text-[10px] sm:text-xs text-gray-500">Manage services</p>
           </Link>
-          <Link to="/admin/portfolio" className="p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
-            <FileText className="w-5 h-5 text-purple-500 mb-2" />
-            <h3 className="font-medium text-gray-800">Portfolio</h3>
-            <p className="text-xs text-gray-500">Add/edit portfolio</p>
+          <Link to="/admin/portfolio" className="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 mb-2" />
+            <h3 className="font-medium text-gray-800 text-xs sm:text-sm">Portfolio</h3>
+            <p className="text-[10px] sm:text-xs text-gray-500">Add/edit portfolio</p>
           </Link>
-          <Link to="/admin/faq" className="p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
-            <FileText className="w-5 h-5 text-cyan-500 mb-2" />
-            <h3 className="font-medium text-gray-800">FAQ</h3>
-            <p className="text-xs text-gray-500">Questions & answers</p>
+          <Link to="/admin/faq" className="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-amber-300 transition-colors">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500 mb-2" />
+            <h3 className="font-medium text-gray-800 text-xs sm:text-sm">FAQ</h3>
+            <p className="text-[10px] sm:text-xs text-gray-500">{'Questions & answers'}</p>
           </Link>
         </div>
       </div>
 
       {/* Tips */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-        <h2 className="font-semibold text-amber-800 mb-2">Tips</h2>
-        <ul className="text-sm text-amber-700 space-y-1">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 sm:p-6">
+        <h2 className="font-semibold text-amber-800 mb-2 text-sm sm:text-base">Tips</h2>
+        <ul className="text-xs sm:text-sm text-amber-700 space-y-1">
           <li>• Verify team registrations promptly to improve participant experience</li>
           <li>• Send announcements to keep participants informed about deadlines</li>
           <li>• Use the timeline management to activate/deactivate competition stages</li>
