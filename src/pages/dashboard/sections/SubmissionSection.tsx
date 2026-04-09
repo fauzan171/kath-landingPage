@@ -306,13 +306,13 @@ const SubmissionSection = ({
                     )}
 
                     {/* Criteria Scores (if detailed grading) */}
-                    {submission.status === 'graded' && submission.criteria_scores && Object.keys(submission.criteria_scores).length > 0 && (
+                    {submission.status === 'graded' && (submission as any).criteria_scores && Object.keys((submission as any).criteria_scores).length > 0 && (
                       <div className="mt-4 p-4 bg-[#F9F8F6] rounded-2xl">
                         <p className="font-body text-xs font-bold text-[#0F0F0F]/40 uppercase tracking-wider mb-3">
                           {language === 'id' ? 'Rincian Penilaian' : 'Score Breakdown'}
                         </p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {Object.entries(submission.criteria_scores).map(([key, value]) => (
+                          {Object.entries((submission as any).criteria_scores).map(([key, value]) => (
                             <div key={key} className="flex items-center justify-between p-2 bg-white rounded-lg">
                               <span className="font-body text-xs text-[#0F0F0F]/60 capitalize">{key}</span>
                               <span className="font-body font-bold text-sm text-[#0F0F0F]">{value as number}</span>
