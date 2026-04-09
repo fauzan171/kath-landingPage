@@ -1,7 +1,6 @@
 /**
  * Judge Layout - Portal for Grading
- *
- * Separate from Admin, limited access to assigned submissions only
+ * Theme matches CIBC Dashboard (cream/amber)
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,7 +8,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { notificationsService } from '@/services/cibc.service';
 import {
-  LayoutDashboard, FileCheck, Award, User, LogOut,
+  LayoutDashboard, FileCheck, Award, LogOut,
   Menu, X
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
@@ -62,33 +61,40 @@ const JudgeLayout = () => {
   const navItems = [
     { to: '/judge', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/judge/grading', label: 'Grading', icon: FileCheck },
-    { to: '/judge/profile', label: 'Profile', icon: User },
+    { to: '/judge/profile', label: 'Profile', icon: Award },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#F9F8F6]">
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-gray-200
+      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-[#0F0F0F]/5
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 lg:translate-x-0 shadow-lg lg:shadow-none`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-indigo-600">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#0F0F0F]/5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#FFB22C] rounded-lg flex items-center justify-center">
               <Award className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-white text-sm">Judge Portal</span>
-              <p className="text-[10px] text-white/70">CIBC 2026</p>
+              <span className="font-bold text-[#0F0F0F] text-sm">Judge</span>
+              <span className="text-[#FFB22C] font-bold text-sm"> Portal</span>
+              <p className="text-[10px] text-[#0F0F0F]/40 font-medium">CIBC 2026</p>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg">
-            <X className="w-5 h-5 text-white" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-2 hover:bg-[#F9F8F6] rounded-lg"
+          >
+            <X className="w-5 h-5 text-[#0F0F0F]/40" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)]">
+          <div className="text-[11px] font-bold text-[#0F0F0F]/40 uppercase tracking-[0.15em] mb-3 px-3">
+            Menu
+          </div>
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -96,24 +102,30 @@ const JudgeLayout = () => {
               end={item.end}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors
-                ${isActive ? 'bg-purple-50 text-purple-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
+                `flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300
+                ${isActive ? 'bg-[#FFB22C] text-white font-bold shadow-md shadow-[#FFB22C]/20' : 'text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F]'}`
               }
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0F0F0F]/40'}`} />
+                  {item.label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        {/* Back to Login */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+        {/* Logout */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#0F0F0F]/5 bg-white">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[#0F0F0F]/60 font-semibold hover:bg-red-50 hover:text-red-600 transition-colors"
           >
-            <LogOut className="w-5 h-5" />
-            Logout
+            <div className="p-2 bg-[#F9F8F6] rounded-xl hover:bg-red-100 transition-colors">
+              <LogOut className="w-4 h-4" />
+            </div>
+            <span>Keluar Akun</span>
           </button>
         </div>
       </aside>
@@ -121,12 +133,12 @@ const JudgeLayout = () => {
       {/* Main Content */}
       <main className="lg:ml-64 min-h-screen">
         {/* Top Bar */}
-        <header className="h-14 lg:h-16 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-30">
+        <header className="h-14 lg:h-16 bg-[#F9F8F6]/80 backdrop-blur-xl border-b border-[#0F0F0F]/5 flex items-center px-4 sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg lg:hidden"
+            className="p-2 text-[#0F0F0F]/60 hover:text-[#FFB22C] bg-white rounded-xl shadow-sm border border-[#0F0F0F]/5 active:scale-95 transition-transform lg:hidden"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
 
@@ -139,15 +151,13 @@ const JudgeLayout = () => {
 
           {/* User Info */}
           {user && (
-            <div className="flex items-center gap-2 sm:gap-3 ml-3 sm:ml-4 pl-3 sm:pl-4 border-l border-gray-200">
+            <div className="flex items-center gap-2 sm:gap-3 ml-3 sm:ml-4 pl-3 sm:pl-4 border-l border-[#0F0F0F]/10">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+                <p className="text-sm font-bold text-[#0F0F0F]">{user.name}</p>
+                <p className="text-xs text-[#0F0F0F]/50 font-medium">{user.email}</p>
               </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-purple-700 font-medium text-sm sm:text-base">
-                  {user.name?.charAt(0).toUpperCase() || 'J'}
-                </span>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FFB22C]/10 border border-[#FFB22C]/20 flex items-center justify-center text-[#FFB22C] font-bold text-sm sm:text-base">
+                {user.name?.charAt(0) || 'J'}
               </div>
             </div>
           )}

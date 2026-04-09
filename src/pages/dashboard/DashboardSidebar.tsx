@@ -27,31 +27,31 @@ const DashboardSidebar: React.FC<SidebarProps> = ({
     ];
 
     return (
-        <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-gray-200
+        <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-[#0F0F0F]/5
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 lg:translate-x-0 shadow-lg lg:shadow-none`}
         >
             {/* Logo / Brand */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+            <div className="h-16 flex items-center justify-between px-4 border-b border-[#0F0F0F]/5">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-[#FFB22C] rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-sm">C</span>
                     </div>
                     <div>
-                        <span className="font-bold text-gray-800 text-sm">CIBC</span>
+                        <span className="font-bold text-[#0F0F0F] text-sm">CIBC</span>
                         <span className="text-[#FFB22C] font-bold text-sm"> 2026</span>
                     </div>
                 </div>
                 <button
                     onClick={() => setIsSidebarOpen && setIsSidebarOpen(false)}
-                    className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+                    className="lg:hidden p-2 hover:bg-[#F9F8F6] rounded-lg"
                 >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-[#0F0F0F]/40" />
                 </button>
             </div>
 
             {/* Navigation */}
             <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)]">
-                <div className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-3 px-3">
+                <div className="text-[11px] font-bold text-[#0F0F0F]/40 uppercase tracking-[0.15em] mb-3 px-3">
                     Menu Utama
                 </div>
                 {menuItems.map((item) => {
@@ -65,13 +65,13 @@ const DashboardSidebar: React.FC<SidebarProps> = ({
                                 setActiveSection(item.id);
                                 if (setIsSidebarOpen) setIsSidebarOpen(false);
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 ${
                                 isActive
-                                    ? 'bg-amber-50 text-amber-600 font-medium'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-[#FFB22C] text-white font-bold shadow-md shadow-[#FFB22C]/20'
+                                    : 'text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F]'
                             }`}
                         >
-                            <Icon className="w-5 h-5" />
+                            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0F0F0F]/40'}`} />
                             <span>{item.label}</span>
                         </button>
                     );
@@ -79,12 +79,14 @@ const DashboardSidebar: React.FC<SidebarProps> = ({
             </nav>
 
             {/* Logout */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#0F0F0F]/5 bg-white">
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[#0F0F0F]/60 font-semibold hover:bg-red-50 hover:text-red-600 transition-colors"
                 >
-                    <LogOut className="w-5 h-5" />
+                    <div className="p-2 bg-[#F9F8F6] rounded-xl hover:bg-red-100 transition-colors">
+                        <LogOut className="w-4 h-4" />
+                    </div>
                     <span>Keluar Akun</span>
                 </button>
             </div>

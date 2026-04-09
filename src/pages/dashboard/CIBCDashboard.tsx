@@ -330,7 +330,7 @@ const CIBCDashboard = () => {
 
   // --- MAIN RENDER ---
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#F9F8F6]">
       {/* Sidebar */}
       <DashboardSidebar
         activeSection={activeSection}

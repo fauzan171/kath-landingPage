@@ -1,5 +1,6 @@
 /**
  * Admin Layout - Content Management Dashboard
+ * Theme matches CIBC Dashboard (cream/amber)
  */
 
 import { useState } from 'react';
@@ -34,21 +35,27 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#F9F8F6]">
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-gray-200
+      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out bg-white border-r border-[#0F0F0F]/5
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 lg:translate-x-0 shadow-lg lg:shadow-none`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#0F0F0F]/5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">K</span>
+            <div className="w-8 h-8 bg-[#FFB22C] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">K</span>
             </div>
-            <span className="font-bold text-gray-800">Admin</span>
+            <div>
+              <span className="font-bold text-[#0F0F0F] text-sm">Admin</span>
+              <span className="text-[#FFB22C] font-bold text-sm"> Panel</span>
+            </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
-            <X className="w-5 h-5 text-gray-500" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-2 hover:bg-[#F9F8F6] rounded-lg"
+          >
+            <X className="w-5 h-5 text-[#0F0F0F]/40" />
           </button>
         </div>
 
@@ -60,18 +67,22 @@ const AdminLayout = () => {
               to="/admin"
               end
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors
-                ${isActive ? 'bg-amber-50 text-amber-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
+                `flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300
+                ${isActive ? 'bg-[#FFB22C] text-white font-bold shadow-md shadow-[#FFB22C]/20' : 'text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F]'}`
               }
             >
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
+              {({ isActive }) => (
+                <>
+                  <LayoutDashboard className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0F0F0F]/40'}`} />
+                  Dashboard
+                </>
+              )}
             </NavLink>
           </div>
 
           {/* Content Management */}
           <div>
-            <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <h3 className="px-3 text-[11px] font-bold text-[#0F0F0F]/40 uppercase tracking-[0.15em] mb-3">
               Landing Page Content
             </h3>
             <div className="space-y-1">
@@ -81,12 +92,16 @@ const AdminLayout = () => {
                   to={item.to}
                   onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors
-                    ${isActive ? 'bg-amber-50 text-amber-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
+                    `flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300
+                    ${isActive ? 'bg-[#FFB22C] text-white font-bold shadow-md shadow-[#FFB22C]/20' : 'text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F]'}`
                   }
                 >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
+                  {({ isActive }) => (
+                    <>
+                      <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0F0F0F]/40'}`} />
+                      {item.label}
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -94,7 +109,7 @@ const AdminLayout = () => {
 
           {/* Competition Management */}
           <div>
-            <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <h3 className="px-3 text-[11px] font-bold text-[#0F0F0F]/40 uppercase tracking-[0.15em] mb-3">
               Competition
             </h3>
             <div className="space-y-1">
@@ -104,12 +119,16 @@ const AdminLayout = () => {
                   to={item.to}
                   onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors
-                    ${isActive ? 'bg-amber-50 text-amber-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`
+                    `flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300
+                    ${isActive ? 'bg-[#FFB22C] text-white font-bold shadow-md shadow-[#FFB22C]/20' : 'text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F]'}`
                   }
                 >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
+                  {({ isActive }) => (
+                    <>
+                      <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0F0F0F]/40'}`} />
+                      {item.label}
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -117,13 +136,15 @@ const AdminLayout = () => {
         </nav>
 
         {/* Back to Site */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#0F0F0F]/5 bg-white">
           <a
             href="/"
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-amber-600 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[#0F0F0F]/60 font-semibold hover:bg-[#F9F8F6] hover:text-[#0F0F0F] transition-colors"
           >
-            <ChevronRight className="w-4 h-4 rotate-180" />
-            Back to Website
+            <div className="p-2 bg-[#F9F8F6] rounded-xl">
+              <ChevronRight className="w-4 h-4 rotate-180" />
+            </div>
+            <span>Back to Website</span>
           </a>
         </div>
       </aside>
@@ -131,15 +152,15 @@ const AdminLayout = () => {
       {/* Main Content */}
       <main className="lg:ml-64 min-h-screen">
         {/* Top Bar */}
-        <header className="h-14 lg:h-16 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-30">
+        <header className="h-14 lg:h-16 bg-[#F9F8F6]/80 backdrop-blur-xl border-b border-[#0F0F0F]/5 flex items-center px-4 sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg lg:hidden"
+            className="p-2 text-[#0F0F0F]/60 hover:text-[#FFB22C] bg-white rounded-xl shadow-sm border border-[#0F0F0F]/5 active:scale-95 transition-transform lg:hidden"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <span className="text-xs sm:text-sm text-gray-500">Content Management System</span>
+          <span className="text-xs sm:text-sm text-[#0F0F0F]/50 font-semibold">Content Management System</span>
         </header>
 
         {/* Page Content */}
