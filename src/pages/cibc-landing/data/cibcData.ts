@@ -13,19 +13,27 @@ export const COMPETITION_DATA = {
     ],
     themes: [
         {
-            title: { id: "Empowering The Global Gen Z Economy", en: "Empowering The Global Gen Z Economy" },
-            desc: { id: "Solusi bisnis yang memberdayakan ekonomi generasi Z secara global melalui inovasi, kreativitas, dan kolaborasi lintas batas.", en: "Business solutions that empower the global Gen Z economy through innovation, creativity, and cross-border collaboration." },
+            title: { id: "Green Technology", en: "Green Technology" },
+            desc: { id: "Inovasi teknologi untuk keberlanjutan lingkungan.", en: "Technological innovations for environmental sustainability." },
             topics: {
-                id: ["Ekonomi Digital Gen Z", "Inovasi Bisnis Milenial", "Kewirausahaan Sosial"],
-                en: ["Gen Z Digital Economy", "Millennial Business Innovation", "Social Entrepreneurship"]
+                id: ["Energi Terbarukan", "Pengelolaan Limbah", "Efisiensi Karbon"],
+                en: ["Renewable Energy", "Waste Management", "Carbon Efficiency"]
             }
         },
         {
-            title: { id: "Technology & Sustainability in The Future of Beauty Industry", en: "Technology & Sustainability in The Future of Beauty Industry" },
-            desc: { id: "Menggabungkan teknologi dan keberlanjutan untuk masa depan industri kecantikan yang inovatif dan bertanggung jawab.", en: "Combining technology and sustainability for an innovative and responsible future of the beauty industry." },
+            title: { id: "Circular Economy", en: "Circular Economy" },
+            desc: { id: "Model bisnis yang meminimalkan limbah dan memaksimalkan sumber daya.", en: "Business models that minimize waste and maximize resources." },
             topics: {
-                id: ["Beauty Tech Innovation", "Keberlanjutan Industri Kecantikan", "Produk Kecantikan Berkelanjutan"],
-                en: ["Beauty Tech Innovation", "Beauty Industry Sustainability", "Sustainable Beauty Products"]
+                id: ["Daur Ulang Produk", "Rantai Pasok Berkelanjutan", "Upcycling"],
+                en: ["Product Recycling", "Sustainable Supply Chain", "Upcycling"]
+            }
+        },
+        {
+            title: { id: "Social Impact", en: "Social Impact" },
+            desc: { id: "Solusi bisnis yang memberdayakan masyarakat.", en: "Business solutions that empower communities." },
+            topics: {
+                id: ["Pemberdayaan UMKM", "Akses Pendidikan", "Kesehatan Masyarakat"],
+                en: ["MSME Empowerment", "Education Access", "Public Health"]
             }
         }
     ],

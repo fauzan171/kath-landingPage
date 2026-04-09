@@ -155,16 +155,6 @@ export const TimelineSection = () => {
                     </h2>
                 </div>
 
-                {/* Sync indicator */}
-                {stages.length > 0 && (
-                    <div className="text-center mb-8">
-                        <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 border border-green-200 rounded-full text-green-700 text-xs font-medium">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            {language === 'id' ? 'Jadwal tersinkronisasi real-time dari dashboard admin' : 'Schedule synced in real-time from admin dashboard'}
-                        </span>
-                    </div>
-                )}
-
                 {/* Timeline Container */}
                 <div className="relative pl-6 md:pl-0">
                     
