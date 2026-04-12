@@ -156,18 +156,18 @@ const Footer = () => {
           >
             {/* Left Column - CTA */}
             <div className="lg:col-span-5">
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#0F0F0F] tracking-tight">
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] tracking-tight">
                 {footerConfig.heading[language]}
               </h2>
               {/* Teks premium disisipkan di sini dengan tipografi yang lebih elegan */}
-              <p className="font-body text-base md:text-lg text-[#0F0F0F]/70 mt-6 max-w-lg leading-loose font-light">
+              <p className="font-body text-sm md:text-base lg:text-lg text-[#0F0F0F]/70 mt-4 md:mt-6 max-w-xs md:max-w-lg leading-loose font-light">
                 {language === 'id' 
                   ? 'Mewujudkan acara impian Anda dengan sentuhan elegan dan detail yang presisi. Mitra tepercaya untuk setiap momen tak terlupakan.' 
                   : 'Bringing your dream events to life with elegant touches and flawless precision. Your trusted partner for unforgettable moments.'}
               </p>
               {footerConfig.ctaText && (
                 <MagneticButton 
-                  className="relative mt-10 px-8 py-4 border border-[#0F0F0F]/20 rounded-full font-body font-bold text-sm uppercase tracking-widest overflow-hidden transition-colors hover:border-[#FFB22C] text-[#0F0F0F]"
+                  className="relative mt-8 md:mt-10 px-6 md:px-8 py-3 md:py-4 border border-[#0F0F0F]/20 rounded-full font-body font-bold text-xs md:text-sm uppercase tracking-widest overflow-hidden transition-colors hover:border-[#FFB22C] text-[#0F0F0F]"
                   onClick={() => scrollToSection('#contact')}
                 >
                   <span className="flex items-center gap-2">
@@ -180,7 +180,7 @@ const Footer = () => {
 
             {/* Right Column - Contact Grid */}
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
                 {/* Contact */}
                 {footerConfig.contact.length > 0 && (
                   <div>

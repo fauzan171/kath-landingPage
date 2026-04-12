@@ -69,13 +69,13 @@ const CardStack = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row relative">
         
         {/* KOLOM KIRI: Konten Teks yang Di-scroll */}
-        <div className="w-full md:w-1/2 md:pr-16 lg:pr-24 py-24 md:py-[15vh]">
+        <div className="w-full md:w-1/2 md:pr-16 lg:pr-24 py-16 md:py-[15vh]">
           
-          <div className="mb-20 md:mb-32">
-            <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
+          <div className="mb-12 md:mb-20 lg:mb-32">
+            <span className="font-body text-[#FFB22C] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">
               {cardStackConfig.sectionSubtitle[language]}
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-medium mt-4">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium mt-3 md:mt-4">
               {cardStackConfig.sectionTitle[language]}
             </h2>
           </div>
@@ -94,7 +94,7 @@ const CardStack = () => {
               <div
                 key={card.id}
                 ref={(el) => { textRefs.current[index] = el; }}
-                className={`flex flex-col min-h-[50vh] transition-all duration-700 ease-out ${
+                className={`flex flex-col min-h-[40vh] md:min-h-[50vh] transition-all duration-700 ease-out ${
                   activeIndex === index ? 'opacity-100' : 'opacity-30 hover:opacity-60'
                 }`}
               >
@@ -108,28 +108,28 @@ const CardStack = () => {
                   />
                 </div>
 
-                <div className="flex gap-4 md:gap-5 items-start">
+                <div className="flex gap-3 md:gap-5 items-start">
                   {/* Container Angka (Digunakan sebagai patokan posisi Y kotak) */}
                   <div 
                     ref={(el) => { indicatorRefs.current[index] = el; }}
-                    className="flex items-center mt-3.5 shrink-0 pl-6 md:pl-8" // Padding kiri untuk memberi jalan pada kotak oranye
+                    className="flex items-center mt-3 md:mt-3.5 shrink-0 pl-4 md:pl-6 lg:pl-8" // Padding kiri untuk memberi jalan pada kotak oranye
                   >
-                    <span className="font-body text-sm font-semibold text-[#0F0F0F]/40 tracking-widest">
+                    <span className="font-body text-xs md:text-sm font-semibold text-[#0F0F0F]/40 tracking-widest">
                       {String(index + 1).padStart(2, '0')}
                     </span>
                   </div>
 
                   {/* Teks Judul & Deskripsi */}
-                  <div className="pt-2">
+                  <div className="pt-1 md:pt-2">
                     {card.category && (
-                      <span className="inline-block px-3 py-1 bg-[#FFB22C]/10 text-[#FFB22C] text-[10px] font-bold uppercase tracking-wider rounded-full mb-3">
+                      <span className="inline-block px-2.5 py-0.5 md:px-3 md:py-1 bg-[#FFB22C]/10 text-[#FFB22C] text-[9px] md:text-[10px] font-bold uppercase tracking-wider rounded-full mb-2 md:mb-3">
                         {card.category[language]}
                       </span>
                     )}
-                    <h3 className="font-display text-3xl md:text-4xl font-semibold mb-4 text-[#0F0F0F]">
+                    <h3 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold mb-3 md:mb-4 text-[#0F0F0F]">
                       {card.title[language]}
                     </h3>
-                    <p className="font-body text-[#0F0F0F]/70 text-base md:text-lg leading-relaxed max-w-md">
+                    <p className="font-body text-[#0F0F0F]/70 text-sm md:text-base lg:text-lg leading-relaxed max-w-xs md:max-w-md">
                       {card.description[language]}
                     </p>
                   </div>

@@ -152,7 +152,7 @@ const Contact = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {contactConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {contactConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
@@ -161,7 +161,7 @@ const Contact = () => {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Contact Form */}
           <form
             ref={formRef}
@@ -254,10 +254,10 @@ const Contact = () => {
           {/* Contact Info */}
           <div ref={infoRef} className="space-y-8">
             {/* Contact Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
-                  <Mail className="w-5 h-5 text-[#FFB22C]" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-3 md:mb-4 border border-[#0F0F0F]/5">
+                  <Mail className="w-4 h-4 md:w-5 md:h-5 text-[#FFB22C]" />
                 </div>
                 <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.email}</h4>
                 <a
@@ -268,9 +268,9 @@ const Contact = () => {
                 </a>
               </div>
 
-              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
-                  <Phone className="w-5 h-5 text-[#FFB22C]" />
+              <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-3 md:mb-4 border border-[#0F0F0F]/5">
+                  <Phone className="w-4 h-4 md:w-5 md:h-5 text-[#FFB22C]" />
                 </div>
                 <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.phone}</h4>
                 <a
@@ -281,9 +281,9 @@ const Contact = () => {
                 </a>
               </div>
 
-              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
-                  <MapPin className="w-5 h-5 text-[#FFB22C]" />
+              <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-3 md:mb-4 border border-[#0F0F0F]/5">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#FFB22C]" />
                 </div>
                 <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.address}</h4>
                 <p className="font-display font-medium text-[#0F0F0F]">
@@ -291,9 +291,9 @@ const Contact = () => {
                 </p>
               </div>
 
-              <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-4 border border-[#0F0F0F]/5">
-                  <Clock className="w-5 h-5 text-[#FFB22C]" />
+              <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-3 md:mb-4 border border-[#0F0F0F]/5">
+                  <Clock className="w-4 h-4 md:w-5 md:h-5 text-[#FFB22C]" />
                 </div>
                 <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-1">{labels.contactInfo.hours}</h4>
                 <p className="font-display font-medium text-[#0F0F0F]">
@@ -303,8 +303,8 @@ const Contact = () => {
             </div>
 
             {/* Social Links */}
-            <div className="p-6 bg-white border border-[#0F0F0F]/5 rounded-2xl">
-              <h4 className="font-body text-sm font-semibold text-[#0F0F0F]/60 mb-4">{labels.followUs}</h4>
+            <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl">
+              <h4 className="font-body text-xs md:text-sm font-semibold text-[#0F0F0F]/60 mb-3 md:mb-4">{labels.followUs}</h4>
               <div className="flex gap-4">
                 {[
                   { icon: Instagram, href: contactConfig.socials.instagram },
@@ -317,20 +317,20 @@ const Contact = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full bg-[#F9F8F6] flex items-center justify-center border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group transition-all duration-300 shadow-sm"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F9F8F6] flex items-center justify-center border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group transition-all duration-300 shadow-sm"
                   >
-                    <social.icon className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
+                    <social.icon className="w-4 h-4 md:w-5 md:h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
                   </a>
                 ))}
               </div>
             </div>
 
             {/* CTA Card */}
-            <div className="p-6 bg-[#FFB22C]/10 border border-[#FFB22C]/30 rounded-2xl">
-              <h4 className="font-display text-xl font-bold text-[#0F0F0F] mb-2">
+            <div className="p-4 md:p-6 bg-[#FFB22C]/10 border border-[#FFB22C]/30 rounded-xl md:rounded-2xl">
+              <h4 className="font-display text-lg md:text-xl font-bold text-[#0F0F0F] mb-1.5 md:mb-2">
                 {labels.ctaTitle}
               </h4>
-              <p className="font-body text-sm text-[#0F0F0F]/70 mb-4">
+              <p className="font-body text-xs md:text-sm text-[#0F0F0F]/70 mb-3 md:mb-4">
                 {labels.ctaDesc}
               </p>
               <a

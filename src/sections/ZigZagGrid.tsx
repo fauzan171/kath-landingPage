@@ -85,8 +85,8 @@ const GridItem = ({
     <div
       ref={itemRef}
       // Tambahkan min-h-[120vh] agar ada ruang untuk teks men-scroll sementara gambar terkunci (sticky)
-      className={`relative grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 min-h-[100vh] lg:min-h-[120vh] ${
-        index > 0 ? 'mt-24 md:mt-32' : ''
+      className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 min-h-[80vh] lg:min-h-[120vh] ${
+        index > 0 ? 'mt-16 md:mt-24 lg:mt-32' : ''
       }`}
     >
       {/* Kolom Gambar (Sticky) */}
@@ -95,7 +95,7 @@ const GridItem = ({
         <div className="sticky top-24 md:top-32 w-full">
           <div
             ref={imageContainerRef}
-            className="relative w-full aspect-[4/5] md:aspect-[4/3] overflow-hidden rounded-[32px] border border-[#0F0F0F]/10 shadow-2xl shadow-[#0F0F0F]/5"
+            className="relative w-full aspect-[4/3] md:aspect-[4/3] overflow-hidden rounded-2xl md:rounded-[32px] border border-[#0F0F0F]/10 shadow-xl md:shadow-2xl shadow-[#0F0F0F]/5"
           >
             <img
               ref={imageRef}
@@ -116,17 +116,17 @@ const GridItem = ({
       {/* Kolom Teks (Scrolling) */}
       <div
         ref={textRef}
-        className={`flex flex-col justify-center py-20 lg:py-40 ${
+        className={`flex flex-col justify-center py-12 md:py-20 lg:py-40 ${
           item.reverse ? 'lg:order-1 lg:pr-12' : 'lg:order-2 lg:pl-12'
         }`}
       >
-        <span className="font-body text-sm font-semibold uppercase tracking-[0.2em] text-[#FFB22C]">
+        <span className="font-body text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-[#FFB22C]">
           {item.subtitle[language]}
         </span>
-        <h3 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 leading-tight tracking-tight">
+        <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-3 md:mt-4 leading-tight tracking-tight">
           {item.title[language]}
         </h3>
-        <p className="font-body text-base md:text-lg text-[#0F0F0F]/70 leading-relaxed mt-6 max-w-lg">
+        <p className="font-body text-sm md:text-base lg:text-lg text-[#0F0F0F]/70 leading-relaxed mt-4 md:mt-6 max-w-md lg:max-w-lg">
           {item.description[language]}
         </p>
 
@@ -195,7 +195,7 @@ const ZigZagGrid = () => {
           <span className="font-body text-xs font-bold uppercase tracking-[0.3em] text-[#FFB22C]">
             {zigZagGridConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {zigZagGridConfig.sectionTitle[language]}
           </h2>
         </div>

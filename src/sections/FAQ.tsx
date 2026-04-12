@@ -92,7 +92,7 @@ const FAQ = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {faqConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {faqConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
@@ -106,7 +106,7 @@ const FAQ = () => {
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 font-body text-sm rounded-full transition-all duration-300 border ${
+              className={`px-4 md:px-6 py-2 md:py-2.5 font-body text-xs md:text-sm rounded-full transition-all duration-300 border ${
                 activeCategory === category
                   ? 'bg-[#FFB22C] border-[#FFB22C] text-[#0F0F0F] font-bold shadow-md shadow-[#FFB22C]/20'
                   // Diubah ke bg-white agar kontras dengan bg krem

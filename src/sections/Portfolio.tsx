@@ -108,7 +108,7 @@ const Portfolio = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {portfolioConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl text-[#0F0F0F] mt-4 font-medium">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-[#0F0F0F] mt-4 font-medium">
             {portfolioConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
@@ -134,7 +134,7 @@ const Portfolio = () => {
         </div>
 
         {/* Portfolio Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {displayedItems.map((item) => (
             <div
               key={item.id}
@@ -155,14 +155,14 @@ const Portfolio = () => {
               </div>
 
               {/* Content Container - Bagian Bawah Card */}
-              <div className="p-6 md:p-8 flex flex-col flex-1">
+              <div className="p-5 md:p-6 lg:p-8 flex flex-col flex-1">
                 {/* Category Badge */}
                 <span className="inline-block self-start px-3 py-1 bg-[#FFB22C]/10 text-[#FFB22C] text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-full mb-4">
                   {item.category[language]}
                 </span>
 
                 {/* Title */}
-                <h3 className="font-display text-xl md:text-2xl text-[#0F0F0F] font-semibold mb-4 group-hover:text-[#FFB22C] transition-colors duration-300 line-clamp-2">
+                <h3 className="font-display text-lg md:text-xl lg:text-2xl text-[#0F0F0F] font-semibold mb-3 md:mb-4 group-hover:text-[#FFB22C] transition-colors duration-300 line-clamp-2">
                   {item.title[language]}
                 </h3>
 

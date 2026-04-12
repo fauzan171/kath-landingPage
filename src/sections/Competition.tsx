@@ -133,10 +133,10 @@ const Competition = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {competitionConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-medium mt-4">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium mt-4">
             {competitionConfig.sectionTitle[language]}
           </h2>
-          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-lg">
+          <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
             {competitionConfig.sectionDescription[language]}
           </p>
         </div>
@@ -144,11 +144,11 @@ const Competition = () => {
         {/* Main Competition Card */}
         <div
           ref={mainCardRef}
-          className="relative mb-16 p-8 md:p-12 bg-white border border-[#0F0F0F]/10 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/5 transition-shadow duration-500"
+          className="relative mb-12 md:mb-16 p-6 md:p-8 lg:p-12 bg-white border border-[#0F0F0F]/10 rounded-2xl md:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/5 transition-shadow duration-500"
         >
           <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-[#FFB22C]/5 to-transparent pointer-events-none" />
 
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 items-center">
             {/* Left - Info */}
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -159,15 +159,15 @@ const Competition = () => {
                   {language === 'id' ? 'Kompetisi Utama' : 'Main Competition'}
                 </span>
               </div>
-              <h3 className="font-display text-4xl md:text-5xl font-semibold text-[#0F0F0F] mb-4 leading-tight">
+              <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-[#0F0F0F] mb-3 md:mb-4 leading-tight">
                 {competitionConfig.mainCompetition.name[language]}
               </h3>
-              <p className="font-body text-[#0F0F0F]/70 mb-8 text-lg leading-relaxed">
+              <p className="font-body text-[#0F0F0F]/70 mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
                 {competitionConfig.mainCompetition.description[language]}
               </p>
               <button
                 onClick={() => navigate('/cibc')}
-                className="group px-8 py-4 bg-[#FFB22C] text-[#0F0F0F] font-body text-sm font-bold uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-3 hover:bg-[#0F0F0F] hover:text-[#FFB22C] hover:shadow-lg hover:-translate-y-1"
+                className="group px-6 md:px-8 py-3 md:py-4 bg-[#FFB22C] text-[#0F0F0F] font-body text-xs md:text-sm font-bold uppercase tracking-wider rounded-full transition-all duration-300 flex items-center gap-2 md:gap-3 hover:bg-[#0F0F0F] hover:text-[#FFB22C] hover:shadow-lg hover:-translate-y-1"
               >
                 {language === 'id' ? 'Lihat Detail Kompetisi' : 'View Competition Details'}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -180,7 +180,7 @@ const Competition = () => {
                 <Clock className="w-4 h-4 text-[#FFB22C]" />
                 {language === 'id' ? 'Pendaftaran ditutup dalam' : 'Registration closes in'}
               </span>
-              <div className="grid grid-cols-4 gap-3 md:gap-4 w-full lg:w-auto">
+              <div className="grid grid-cols-4 gap-2 md:gap-3 lg:gap-4 w-full lg:w-auto">
                 {[
                   { value: timeLeft.days, label: language === 'id' ? 'Hari' : 'Days' },
                   { value: timeLeft.hours, label: language === 'id' ? 'Jam' : 'Hours' },
@@ -189,12 +189,12 @@ const Competition = () => {
                 ].map((item, index) => (
                   <div
                     key={index}
-                    className="w-full aspect-square md:w-24 md:h-24 bg-[#F9F8F6] border border-[#0F0F0F]/10 rounded-2xl flex flex-col items-center justify-center shadow-sm"
+                    className="w-full aspect-square md:w-24 md:h-24 bg-[#F9F8F6] border border-[#0F0F0F]/10 rounded-xl md:rounded-2xl flex flex-col items-center justify-center shadow-sm"
                   >
-                    <span className="font-display text-3xl md:text-4xl font-semibold text-[#FFB22C] mb-1">
+                    <span className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold text-[#FFB22C] mb-0.5 md:mb-1">
                       {String(item.value).padStart(2, '0')}
                     </span>
-                    <span className="font-body text-[10px] md:text-xs text-[#0F0F0F]/40 uppercase font-bold tracking-widest">
+                    <span className="font-body text-[9px] md:text-[10px] lg:text-xs text-[#0F0F0F]/40 uppercase font-bold tracking-widest">
                       {item.label}
                     </span>
                   </div>
@@ -210,23 +210,23 @@ const Competition = () => {
             <div
               key={category.id}
               onClick={() => navigate('/cibc')}
-              className="category-card group relative bg-white border border-[#0F0F0F]/10 p-8 rounded-2xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/10 hover:-translate-y-2 flex flex-col"
+              className="category-card group relative bg-white border border-[#0F0F0F]/10 p-5 md:p-6 lg:p-8 rounded-xl md:rounded-2xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/10 hover:-translate-y-2 flex flex-col"
             >
               {/* Header Card: Ikon & Badge Status */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-5 md:mb-8">
                 {/* Ikon Kategori: Hover menjadi Emas */}
-                <div className="w-12 h-12 rounded-xl bg-[#F9F8F6] border border-[#0F0F0F]/5 flex items-center justify-center text-[#0F0F0F]/40 transition-colors duration-300 group-hover:bg-[#FFB22C]/10 group-hover:border-[#FFB22C]/20 group-hover:text-[#FFB22C]">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-[#F9F8F6] border border-[#0F0F0F]/5 flex items-center justify-center text-[#0F0F0F]/40 transition-colors duration-300 group-hover:bg-[#FFB22C]/10 group-hover:border-[#FFB22C]/20 group-hover:text-[#FFB22C]">
                   {getCategoryIcon(category.name[language])}
                 </div>
                 {renderStatusBadge(category.status[language])}
               </div>
               
               {/* Judul: Hover menjadi Emas */}
-              <h4 className="font-display text-2xl font-semibold text-[#0F0F0F] mb-3 leading-snug transition-colors duration-300 group-hover:text-[#FFB22C]">
+              <h4 className="font-display text-lg md:text-xl lg:text-2xl font-semibold text-[#0F0F0F] mb-2 md:mb-3 leading-snug transition-colors duration-300 group-hover:text-[#FFB22C]">
                 {category.name[language]}
               </h4>
               
-              <p className="font-body text-sm text-[#0F0F0F]/60 mb-8 flex-grow">
+              <p className="font-body text-xs md:text-sm text-[#0F0F0F]/60 mb-5 md:mb-8 flex-grow">
                 {category.target[language]}
               </p>
               

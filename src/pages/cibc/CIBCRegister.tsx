@@ -13,7 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ChevronLeft, Check, Mail, User,
-  GraduationCap, Users, Target, CreditCard, Upload
+  GraduationCap, Users, Target, CreditCard, Upload,
+  Info, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -315,29 +316,29 @@ const CIBCRegister = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white relative py-10 px-4 sm:px-6 lg:px-8 font-body flex flex-col justify-center overflow-hidden">
+    <div className="min-h-screen bg-white relative py-6 sm:py-10 px-4 sm:px-6 lg:px-8 font-body flex flex-col justify-center overflow-hidden">
 
       {/* Main Card Container */}
-      <div className="w-full max-w-5xl mx-auto bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-6 sm:p-10 lg:p-12 relative z-10 border border-gray-100">
+      <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl sm:rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-4 sm:p-10 lg:p-12 relative z-10 border border-gray-100">
 
         {/* Header Grid: Back | Title | Sign In */}
-        <div className="grid grid-cols-3 items-start mb-10">
+        <div className="grid grid-cols-3 items-start mb-6 sm:mb-10">
           <div className="flex justify-start">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#0F0F0F] transition-colors"
+              className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-gray-500 hover:text-[#0F0F0F] transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">{language === 'id' ? 'Kembali' : 'Back'}</span>
             </button>
           </div>
           <div className="flex justify-center text-center">
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#0F0F0F]">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-display font-bold text-[#0F0F0F]">
               {language === 'id' ? 'Pendaftaran' : 'Sign up'}
             </h1>
           </div>
           <div className="flex justify-end text-right">
-            <p className="text-sm font-medium text-gray-500">
+            <p className="text-xs sm:text-sm font-medium text-gray-500">
               <span className="hidden sm:inline">{language === 'id' ? 'Sudah punya akun? ' : 'Already a Member? '}</span>
               <button
                 onClick={() => navigate('/cibc/login')}
@@ -350,27 +351,27 @@ const CIBCRegister = () => {
         </div>
 
         {/* Progress Tracker (Horizontal Line with Circles) */}
-        <div className="relative max-w-3xl mx-auto mb-14 px-2 sm:px-10">
+        <div className="relative max-w-3xl mx-auto mb-8 sm:mb-14 px-2 sm:px-10">
           {/* Background Line */}
-          <div className="absolute top-[18px] left-[10%] right-[10%] h-[2px] bg-[#F4F6F8] -z-10" />
+          <div className="absolute top-[14px] sm:top-[18px] left-[10%] right-[10%] h-[2px] bg-[#F4F6F8] -z-10" />
           {/* Active Line */}
           <div
-            className="absolute top-[18px] left-[10%] h-[2px] bg-[#FFB22C] transition-all duration-500 -z-10"
+            className="absolute top-[14px] sm:top-[18px] left-[10%] h-[2px] bg-[#FFB22C] transition-all duration-500 -z-10"
             style={{ width: `${((currentStep - 1) / 4) * 80}%` }}
           />
 
           <div className="flex justify-between">
             {steps.map((step) => (
-              <div key={step.number} className="flex flex-col items-center w-20">
+              <div key={step.number} className="flex flex-col items-center w-12 sm:w-20">
                 <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${currentStep >= step.number
+                  className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300 ${currentStep >= step.number
                     ? 'bg-[#FFB22C] text-white shadow-md shadow-[#FFB22C]/30'
                     : 'bg-[#F4F6F8] text-gray-400'
                     }`}
                 >
-                  {currentStep > step.number ? <Check className="w-5 h-5" /> : step.number}
+                  {currentStep > step.number ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : step.number}
                 </div>
-                <span className={`mt-2 text-xs font-semibold text-center ${currentStep >= step.number ? 'text-[#0F0F0F]' : 'text-gray-400'
+                <span className={`mt-1 sm:mt-2 text-[10px] sm:text-xs font-semibold text-center ${currentStep >= step.number ? 'text-[#0F0F0F]' : 'text-gray-400'
                   }`}>
                   {step.number === 1 && (language === 'id' ? 'Akun' : 'Account')}
                   {step.number === 2 && (language === 'id' ? 'Personal' : 'Personal')}
@@ -389,18 +390,41 @@ const CIBCRegister = () => {
           {/* Step 1: Account */}
           {currentStep === 1 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F0F0F] mb-4 sm:mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Detail Akun' : 'Account Details'}
               </h2>
-              <div className="grid sm:grid-cols-2 gap-6">
+
+              {/* Info Box */}
+              <div className="bg-[#F9F8F6] rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-[#FFB22C] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-[#0F0F0F] text-sm mb-1">
+                      {language === 'id' ? 'Yang Perlu Disiapkan' : 'What You\'ll Need'}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {language === 'id'
+                        ? 'Siapkan alamat email yang valid dan buat password yang kuat untuk akun Anda.'
+                        : 'Prepare a valid email address and create a strong password for your account.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
                 <div className="sm:col-span-2">
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">Email</label>
                   <input
                     type="email"
                     {...step1Form.register('email')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Enter Email Address"
+                    placeholder={language === 'id' ? 'Masukkan alamat email' : 'Enter Email Address'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id'
+                      ? 'Gunakan email aktif yang bisa diakses untuk verifikasi'
+                      : 'Use an active email address that you can access for verification'}
+                  </p>
                   {step1Form.formState.errors.email && (
                     <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.email.message}</p>
                   )}
@@ -413,8 +437,13 @@ const CIBCRegister = () => {
                     type="password"
                     {...step1Form.register('password')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Create Password"
+                    placeholder={language === 'id' ? 'Buat Password' : 'Create Password'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id'
+                      ? 'Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, dan angka'
+                      : 'Minimum 8 characters, must include uppercase, lowercase, and a number'}
+                  </p>
                   {step1Form.formState.errors.password && (
                     <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.password.message}</p>
                   )}
@@ -427,8 +456,13 @@ const CIBCRegister = () => {
                     type="password"
                     {...step1Form.register('confirmPassword')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Confirm Password"
+                    placeholder={language === 'id' ? 'Ketik ulang password' : 'Confirm Password'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id'
+                      ? 'Ketik ulang password yang sama'
+                      : 'Re-enter the same password'}
+                  </p>
                   {step1Form.formState.errors.confirmPassword && (
                     <p className="mt-1 text-xs text-red-500">{step1Form.formState.errors.confirmPassword.message}</p>
                   )}
@@ -448,15 +482,32 @@ const CIBCRegister = () => {
               </div>
             </div>
           )}
-
           {/* Step 2: Personal Info */}
           {currentStep === 2 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F0F0F] mb-4 sm:mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Informasi Personal' : 'Personal Details'}
               </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
+
+              {/* Info Box */}
+              <div className="bg-[#F9F8F6] rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-[#FFB22C] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-[#0F0F0F] text-sm mb-1">
+                      {language === 'id' ? 'Yang Perlu Disiapkan' : 'What You\'ll Need'}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {language === 'id'
+                        ? 'Siapkan data diri: nama lengkap, tanggal lahir, nomor telepon, dan alamat.'
+                        : 'Prepare your personal info: full name, date of birth, phone number, and address.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+                <div className="sm:col-span-2">
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Nama Lengkap' : 'Full Name'}
                   </label>
@@ -464,8 +515,11 @@ const CIBCRegister = () => {
                     type="text"
                     {...step2Form.register('fullName')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Enter Full Name"
+                    placeholder={language === 'id' ? 'Masukkan nama lengkap' : 'Enter Full Name'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Sesuai KTP/Paspor' : 'As per your ID card/Passport'}
+                  </p>
                 </div>
                 <div>
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
@@ -476,6 +530,9 @@ const CIBCRegister = () => {
                     {...step2Form.register('birthDate')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm text-gray-500"
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Format: DD/MM/YYYY' : 'Format: DD/MM/YYYY'}
+                  </p>
                 </div>
                 <div>
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
@@ -485,8 +542,11 @@ const CIBCRegister = () => {
                     type="tel"
                     {...step2Form.register('phone')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="+62 812 xxxx xxxx"
+                    placeholder={language === 'id' ? '+62 812 xxxx xxxx' : '+62 812 xxxx xxxx'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Contoh: +62 812 xxxx xxxx' : 'Example: +62 812 xxxx xxxx'}
+                  </p>
                 </div>
                 <div>
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
@@ -496,11 +556,14 @@ const CIBCRegister = () => {
                     {...step2Form.register('country')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                   >
-                    <option value="">- Select -</option>
+                    <option value="">- {language === 'id' ? 'Pilih' : 'Select'} -</option>
                     {COUNTRIES.map(country => (
                       <option key={country} value={country}>{country}</option>
                     ))}
                   </select>
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Pilih negara domisili Anda' : 'Select your country of residence'}
+                  </p>
                 </div>
                 <div>
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
@@ -510,33 +573,35 @@ const CIBCRegister = () => {
                     type="text"
                     {...step2Form.register('city')}
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
-                    placeholder="Enter City"
+                    placeholder={language === 'id' ? 'Masukkan kota' : 'Enter City'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Kota tempat tinggal saat ini' : 'Your current city of residence'}
+                  </p>
                 </div>
               </div>
             </div>
           )}
-
           {/* Step 3: Category */}
           {currentStep === 3 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F0F0F] mb-4 sm:mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Kategori Partisipasi' : 'Participation Category'}
               </h2>
               {/* Student Category Info */}
-              <div className="bg-amber-50 rounded-2xl p-6 mb-8 border border-amber-200">
-                <div className="flex items-start gap-4">
-                  <GraduationCap className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="bg-amber-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-amber-200">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-amber-800 mb-2">
+                    <h3 className="font-semibold text-amber-800 mb-2 text-sm sm:text-base">
                       {language === 'id' ? 'Kategori Mahasiswa (D3/D4/S1)' : 'Student Category (Diploma/Undergraduate)'}
                     </h3>
-                    <p className="text-sm text-amber-700 mb-2">
+                    <p className="text-xs sm:text-sm text-amber-700 mb-2">
                       {language === 'id'
                         ? 'Peserta harus merupakan mahasiswa aktif D3, D4, atau S1 dari universitas di Indonesia dan institusi internasional.'
                         : 'Participants must be active undergraduate or diploma students from universities across Indonesia and international institutions.'}
                     </p>
-                    <p className="text-sm text-amber-700">
+                    <p className="text-xs sm:text-sm text-amber-700">
                       {language === 'id'
                         ? 'Tim terdiri dari 2-3 mahasiswa. Anggota boleh dari jurusan atau angkatan berbeda dalam universitas yang sama.'
                         : 'Each team must consist of 2 to 3 students. Members may be from different majors or cohorts within the same university.'}
@@ -546,7 +611,7 @@ const CIBCRegister = () => {
               </div>
 
               {/* Student Fields */}
-              <div className="grid md:grid-cols-2 gap-6 bg-white pt-2">
+              <div className="grid sm:grid-cols-2 gap-5 sm:gap-6 bg-white pt-2">
                 <div>
                   <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                     {language === 'id' ? 'Nama Institusi/Universitas' : 'Institution/University Name'}
@@ -557,6 +622,9 @@ const CIBCRegister = () => {
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                     placeholder={language === 'id' ? 'Contoh: Institut Teknologi Bandung' : 'e.g. Institut Teknologi Bandung'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Nama universitas/institusi sesuai resmi' : 'Official institution/university name'}
+                  </p>
                   {step3Form.formState.errors.institutionName && (
                     <p className="mt-1 text-xs text-red-500">{step3Form.formState.errors.institutionName.message}</p>
                   )}
@@ -571,6 +639,9 @@ const CIBCRegister = () => {
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                     placeholder={language === 'id' ? 'Masukkan NIM' : 'Enter Student ID'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'NIM / Nomor Induk Mahasiswa sesuai kartu mahasiswa' : 'Student ID number as per your student card'}
+                  </p>
                   {step3Form.formState.errors.studentId && (
                     <p className="mt-1 text-xs text-red-500">{step3Form.formState.errors.studentId.message}</p>
                   )}
@@ -585,26 +656,28 @@ const CIBCRegister = () => {
                     className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                     placeholder={language === 'id' ? 'Contoh: Teknik Informatika' : 'e.g. Computer Science'}
                   />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {language === 'id' ? 'Program studi / jurusan yang sedang ditempuh' : 'Current study program / major'}
+                  </p>
                 </div>
               </div>
             </div>
           )}
-
           {/* Step 4: Team Formation */}
           {currentStep === 4 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F0F0F] mb-4 sm:mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Formasi Tim' : 'Team Details'}
               </h2>
 
-              <div className="bg-blue-50 rounded-2xl p-6 mb-8 border border-blue-200">
-                <div className="flex items-start gap-4">
-                  <Users className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="bg-blue-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-blue-200">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-blue-800 mb-2">
+                    <h3 className="font-semibold text-blue-800 mb-2 text-sm sm:text-base">
                       {language === 'id' ? 'Ketentuan Tim' : 'Team Requirements'}
                     </h3>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-xs sm:text-sm text-blue-700">
                       {language === 'id'
                         ? 'Setiap tim harus terdiri dari 2-3 mahasiswa. Tim dibuat oleh ketua tim, dan anggota lain dapat bergabung setelah pendaftaran selesai. Setelah pendaftaran selesai, perubahan komposisi tim tidak diperbolehkan.'
                         : 'Each team must consist of 2 to 3 students. Teams are created by the team leader, and other members may join after registration. Once registered, changes to team composition are strictly prohibited.'}
@@ -620,9 +693,14 @@ const CIBCRegister = () => {
                 <input
                   type="text"
                   {...step4Form.register('teamName')}
-                  className="w-full md:w-1/2 bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
+                  className="w-full bg-[#F4F6F8] px-4 py-3.5 rounded-xl border border-transparent focus:bg-white focus:border-[#FFB22C] focus:ring-4 focus:ring-[#FFB22C]/15 outline-none text-[#0F0F0F] transition-all text-sm"
                   placeholder={language === 'id' ? 'Masukkan Nama Tim' : 'Enter Team Name'}
                 />
+                <p className="mt-1.5 text-xs text-gray-400">
+                  {language === 'id'
+                    ? 'Nama tim yang unik dan kreatif (tidak dapat diubah setelah submit)'
+                    : 'A unique and creative team name (cannot be changed after submission)'}
+                </p>
                 {step4Form.formState.errors.teamName && (
                   <p className="mt-1 text-xs text-red-500">{step4Form.formState.errors.teamName.message}</p>
                 )}
@@ -634,28 +712,27 @@ const CIBCRegister = () => {
               </div>
             </div>
           )}
-
           {/* Step 5: Payment */}
           {currentStep === 5 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-[#0F0F0F] mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F0F0F] mb-4 sm:mb-6 border-b border-gray-100 pb-4">
                 {language === 'id' ? 'Bukti Pembayaran' : 'Payment Proof'}
               </h2>
 
               {/* Payment Info */}
-              <div className="bg-amber-50 rounded-2xl p-6 mb-8 border border-amber-200">
-                <div className="flex items-start gap-4">
-                  <CreditCard className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="bg-amber-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-amber-200">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-amber-800 mb-2">
+                    <h3 className="font-semibold text-amber-800 mb-2 text-sm sm:text-base">
                       {language === 'id' ? 'Informasi Pembayaran' : 'Payment Information'}
                     </h3>
-                    <p className="text-sm text-amber-700 mb-3">
+                    <p className="text-xs sm:text-sm text-amber-700 mb-3">
                       {language === 'id'
                         ? 'Upload bukti pembayaran registrasi untuk menyelesaikan pendaftaran tim Anda.'
                         : 'Upload your registration payment proof to complete your team registration.'}
                     </p>
-                    <div className="space-y-2 text-sm text-amber-700">
+                    <div className="space-y-2 text-xs sm:text-sm text-amber-700">
                       <p>• {language === 'id' ? 'Wave 1 (19-23 April 2026): Rp 125.000/tim' : 'Wave 1 (Apr 19-23, 2026): Rp 125,000/team'}</p>
                       <p>• {language === 'id' ? 'Wave 2 (24 April - 31 Mei 2026): Rp 150.000/tim' : 'Wave 2 (Apr 24 - May 31, 2026): Rp 150,000/team'}</p>
                     </div>
@@ -665,9 +742,14 @@ const CIBCRegister = () => {
 
               {/* Payment Upload Component - Simple file selector for registration */}
               <div className="mb-6">
-                <label className="block font-semibold text-sm text-[#0F0F0F] mb-3">
+                <label className="block font-semibold text-sm text-[#0F0F0F] mb-2">
                   {language === 'id' ? 'Upload Bukti Pembayaran (Foto)' : 'Upload Payment Proof (Image)'}
                 </label>
+                <p className="text-xs text-gray-400 mb-3">
+                  {language === 'id'
+                    ? 'Format: JPG, PNG, atau JPEG. Ukuran maksimal 5MB.'
+                    : 'Format: JPG, PNG, or JPEG. Maximum file size 5MB.'}
+                </p>
 
                 {/* File drop zone */}
                 <div
@@ -687,7 +769,7 @@ const CIBCRegister = () => {
                     }
                   }}
                   onDragOver={(e) => e.preventDefault()}
-                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all ${
+                  className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all ${
                     paymentFile ? 'border-[#FFB22C] bg-[#FFB22C]/5' : 'border-gray-200 bg-[#F4F6F8] hover:border-[#FFB22C]'
                   }`}
                 >
@@ -708,27 +790,39 @@ const CIBCRegister = () => {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <div className="flex flex-col items-center gap-3">
-                    <Upload className="w-10 h-10 text-gray-400" />
+                    <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                     {paymentFile ? (
                       <div className="text-center">
-                        <p className="font-semibold text-[#0F0F0F]">{paymentFile.name}</p>
-                        <p className="text-sm text-gray-500">{(paymentFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                        <p className="font-semibold text-[#0F0F0F] text-sm sm:text-base">{paymentFile.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-500">{(paymentFile.size / 1024 / 1024).toFixed(1)} MB</p>
                         <button
                           onClick={() => setPaymentFile(null)}
-                          className="mt-2 text-sm text-red-500 hover:underline"
+                          className="mt-2 text-xs sm:text-sm text-red-500 hover:underline"
                         >
                           {language === 'id' ? 'Hapus gambar' : 'Remove image'}
                         </button>
                       </div>
                     ) : (
                       <div className="text-center">
-                        <p className="font-semibold text-[#0F0F0F]">
+                        <p className="font-semibold text-[#0F0F0F] text-sm sm:text-base">
                           {language === 'id' ? 'Drag & drop atau klik untuk upload' : 'Drag & drop or click to upload'}
                         </p>
-                        <p className="text-sm text-gray-500">JPG, PNG, max 5MB</p>
+                        <p className="text-xs sm:text-sm text-gray-500">JPG, PNG, max 5MB</p>
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Verification Note */}
+              <div className="bg-[#F9F8F6] rounded-xl p-4 mb-6 border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-4 h-4 text-[#FFB22C] flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-500">
+                    {language === 'id'
+                      ? 'Bukti pembayaran akan diverifikasi oleh panitia dalam 1x24 jam. Anda akan menerima konfirmasi melalui email dan WhatsApp.'
+                      : 'Payment proof will be verified by the committee within 24 hours. You will receive confirmation via email and WhatsApp.'}
+                  </p>
                 </div>
               </div>
 
@@ -750,7 +844,6 @@ const CIBCRegister = () => {
               )}
             </div>
           )}
-
           {/* Bottom Centered Navigation Button */}
           <div className="flex justify-center items-center gap-4 mt-12">
             {currentStep > 1 && (

@@ -109,10 +109,10 @@ const News = () => {
             <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
               {newsConfig.sectionLabel[language]}
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-medium text-[#0F0F0F] mt-4">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium text-[#0F0F0F] mt-4">
               {newsConfig.sectionTitle[language]}
             </h2>
-            <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-lg">
+            <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               {newsConfig.sectionDescription[language]}
             </p>
 
@@ -122,7 +122,7 @@ const News = () => {
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.label)}
-                  className={`px-6 py-2.5 font-body text-sm rounded-full transition-all duration-300 font-medium ${
+                  className={`px-4 md:px-6 py-2 md:py-2.5 font-body text-xs md:text-sm rounded-full transition-all duration-300 font-medium ${
                     activeCategory === category.label
                       ? 'bg-[#FFB22C] text-[#0F0F0F] shadow-md shadow-[#FFB22C]/20'
                       : 'bg-white border border-[#0F0F0F]/10 text-[#0F0F0F]/60 hover:border-[#0F0F0F]/30 hover:text-[#0F0F0F]'
@@ -135,7 +135,7 @@ const News = () => {
           </div>
 
           {/* News Grid */}
-          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredNews.map((item) => (
               <article
                 key={item.id}
@@ -143,7 +143,7 @@ const News = () => {
                 onClick={() => setSelectedNews(item)}
               >
                 {/* Image Container */}
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative h-44 md:h-56 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title[language]}
@@ -156,8 +156,8 @@ const News = () => {
                 </div>
 
                 {/* Content Container (Latar tetap putih, hanya teks yang bereaksi) */}
-                <div className="flex flex-col flex-grow p-6 bg-white">
-                  <div className="flex items-center gap-4 text-[#0F0F0F]/50 text-xs mb-3 font-medium">
+                <div className="flex flex-col flex-grow p-4 md:p-6 bg-white">
+                  <div className="flex items-center gap-3 md:gap-4 text-[#0F0F0F]/50 text-[10px] md:text-xs mb-2 md:mb-3 font-medium">
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5" />
                       {formatDate(item.date)}
@@ -169,15 +169,15 @@ const News = () => {
                   </div>
 
                   {/* Judul berubah warna menjadi emas saat di-hover */}
-                  <h3 className="font-display text-xl font-semibold text-[#0F0F0F] mb-3 line-clamp-2 leading-snug transition-colors duration-300 group-hover:text-[#FFB22C]">
+                  <h3 className="font-display text-base md:text-lg lg:text-xl font-semibold text-[#0F0F0F] mb-2 md:mb-3 line-clamp-2 leading-snug transition-colors duration-300 group-hover:text-[#FFB22C]">
                     {item.title[language]}
                   </h3>
 
-                  <p className="font-body text-sm text-[#0F0F0F]/60 mb-6 line-clamp-2 flex-grow">
+                  <p className="font-body text-xs md:text-sm text-[#0F0F0F]/60 mb-4 md:mb-6 line-clamp-2 flex-grow">
                     {item.excerpt[language]}
                   </p>
 
-                  <div className="mt-auto flex items-center gap-2 text-[#FFB22C] font-body text-sm font-bold">
+                  <div className="mt-auto flex items-center gap-2 text-[#FFB22C] font-body text-xs md:text-sm font-bold">
                     {labels.readMore}
                     {/* Tanda panah bergeser ke kanan saat di-hover */}
                     <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -205,7 +205,7 @@ const News = () => {
 
           {/* Modal Content */}
           <div
-            className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+            className="relative w-full max-w-4xl max-h-[90vh] md:max-h-[90vh] bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -219,7 +219,7 @@ const News = () => {
             {/* Scrollable Content */}
             <div className="overflow-y-auto w-full h-full">
               {/* Hero Image */}
-              <div className="relative h-64 md:h-80 w-full">
+              <div className="relative h-48 md:h-64 lg:h-80 w-full">
                 <img
                   src={selectedNews.image}
                   alt={selectedNews.title[language]}
@@ -229,7 +229,7 @@ const News = () => {
               </div>
 
               {/* Content */}
-              <div className="relative -mt-16 px-6 md:px-12 pb-12 bg-white rounded-t-3xl pt-8">
+              <div className="relative -mt-12 md:-mt-16 px-5 md:px-12 pb-8 md:pb-12 bg-white rounded-t-2xl md:rounded-t-3xl pt-6 md:pt-8">
                 {/* Category Badge */}
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#FFB22C] text-[#0F0F0F] text-xs font-bold uppercase tracking-wider rounded-full mb-5">
                   <Tag className="w-3.5 h-3.5" />
@@ -237,12 +237,12 @@ const News = () => {
                 </span>
 
                 {/* Title */}
-                <h2 className="font-display text-3xl md:text-4xl font-semibold text-[#0F0F0F] mb-6 leading-tight">
+                <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold text-[#0F0F0F] mb-4 md:mb-6 leading-tight">
                   {selectedNews.title[language]}
                 </h2>
 
                 {/* Meta */}
-                <div className="flex flex-wrap items-center gap-6 text-[#0F0F0F]/60 font-medium text-sm mb-8 pb-8 border-b border-[#0F0F0F]/10">
+                <div className="flex flex-wrap items-center gap-3 md:gap-6 text-[#0F0F0F]/60 font-medium text-xs md:text-sm mb-6 md:mb-8 pb-6 md:pb-8 border-b border-[#0F0F0F]/10">
                   <span className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-[#FFB22C]" />
                     {formatDate(selectedNews.date)}
@@ -259,7 +259,7 @@ const News = () => {
 
                 {/* Article Content */}
                 <div className="prose max-w-none">
-                  <p className="font-body text-lg text-[#0F0F0F]/80 font-medium leading-relaxed mb-6">
+                  <p className="font-body text-base md:text-lg text-[#0F0F0F]/80 font-medium leading-relaxed mb-4 md:mb-6">
                     {selectedNews.excerpt[language]}
                   </p>
                   <p className="font-body text-[#0F0F0F]/70 leading-relaxed">
@@ -268,7 +268,7 @@ const News = () => {
                 </div>
 
                 {/* Share Section */}
-                <div className="mt-12 pt-8 border-t border-[#0F0F0F]/10">
+                <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-[#0F0F0F]/10">
                   <p className="font-body text-sm font-bold text-[#0F0F0F]/50 uppercase tracking-wider mb-4">
                     {labels.share}
                   </p>

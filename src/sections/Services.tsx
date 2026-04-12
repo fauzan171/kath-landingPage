@@ -108,14 +108,14 @@ const Services = () => {
             return (
               <div
                 key={service.id}
-                className="service-item group relative h-[260px] md:h-[280px] border-b border-[#0F0F0F]/10 md:border-r overflow-hidden bg-[#F9F8F6] transition-colors duration-500 hover:bg-white cursor-pointer"
+                className="service-item group relative h-[220px] md:h-[260px] lg:h-[280px] border-b border-[#0F0F0F]/10 md:border-r overflow-hidden bg-[#F9F8F6] transition-colors duration-500 hover:bg-white cursor-pointer"
               >
                 
                 {/* --- DEKORASI PANAH (ARROW) YANG SEJAJAR --- */}
                 {/* 1. `top-8 md:top-10` menyamakan padding p-8 md:p-10 dari konten di bawahnya.
                   2. `h-12 md:h-14` menyamakan tinggi persis kotak ikon utama agar center sejajar.
                 */}
-                <div className="absolute top-8 right-8 md:top-10 md:right-10 h-12 md:h-14 flex items-center z-20 pointer-events-none">
+                <div className="absolute top-6 right-6 md:top-8 md:right-8 lg:top-10 lg:right-10 h-10 md:h-12 lg:h-14 flex items-center z-20 pointer-events-none">
                   <ArrowUpRight 
                     className="w-5 h-5 md:w-6 md:h-6 transition-all duration-300 text-[#0F0F0F]/20 group-hover:text-[#FFB22C] group-hover:-translate-y-1 group-hover:translate-x-1" 
                     strokeWidth={1.5} 
@@ -124,23 +124,23 @@ const Services = () => {
 
                 {/* --- STATE NORMAL --- */}
                 {/* Diubah dari justify-center menjadi justify-start agar menempel di atas (p-8 md:p-10) */}
-                <div className="absolute inset-0 flex flex-col items-start justify-start p-8 md:p-10 transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:-translate-y-4">
+                <div className="absolute inset-0 flex flex-col items-start justify-start p-6 md:p-8 lg:p-10 transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:-translate-y-4">
                   
                   {/* Kotak Ikon Utama - Tingginya persis dengan wadah panah di atas (h-12 md:h-14) */}
-                  <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-[#0F0F0F]/10 rounded-2xl bg-white shadow-sm mb-5 flex-shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center border border-[#0F0F0F]/10 rounded-xl md:rounded-2xl bg-white shadow-sm mb-4 md:mb-5 flex-shrink-0">
                     <img 
                       src={iconUrl} 
                       alt={service.title[language]}
-                      className="w-6 h-6 md:w-7 md:h-7 object-contain"
+                      className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 object-contain"
                       style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }} 
                     />
                   </div>
                   
                   <div>
-                    <h3 className="font-display text-xl md:text-2xl text-[#0F0F0F] font-semibold mb-2 pr-8">
+                    <h3 className="font-display text-lg md:text-xl lg:text-2xl text-[#0F0F0F] font-semibold mb-1.5 md:mb-2 pr-8">
                       {service.title[language]}
                     </h3>
-                    <p className="font-body text-sm text-[#0F0F0F]/60 line-clamp-2 pr-4">
+                    <p className="font-body text-xs md:text-sm text-[#0F0F0F]/60 line-clamp-2 pr-4">
                       {service.description[language]}
                     </p>
                   </div>
@@ -149,11 +149,11 @@ const Services = () => {
 
                 {/* --- STATE HOVER --- */}
                 {/* Diubah dari justify-center menjadi justify-start agar transisi konsisten di atas */}
-                <div className="absolute inset-0 flex flex-col items-start justify-start p-8 md:p-10 opacity-0 translate-y-8 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:translate-y-0 bg-white">
+                <div className="absolute inset-0 flex flex-col items-start justify-start p-6 md:p-8 lg:p-10 opacity-0 translate-y-8 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:translate-y-0 bg-white">
                   
                   {/* Memberikan h-12 md:h-14 di header hover ini agar teks judulnya juga ikut sejajar dengan panah */}
-                  <div className="flex items-center gap-4 mb-5 h-12 md:h-14 w-full">
-                    <div className="w-10 h-10 flex items-center justify-center border border-[#0F0F0F]/10 rounded-xl bg-[#F9F8F6] flex-shrink-0">
+                  <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-5 h-10 md:h-12 lg:h-14 w-full">
+                    <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border border-[#0F0F0F]/10 rounded-lg md:rounded-xl bg-[#F9F8F6] flex-shrink-0">
                        <img 
                         src={iconUrl} 
                         alt="" 
@@ -161,16 +161,16 @@ const Services = () => {
                         style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }}
                       />
                     </div>
-                    <h3 className="font-display text-xl md:text-xl text-[#0F0F0F] font-semibold pr-8 line-clamp-2">
+                    <h3 className="font-display text-lg md:text-xl text-[#0F0F0F] font-semibold pr-8 line-clamp-2">
                       {service.title[language]}
                     </h3>
                   </div>
                   
-                  <ul className="space-y-2.5 mt-1 w-full">
+                  <ul className="space-y-2 md:space-y-2.5 mt-1 w-full">
                     {service.features.map((feature, index) => (
                       <li
                         key={index}
-                        className="font-body text-sm text-[#0F0F0F]/70 flex items-start gap-3"
+                        className="font-body text-xs md:text-sm text-[#0F0F0F]/70 flex items-start gap-2 md:gap-3"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-[#FFB22C] flex-shrink-0 mt-1.5" />
                         <span className="pr-4">{feature[language]}</span>

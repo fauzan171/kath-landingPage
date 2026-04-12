@@ -131,17 +131,17 @@ const NarrativeText = () => {
         </div>
 
         {/* Narrative Text */}
-        <div className="space-y-6 md:space-y-8">
-          <p ref={line1Ref} className="font-display text-headline text-[#0F0F0F]">
+        <div className="space-y-4 md:space-y-6 lg:space-y-8">
+          <p ref={line1Ref} className="font-display text-2xl md:text-3xl lg:text-headline text-[#0F0F0F]">
             {narrativeTextConfig.line1[language]}
           </p>
 
-          <p ref={line2Ref} className="font-display text-subheadline text-[#FFB22C] italic max-w-2xl mx-auto">
+          <p ref={line2Ref} className="font-display text-lg md:text-xl lg:text-subheadline text-[#FFB22C] italic max-w-xl md:max-w-2xl mx-auto">
             {narrativeTextConfig.line2[language]}
           </p>
 
           {/* Diubah dari text-gray-600 menjadi text-[#0F0F0F]/70 */}
-          <p ref={line3Ref} className="font-body text-sm md:text-base text-[#0F0F0F]/70 max-w-2xl mx-auto leading-relaxed">
+          <p ref={line3Ref} className="font-body text-xs md:text-sm lg:text-base text-[#0F0F0F]/70 max-w-md md:max-w-2xl mx-auto leading-relaxed">
             {narrativeTextConfig.line3[language]}
           </p>
         </div>
@@ -149,11 +149,11 @@ const NarrativeText = () => {
         {/* Stats Grid */}
         <div
           ref={statsRef}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-16 border-t border-[#FFB22C]/20"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-10 md:mt-16 pt-10 md:pt-16 border-t border-[#FFB22C]/20"
         >
           {/* Diubah teks label dari text-gray-500 menjadi text-[#0F0F0F]/60 */}
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
+            <span className="font-display text-2xl md:text-3xl lg:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.years}
             </span>
             <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
@@ -161,7 +161,7 @@ const NarrativeText = () => {
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
+            <span className="font-display text-2xl md:text-3xl lg:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.events}
             </span>
             <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
@@ -169,7 +169,7 @@ const NarrativeText = () => {
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
+            <span className="font-display text-2xl md:text-3xl lg:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.clients}
             </span>
             <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">
@@ -177,7 +177,7 @@ const NarrativeText = () => {
             </p>
           </div>
           <div className="text-center">
-            <span className="font-display text-3xl md:text-4xl text-[#FFB22C]">
+            <span className="font-display text-2xl md:text-3xl lg:text-4xl text-[#FFB22C]">
               {narrativeTextConfig.stats.awards}
             </span>
             <p className="font-body text-xs text-[#0F0F0F]/60 mt-2 uppercase tracking-wider">

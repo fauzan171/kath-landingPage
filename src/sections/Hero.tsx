@@ -92,7 +92,7 @@ const Hero = () => {
       {/* CONTENT LAYER */}
       <div 
         ref={contentRef}
-        className="relative z-10 flex flex-col items-center justify-center px-6 max-w-4xl mx-auto pt-[35px] mb-2 md:mb-6"
+        className="relative z-10 flex flex-col items-center justify-center px-5 md:px-6 max-w-4xl mx-auto pt-[35px] mb-2 md:mb-6"
         style={{ willChange: 'transform, opacity' }}
       >
         <span
@@ -104,9 +104,9 @@ const Hero = () => {
 
         <h1
           ref={titleRef}
-          className="font-display text-white text-center whitespace-pre-line leading-[1.05]"
+          className="font-display text-white text-center whitespace-pre-line leading-[1.1] md:leading-[1.05]"
           style={{
-            fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+            fontSize: 'clamp(2rem, 8vw, 5rem)',
             letterSpacing: '-0.01em',
             textShadow: '0 4px 30px rgba(0,0,0,0.5)', 
           }}
@@ -116,7 +116,7 @@ const Hero = () => {
 
         <p
           ref={subtitleRef}
-          className="font-body text-white/80 text-xs md:text-sm mt-5 md:mt-6 max-w-md md:max-w-2xl text-center leading-relaxed"
+          className="font-body text-white/80 text-[11px] md:text-sm mt-4 md:mt-6 max-w-xs md:max-w-2xl text-center leading-relaxed"
         >
           {heroConfig.subtitle[language]}
         </p>

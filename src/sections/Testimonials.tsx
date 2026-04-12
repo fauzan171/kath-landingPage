@@ -95,11 +95,11 @@ const Testimonials = () => {
       <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-16 md:mb-20">
+        <div ref={headerRef} className="text-center mb-10 md:mb-16 lg:mb-20">
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {testimonialsConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {testimonialsConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
@@ -125,43 +125,43 @@ const Testimonials = () => {
               {testimonialsConfig.testimonials.map((testimonial) => (
                 <div
                   key={testimonial.id}
-                  className="w-full flex-shrink-0 px-2 md:px-4"
+                  className="w-full flex-shrink-0 px-1 md:px-4"
                 >
                   {/* Testimonial Card - Menghapus shadow, hanya menggunakan border tipis */}
-                  <div className="relative bg-white rounded-[32px] p-8 md:p-12 border border-[#0F0F0F]/10 flex flex-col items-center text-center">
+                  <div className="relative bg-white rounded-2xl md:rounded-[32px] p-6 md:p-8 lg:p-12 border border-[#0F0F0F]/10 flex flex-col items-center text-center">
                     
                     {/* Decorative Quote Icon */}
-                    <div className="absolute top-6 right-8 opacity-10 pointer-events-none">
-                      <Quote className="w-16 h-16 text-[#FFB22C]" fill="currentColor" />
+                    <div className="absolute top-4 right-4 md:top-6 md:right-8 opacity-10 pointer-events-none">
+                      <Quote className="w-10 h-10 md:w-16 md:h-16 text-[#FFB22C]" fill="currentColor" />
                     </div>
 
                     {/* Stars */}
-                    <div className="flex justify-center gap-1 mb-6">
+                    <div className="flex justify-center gap-0.5 md:gap-1 mb-4 md:mb-6">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-[#FFB22C] text-[#FFB22C]" />
+                        <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-[#FFB22C] text-[#FFB22C]" />
                       ))}
                     </div>
 
                     {/* Quote Text */}
-                    <blockquote className="font-display text-xl md:text-2xl text-[#0F0F0F] leading-relaxed mb-8 max-w-3xl">
+                    <blockquote className="font-display text-base md:text-xl lg:text-2xl text-[#0F0F0F] leading-relaxed mb-6 md:mb-8 max-w-3xl">
                       "{testimonial.quote[language]}"
                     </blockquote>
 
                     {/* Author Info */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-[#FFB22C]"
+                        className="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover border-2 border-[#FFB22C]"
                       />
                       <div className="text-left">
-                        <h4 className="font-display text-lg font-semibold text-[#0F0F0F]">
+                        <h4 className="font-display text-sm md:text-lg font-semibold text-[#0F0F0F]">
                           {testimonial.name}
                         </h4>
-                        <p className="font-body text-sm font-medium text-[#FFB22C]">
+                        <p className="font-body text-xs md:text-sm font-medium text-[#FFB22C]">
                           {testimonial.role[language]}
                         </p>
-                        <p className="font-body text-xs text-[#0F0F0F]/40 mt-0.5">
+                        <p className="font-body text-[10px] md:text-xs text-[#0F0F0F]/40 mt-0.5">
                           {testimonial.event[language]}
                         </p>
                       </div>
@@ -178,9 +178,9 @@ const Testimonials = () => {
             {/* Prev Button */}
             <button
               onClick={prevSlide}
-              className="w-12 h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
             >
-              <ChevronLeft className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
             </button>
 
             {/* Pagination Dots */}
@@ -202,9 +202,9 @@ const Testimonials = () => {
             {/* Next Button */}
             <button
               onClick={nextSlide}
-              className="w-12 h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[#0F0F0F]/10 hover:border-[#FFB22C] hover:bg-[#FFB22C] group flex items-center justify-center transition-all duration-300 bg-transparent hover:shadow-lg"
             >
-              <ChevronRight className="w-5 h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-[#0F0F0F] group-hover:text-white transition-colors" />
             </button>
           </div>
 
