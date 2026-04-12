@@ -85,7 +85,7 @@ const GridItem = ({
     <div
       ref={itemRef}
       // Tambahkan min-h-[120vh] agar ada ruang untuk teks men-scroll sementara gambar terkunci (sticky)
-      className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 min-h-[80vh] lg:min-h-[120vh] ${
+      className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 min-h-[100vh] lg:min-h-[120vh] ${
         index > 0 ? 'mt-16 md:mt-24 lg:mt-32' : ''
       }`}
     >
@@ -123,10 +123,10 @@ const GridItem = ({
         <span className="font-body text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-[#FFB22C]">
           {item.subtitle[language]}
         </span>
-        <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-3 md:mt-4 leading-tight tracking-tight">
+        <h3 className="font-display text-4xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-3 md:mt-4 leading-tight tracking-tight">
           {item.title[language]}
         </h3>
-        <p className="font-body text-sm md:text-base lg:text-lg text-[#0F0F0F]/70 leading-relaxed mt-4 md:mt-6 max-w-md lg:max-w-lg">
+        <p className="font-body text-base md:text-base lg:text-lg text-[#0F0F0F]/70 leading-relaxed mt-4 md:mt-6 max-w-md lg:max-w-lg">
           {item.description[language]}
         </p>
 
@@ -195,7 +195,7 @@ const ZigZagGrid = () => {
           <span className="font-body text-xs font-bold uppercase tracking-[0.3em] text-[#FFB22C]">
             {zigZagGridConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {zigZagGridConfig.sectionTitle[language]}
           </h2>
         </div>

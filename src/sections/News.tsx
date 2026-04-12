@@ -109,7 +109,7 @@ const News = () => {
             <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
               {newsConfig.sectionLabel[language]}
             </span>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium text-[#0F0F0F] mt-4">
+            <h2 className="font-display text-4xl md:text-4xl lg:text-5xl font-medium text-[#0F0F0F] mt-4">
               {newsConfig.sectionTitle[language]}
             </h2>
             <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
@@ -135,7 +135,7 @@ const News = () => {
           </div>
 
           {/* News Grid */}
-          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredNews.map((item) => (
               <article
                 key={item.id}
@@ -143,7 +143,7 @@ const News = () => {
                 onClick={() => setSelectedNews(item)}
               >
                 {/* Image Container */}
-                <div className="relative h-44 md:h-56 overflow-hidden">
+                <div className="relative h-48 md:h-56 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title[language]}

@@ -96,7 +96,7 @@ const Statistics = () => {
         {/* Stats Grid */}
         <div
           ref={statsRef}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12"
+          className="grid grid-cols-4 gap-6 sm:gap-8 md:gap-12"
         >
           {statItems.map((stat, index) => (
             <div
@@ -107,7 +107,7 @@ const Statistics = () => {
               }}
             >
               <div className="relative inline-flex items-baseline justify-center">
-                <span className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl text-[#0F0F0F] group-hover:text-[#FFB22C] transition-colors duration-500">
+                <span className="font-display text-4xl sm:text-5xl md:text-5xl lg:text-7xl text-[#0F0F0F] group-hover:text-[#FFB22C] transition-colors duration-500">
                   {stat.value}
                 </span>
                 <span className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#FFB22C] ml-1">

@@ -92,7 +92,7 @@ const FAQ = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {faqConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-4xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {faqConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">

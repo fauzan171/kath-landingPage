@@ -144,7 +144,7 @@ const BreathSection = () => {
           className="absolute inset-0 flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 z-20 pointer-events-none will-change-transform"
         >
           <h2
-            className="font-display text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight text-center leading-tight max-w-5xl drop-shadow-2xl"
+            className="font-display text-5xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight text-center leading-tight max-w-5xl drop-shadow-2xl"
             style={{ textShadow: '0 8px 40px rgba(0,0,0,0.8)' }}
           >
             {breathSectionConfig.title[language]}
@@ -161,7 +161,7 @@ const BreathSection = () => {
             className="absolute inset-0 flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 z-20 pointer-events-none will-change-transform opacity-0"
           >
             <p 
-              className="font-body text-base md:text-lg lg:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed font-normal text-center drop-shadow-2xl"
+              className="font-body text-lg md:text-lg lg:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed font-normal text-center drop-shadow-2xl"
               style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}
             >
               {breathSectionConfig.description[language]}

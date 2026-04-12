@@ -100,7 +100,7 @@ const Services = () => {
       <div className="w-full border-t border-[#0F0F0F]/10">
         <div
           ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full"
+          className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 w-full"
         >
           {servicesConfig.services.map((service) => {
             const iconUrl = customIconMap[service.icon] || customIconMap.Sparkles;
@@ -108,7 +108,7 @@ const Services = () => {
             return (
               <div
                 key={service.id}
-                className="service-item group relative h-[220px] md:h-[260px] lg:h-[280px] border-b border-[#0F0F0F]/10 md:border-r overflow-hidden bg-[#F9F8F6] transition-colors duration-500 hover:bg-white cursor-pointer"
+                className="service-item group relative h-[240px] md:h-[260px] lg:h-[280px] border-b border-[#0F0F0F]/10 md:border-r overflow-hidden bg-[#F9F8F6] transition-colors duration-500 hover:bg-white cursor-pointer"
               >
                 
                 {/* --- DEKORASI PANAH (ARROW) YANG SEJAJAR --- */}
@@ -116,26 +116,25 @@ const Services = () => {
                   2. `h-12 md:h-14` menyamakan tinggi persis kotak ikon utama agar center sejajar.
                 */}
                 <div className="absolute top-6 right-6 md:top-8 md:right-8 lg:top-10 lg:right-10 h-10 md:h-12 lg:h-14 flex items-center z-20 pointer-events-none">
-                  <ArrowUpRight 
-                    className="w-5 h-5 md:w-6 md:h-6 transition-all duration-300 text-[#0F0F0F]/20 group-hover:text-[#FFB22C] group-hover:-translate-y-1 group-hover:translate-x-1" 
-                    strokeWidth={1.5} 
+                  <ArrowUpRight
+                    className="w-5 h-5 md:w-6 md:h-6 transition-all duration-300 text-[#0F0F0F]/20 group-hover:text-[#FFB22C] group-hover:-translate-y-1 group-hover:translate-x-1"
+                    strokeWidth={1.5}
                   />
                 </div>
 
                 {/* --- STATE NORMAL --- */}
                 {/* Diubah dari justify-center menjadi justify-start agar menempel di atas (p-8 md:p-10) */}
                 <div className="absolute inset-0 flex flex-col items-start justify-start p-6 md:p-8 lg:p-10 transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:-translate-y-4">
-                  
-                  {/* Kotak Ikon Utama - Tingginya persis dengan wadah panah di atas (h-12 md:h-14) */}
+
                   <div className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center border border-[#0F0F0F]/10 rounded-xl md:rounded-2xl bg-white shadow-sm mb-4 md:mb-5 flex-shrink-0">
-                    <img 
-                      src={iconUrl} 
+                    <img
+                      src={iconUrl}
                       alt={service.title[language]}
                       className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 object-contain"
-                      style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }} 
+                      style={{ filter: 'invert(75%) sepia(87%) saturate(583%) hue-rotate(338deg) brightness(101%) contrast(104%)' }}
                     />
                   </div>
-                  
+
                   <div>
                     <h3 className="font-display text-lg md:text-xl lg:text-2xl text-[#0F0F0F] font-semibold mb-1.5 md:mb-2 pr-8">
                       {service.title[language]}

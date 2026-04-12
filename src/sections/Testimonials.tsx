@@ -99,7 +99,7 @@ const Testimonials = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {testimonialsConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
+          <h2 className="font-display text-4xl md:text-4xl lg:text-5xl font-bold text-[#0F0F0F] mt-4 tracking-tight">
             {testimonialsConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
@@ -143,7 +143,7 @@ const Testimonials = () => {
                     </div>
 
                     {/* Quote Text */}
-                    <blockquote className="font-display text-base md:text-xl lg:text-2xl text-[#0F0F0F] leading-relaxed mb-6 md:mb-8 max-w-3xl">
+                    <blockquote className="font-display text-lg md:text-xl lg:text-2xl text-[#0F0F0F] leading-relaxed mb-6 md:mb-8 max-w-3xl">
                       "{testimonial.quote[language]}"
                     </blockquote>
 
@@ -152,10 +152,10 @@ const Testimonials = () => {
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover border-2 border-[#FFB22C]"
+                        className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover border-2 border-[#FFB22C]"
                       />
                       <div className="text-left">
-                        <h4 className="font-display text-sm md:text-lg font-semibold text-[#0F0F0F]">
+                        <h4 className="font-display text-base md:text-lg font-semibold text-[#0F0F0F]">
                           {testimonial.name}
                         </h4>
                         <p className="font-body text-xs md:text-sm font-medium text-[#FFB22C]">
