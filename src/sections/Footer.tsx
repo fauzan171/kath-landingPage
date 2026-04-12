@@ -156,7 +156,7 @@ const Footer = () => {
           >
             {/* Left Column - CTA */}
             <div className="lg:col-span-5">
-              <h2 className="font-display text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] tracking-tight">
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#0F0F0F] tracking-tight">
                 {footerConfig.heading[language]}
               </h2>
               {/* Teks premium disisipkan di sini dengan tipografi yang lebih elegan */}
@@ -180,7 +180,7 @@ const Footer = () => {
 
             {/* Right Column - Contact Grid */}
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
                 {/* Contact */}
                 {footerConfig.contact.length > 0 && (
                   <div>

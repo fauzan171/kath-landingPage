@@ -161,14 +161,14 @@ const Contact = () => {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Contact Form */}
           <form
             ref={formRef}
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
                   {labels.name}
@@ -197,7 +197,7 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-body text-sm font-medium text-[#0F0F0F]/80 mb-2">
                   {labels.phone}
@@ -254,7 +254,7 @@ const Contact = () => {
           {/* Contact Info */}
           <div ref={infoRef} className="space-y-8">
             {/* Contact Details */}
-            <div className="grid grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div className="p-4 md:p-6 bg-white border border-[#0F0F0F]/5 rounded-xl md:rounded-2xl hover:border-[#FFB22C]/30 hover:shadow-md transition-all duration-300">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#F9F8F6] shadow-sm flex items-center justify-center mb-3 md:mb-4 border border-[#0F0F0F]/5">
                   <Mail className="w-4 h-4 md:w-5 md:h-5 text-[#FFB22C]" />

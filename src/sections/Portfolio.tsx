@@ -108,7 +108,7 @@ const Portfolio = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {portfolioConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-4xl lg:text-5xl text-[#0F0F0F] mt-4 font-medium">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-[#0F0F0F] mt-4 font-medium">
             {portfolioConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto">
@@ -134,7 +134,7 @@ const Portfolio = () => {
         </div>
 
         {/* Portfolio Grid */}
-        <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {displayedItems.map((item) => (
             <div
               key={item.id}

@@ -133,7 +133,7 @@ const Competition = () => {
           <span className="font-body text-[#FFB22C] text-xs font-bold uppercase tracking-[0.3em]">
             {competitionConfig.sectionLabel[language]}
           </span>
-          <h2 className="font-display text-4xl md:text-4xl lg:text-5xl font-medium mt-4">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium mt-4">
             {competitionConfig.sectionTitle[language]}
           </h2>
           <p className="font-body text-[#0F0F0F]/60 mt-4 max-w-2xl mx-auto text-base md:text-lg">
@@ -148,7 +148,7 @@ const Competition = () => {
         >
           <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-[#FFB22C]/5 to-transparent pointer-events-none" />
 
-          <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center">
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 items-center">
             {/* Left - Info */}
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -159,7 +159,7 @@ const Competition = () => {
                   {language === 'id' ? 'Kompetisi Utama' : 'Main Competition'}
                 </span>
               </div>
-              <h3 className="font-display text-4xl md:text-4xl lg:text-5xl font-semibold text-[#0F0F0F] mb-3 md:mb-4 leading-tight">
+              <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-[#0F0F0F] mb-3 md:mb-4 leading-tight">
                 {competitionConfig.mainCompetition.name[language]}
               </h3>
               <p className="font-body text-[#0F0F0F]/70 mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
@@ -205,7 +205,7 @@ const Competition = () => {
         </div>
 
         {/* Category Cards (Hanya Teks/Konten yang Berubah Warna) */}
-        <div ref={categoriesRef} className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div ref={categoriesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {competitionConfig.categories.map((category) => (
             <div
               key={category.id}

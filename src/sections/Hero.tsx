@@ -92,12 +92,12 @@ const Hero = () => {
       {/* CONTENT LAYER */}
       <div 
         ref={contentRef}
-        className="relative z-10 flex flex-col items-center justify-center px-5 md:px-6 max-w-4xl mx-auto pt-[35px] mb-4 md:mb-6"
+        className="relative z-10 flex flex-col items-center justify-center px-5 md:px-6 max-w-4xl mx-auto pt-[35px] mb-2 md:mb-6"
         style={{ willChange: 'transform, opacity' }}
       >
         <span
           ref={labelRef}
-          className="font-body text-[#FFB22C] text-xs md:text-sm uppercase tracking-[0.3em] md:tracking-[0.4em] mb-4 md:mb-5 font-bold"
+          className="font-body text-[#FFB22C] text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] mb-4 md:mb-5 font-bold"
         >
           {heroConfig.label[language]}
         </span>
@@ -106,7 +106,7 @@ const Hero = () => {
           ref={titleRef}
           className="font-display text-white text-center whitespace-pre-line leading-[1.1] md:leading-[1.05]"
           style={{
-            fontSize: 'clamp(2.5rem, 9vw, 5rem)',
+            fontSize: 'clamp(2rem, 8vw, 5rem)',
             letterSpacing: '-0.01em',
             textShadow: '0 4px 30px rgba(0,0,0,0.5)', 
           }}
@@ -116,14 +116,14 @@ const Hero = () => {
 
         <p
           ref={subtitleRef}
-          className="font-body text-white/80 text-sm md:text-base mt-4 md:mt-6 max-w-sm md:max-w-2xl text-center leading-relaxed"
+          className="font-body text-white/80 text-[11px] md:text-sm mt-4 md:mt-6 max-w-xs md:max-w-2xl text-center leading-relaxed"
         >
           {heroConfig.subtitle[language]}
         </p>
 
         {/* CTA Buttons */}
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-10 w-full sm:w-auto">
-          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3.5 bg-transparent border border-[#FFB22C] text-white font-body text-xs md:text-sm uppercase tracking-wider rounded-full flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-[1.03]">
+          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-[#FFB22C] text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full flex items-center justify-center gap-2 transition-transform duration-300 hover:scale-[1.03]">
             <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none" style={{ transitionTimingFunction: 'cubic-bezier(0.68,-0.55,0.27,1.55)' }}>
               <div className="absolute inset-0 bg-[#FFB22C]/70 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
               <div className="absolute inset-0 bg-[#FFB22C] rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
@@ -134,7 +134,7 @@ const Hero = () => {
             </span>
           </button>
 
-          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3.5 bg-transparent border border-white/25 text-white font-body text-xs md:text-sm uppercase tracking-wider rounded-full transition-transform duration-300 flex items-center justify-center hover:scale-[1.03]">
+          <button className="relative group overflow-hidden w-full sm:w-auto px-7 py-3 md:py-3.5 bg-transparent border border-white/25 text-white font-body text-[11px] md:text-xs uppercase tracking-wider rounded-full transition-transform duration-300 flex items-center justify-center hover:scale-[1.03]">
               <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none" style={{ transitionTimingFunction: 'cubic-bezier(0.68,-0.55,0.27,1.55)' }}>
                 <div className="absolute inset-0 bg-white/60 rounded-[43%] animate-[spin_3.5s_linear_infinite]" />
                 <div className="absolute inset-0 bg-white rounded-[45%] animate-[spin_5s_linear_infinite_reverse]" />
