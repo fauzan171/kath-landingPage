@@ -102,7 +102,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="relative bg-kath-bg-main min-h-screen">
+    <div className="relative bg-kath-bg-main min-h-screen overflow-x-hidden">
       <Navigation />
       <Hero />
       <div id="about">
