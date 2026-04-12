@@ -16,6 +16,7 @@ import { JudgesSection } from './sections/JudgesSection';
 import { FAQSection } from './sections/FAQSection';
 import { CTASection } from './sections/CTASection';
 import { Footer } from './sections/Footer';
+import { SponsorsSection } from './sections/SponsorsSection';
 
 const CIBCLanding = () => {
   // Efek untuk me-refresh animasi GSAP setelah semua komponen dimuat
@@ -58,6 +59,8 @@ const CIBCLanding = () => {
         <TestimonialsSection />
 
         <JudgesSection />
+
+        <SponsorsSection />
 
         <section id="faq">
           <FAQSection />

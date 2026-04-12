@@ -53,7 +53,7 @@ const Navigation = () => {
               <img
                 src={navigationConfig.logo}
                 alt={navigationConfig.logoAlt}
-                className="h-6 md:h-7 object-contain transition-all duration-300 group-hover:scale-105"
+                className="h-9 md:h-11 object-contain transition-all duration-300 group-hover:scale-105"
               />
               {/* Teks Logo: Putih saat transparan, Hitam saat di-scroll */}
               <span className={`font-display font-bold text-lg md:text-xl transition-colors hidden sm:block group-hover:text-[#FFB22C] ${

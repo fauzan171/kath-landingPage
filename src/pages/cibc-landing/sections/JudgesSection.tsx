@@ -60,34 +60,36 @@ export const JudgesSection = () => {
                 </div>
 
                 {/* Judges Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                <div className="flex flex-col gap-4 md:gap-6">
                     {judges.map((judge, index) => (
                         <div
                             key={index}
-                            className="group bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-xl hover:border-amber-200 transition-all duration-300 hover:-translate-y-1"
+                            className="group bg-white rounded-2xl border border-gray-100 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:shadow-xl hover:border-amber-200 transition-all duration-300 hover:-translate-y-1"
                         >
-                            {/* Avatar */}
-                            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-gray-100 group-hover:border-amber-300 transition-colors duration-300 bg-gray-100">
+                            {/* Avatar - Left */}
+                            <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-full overflow-hidden border-2 border-gray-100 group-hover:border-amber-300 transition-colors duration-300 bg-gray-100">
                                 <JudgeAvatar src={judge.avatar} name={judge.name} />
                             </div>
 
-                            {/* Info */}
-                            <h3 className="font-bold text-gray-900 text-lg mb-1">{judge.name}</h3>
-                            <p className="text-amber-600 text-sm font-medium mb-1">
-                                {judge.title[language]}
-                            </p>
-                            <p className="text-gray-400 text-xs mb-3">{judge.institution}</p>
+                            {/* Info - Right */}
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-gray-900 text-base md:text-lg mb-0.5">{judge.name}</h3>
+                                <p className="text-amber-600 text-xs md:text-sm font-medium mb-0.5">
+                                    {judge.title[language]}
+                                </p>
+                                <p className="text-gray-400 text-[11px] md:text-xs mb-2">{judge.institution}</p>
 
-                            {/* Expertise Tags */}
-                            <div className="flex flex-wrap justify-center gap-1.5">
-                                {judge.expertise[language].split(', ').map((skill, idx) => (
-                                    <span
-                                        key={idx}
-                                        className="px-2.5 py-0.5 bg-gray-50 text-gray-500 text-[10px] rounded-full border border-gray-100"
-                                    >
-                                        {skill}
-                                    </span>
-                                ))}
+                                {/* Expertise Tags */}
+                                <div className="flex flex-wrap gap-1.5">
+                                    {judge.expertise[language].split(', ').map((skill, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="px-2 py-0.5 bg-gray-50 text-gray-500 text-[10px] rounded-full border border-gray-100"
+                                        >
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     ))}

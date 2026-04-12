@@ -536,3 +536,27 @@ html.lenis {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+
+/* Scrolling sponsor logos */
+@keyframes scrollSlow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scrollSlowReverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-scroll-slow {
+  animation: scrollSlow 30s linear infinite;
+}
+
+.animate-scroll-slow-reverse {
+  animation: scrollSlowReverse 30s linear infinite;
+}
+
+.animate-scroll-slow:hover,
+.animate-scroll-slow-reverse:hover {
+  animation-play-state: paused;
+}

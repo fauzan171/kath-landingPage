@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { competitionConfig } from '../config';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Trophy, Users, Award, Clock, ArrowRight, Rocket } from 'lucide-react';
+import { Clock, ArrowRight } from 'lucide-react';
 import { useCountdownDeadline } from '../hooks/useCountdownDeadline';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -89,14 +89,6 @@ const Competition = () => {
     return () => ctx.revert();
   }, []);
 
-  const getCategoryIcon = (name: string) => {
-    if (name.includes('Startup') || name.includes('startup')) return <Rocket className="w-5 h-5 text-current" />;
-    if (name.includes('Social') || name.includes('Sosial')) return <Award className="w-5 h-5 text-current" />;
-    if (name.includes('Student') || name.includes('Mahasiswa')) return <Users className="w-5 h-5 text-current" />;
-    if (name.includes('Corporate') || name.includes('Korporasi')) return <Trophy className="w-5 h-5 text-current" />;
-    return <Trophy className="w-5 h-5 text-current" />;
-  };
-
   const renderStatusBadge = (status: string) => {
     const isOpen = status === 'Open' || status === 'Buka';
     const isComingSoon = status === 'Coming Soon' || status === 'Segera';
@@ -151,14 +143,9 @@ const Competition = () => {
           <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 items-center">
             {/* Left - Info */}
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-[#FFB22C]/10 rounded-full flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-[#FFB22C]" />
-                </div>
-                <span className="font-body text-[#FFB22C] text-sm font-bold uppercase tracking-wider">
-                  {language === 'id' ? 'Kompetisi Utama' : 'Main Competition'}
-                </span>
-              </div>
+              <span className="font-body text-[#FFB22C] text-sm font-bold uppercase tracking-wider">
+                {language === 'id' ? 'Kompetisi Utama' : 'Main Competition'}
+              </span>
               <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-[#0F0F0F] mb-3 md:mb-4 leading-tight">
                 {competitionConfig.mainCompetition.name[language]}
               </h3>
@@ -205,19 +192,15 @@ const Competition = () => {
         </div>
 
         {/* Category Cards (Hanya Teks/Konten yang Berubah Warna) */}
-        <div ref={categoriesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div ref={categoriesRef} className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {competitionConfig.categories.map((category) => (
             <div
               key={category.id}
               onClick={() => navigate('/cibc')}
               className="category-card group relative bg-white border border-[#0F0F0F]/10 p-5 md:p-6 lg:p-8 rounded-xl md:rounded-2xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#FFB22C]/10 hover:-translate-y-2 flex flex-col"
             >
-              {/* Header Card: Ikon & Badge Status */}
-              <div className="flex items-center justify-between mb-5 md:mb-8">
-                {/* Ikon Kategori: Hover menjadi Emas */}
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-[#F9F8F6] border border-[#0F0F0F]/5 flex items-center justify-center text-[#0F0F0F]/40 transition-colors duration-300 group-hover:bg-[#FFB22C]/10 group-hover:border-[#FFB22C]/20 group-hover:text-[#FFB22C]">
-                  {getCategoryIcon(category.name[language])}
-                </div>
+              {/* Header Card: Badge Status */}
+              <div className="flex items-center justify-end mb-4">
                 {renderStatusBadge(category.status[language])}
               </div>
               
@@ -232,10 +215,7 @@ const Competition = () => {
               
               {/* Bottom section (Prize & Button) */}
               <div className="pt-4 border-t border-[#0F0F0F]/10 flex items-center justify-between transition-colors duration-300 group-hover:border-[#FFB22C]/30">
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-[#FFB22C]" />
-                  <span className="font-body text-sm font-bold text-[#0F0F0F]">{category.prize}</span>
-                </div>
+                <span className="font-body text-sm font-bold text-[#0F0F0F]">{category.prize}</span>
                 {/* Tombol Bulat Panah: Hover menjadi Emas Solid */}
                 <div className="w-8 h-8 rounded-full border border-[#0F0F0F]/10 flex items-center justify-center text-[#0F0F0F]/40 transition-all duration-300 group-hover:bg-[#FFB22C] group-hover:text-[#0F0F0F] group-hover:border-[#FFB22C]">
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

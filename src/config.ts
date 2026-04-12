@@ -6,7 +6,7 @@ const t = (id: string, en: string) => ({ id, en });
 // ============================================
 export const appContactConfig = {
   email: import.meta.env.VITE_CONTACT_EMAIL || 'competition@kath.com',
-  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER || '622112345678',
+  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER || '6285180619766',
   get whatsappUrl() { return `https://wa.me/${this.whatsappNumber}`; },
   get emailUrl() { return `mailto:${this.email}`; },
 };
@@ -43,8 +43,8 @@ export const heroConfig: HeroConfig = {
     "We Create,Unforgettable\nMoments"
   ),
   subtitle: t(
-    "Mengubah visi Anda menjadi pengalaman luar biasa sejak 2019.",
-    "Transforming your vision into extraordinary experiences since 2019."
+    "Menciptakan momen tak terlupakan dengan sentuhan elegan dan presisi tanpa kompromi.",
+    "Crafting unforgettable moments with elegant touches and uncompromising precision."
   ),
   label: t("PREMIUM EVENT ORGANIZER", "PREMIUM EVENT ORGANIZER"),
   ctaPrimary: t("Mulai Perjalanan", "Start Your Journey"),
@@ -624,31 +624,24 @@ export const competitionConfig: CompetitionConfig = {
   categories: [
     {
       id: "1",
-      name: t("Student Innovation", "Student Innovation"),
-      target: t("Mahasiswa & Siswa (16-28 tahun)", "Students (16-28 years)"),
-      prize: "$25K",
+      name: t("Business Plan Competition", "Business Plan Competition"),
+      target: t("Mahasiswa D3/D4/S1 aktif dari universitas di seluruh Indonesia & internasional", "Active D3/D4/S1 students from universities across Indonesia & international institutions"),
+      prize: "Rp 150 Juta+",
       status: t("Buka", "Open"),
     },
     {
       id: "2",
-      name: t("Startup Challenge", "Startup Challenge"),
-      target: t("Startup 0-3 tahun", "Startups 0-3 years"),
-      prize: "$50K",
+      name: t("3 Sub-Tema Kompetisi", "3 Competition Sub-Themes"),
+      target: t("Empowering The Global Gen Z Economy, Technology & Sustainability in Beauty Industry, Green Technology", "Empowering The Global Gen Z Economy, Technology & Sustainability in Beauty Industry, Green Technology"),
+      prize: "3 Topik",
       status: t("Buka", "Open"),
     },
     {
       id: "3",
-      name: t("Corporate Innovation", "Corporate Innovation"),
-      target: t("Perusahaan Korporat", "Corporations"),
-      prize: "Trophy",
+      name: t("Tim & Pendaftaran", "Team & Registration"),
+      target: t("2-3 mahasiswa per tim. Gelombang 1: Rp 125.000 | Gelombang 2: Rp 150.000", "2-3 students per team. Wave 1: Rp 125,000 | Wave 2: Rp 150,000"),
+      prize: "Per Tim",
       status: t("Buka", "Open"),
-    },
-    {
-      id: "4",
-      name: t("Sustainability Award", "Sustainability Award"),
-      target: t("Semua Kategori", "All Categories"),
-      prize: "Special",
-      status: t("Segera", "Soon"),
     },
   ],
   ctaText: t("Daftar Sekarang", "Register Now"),
@@ -875,7 +868,7 @@ export const contactConfig: ContactConfig = {
     "Jl. Sudirman No. 123, Central Jakarta, Indonesia 10220"
   ),
   socialMedia: {
-    instagram: "@kathevent",
+    instagram: "@kath.eventorganizer",
     linkedin: "kath-event-organizer",
     youtube: "KATHEvent",
   },
@@ -892,7 +885,7 @@ export const contactConfig: ContactConfig = {
     ),
   },
   socials: {
-    instagram: "https://instagram.com/kathevent",
+    instagram: "https://instagram.com/kath.eventorganizer",
     facebook: "https://facebook.com/kathevent",
     linkedin: "https://linkedin.com/company/kath-event-organizer",
     twitter: "https://twitter.com/kathevent",
@@ -936,7 +929,7 @@ export const footerConfig: FooterConfig = {
   address: ["Jl. Sudirman No. 123", "Jakarta Pusat, Indonesia 10220"],
   locationLabel: t("Lokasi", "Location"),
   socials: [
-    { platform: "instagram", href: "https://instagram.com/kathevent" },
+    { platform: "instagram", href: "https://instagram.com/kath.eventorganizer" },
     { platform: "linkedin", href: "https://linkedin.com/company/kath-event-organizer" },
     { platform: "twitter", href: "https://twitter.com/kathevent" },
   ],

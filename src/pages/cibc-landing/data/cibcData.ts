@@ -8,8 +8,8 @@ export const COMPETITION_DATA = {
     stats: [
         { value: "500+", label: "Participants" },
         { value: "50+", label: "Universities" },
-        { value: "15+", label: "Mentors" },
-        { value: "100M+", label: "Prize Pool" }
+        { value: "100M+", label: "Prize Pool" },
+        { value: "3", label: "Themes" }
     ],
     themes: [
         {

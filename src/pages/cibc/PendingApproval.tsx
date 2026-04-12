@@ -6,11 +6,10 @@
  */
 
 import React, { useEffect } from 'react';
-import { MessageCircle, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { gsap } from 'gsap';
 import { supabaseAuthService } from '@/services/supabase.service';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { appContactConfig } from '@/config';
 
 const PendingApproval: React.FC = () => {
   const { t } = useLanguage();
@@ -78,7 +77,11 @@ const PendingApproval: React.FC = () => {
 
         {/* WhatsApp Notice - Hijau WA */}
         <div className="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-100 mb-6">
-          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+          <img
+            src="/whatsapp-icon.png"
+            alt="WhatsApp"
+            className="w-5 h-5 flex-shrink-0 mt-0.5 object-contain"
+          />
           <div>
             <p className="font-body text-xs text-green-800 font-bold">
               {t('Konfirmasi via WhatsApp', 'Confirmation via WhatsApp')}
@@ -87,12 +90,12 @@ const PendingApproval: React.FC = () => {
               {t('Pastikan nomor WhatsApp Anda aktif. Panitia akan menghubungi via WhatsApp untuk konfirmasi pendaftaran dan pembayaran.', 'Make sure your WhatsApp number is active. The committee will contact you via WhatsApp to confirm your registration and payment.')}
             </p>
             <a
-              href={`${appContactConfig.whatsappUrl}?text=${encodeURIComponent(t('Halo panitia CIBC, saya sudah mendaftar dan ingin mengonfirmasi status pendaftaran saya.', 'Hello CIBC committee, I have registered and would like to confirm my registration status.'))}`}
+              href={`https://wa.me/6285180619766?text=${encodeURIComponent(t('Halo panitia CIBC, saya sudah mendaftar dan ingin mengonfirmasi status pendaftaran saya.', 'Hello CIBC committee, I have registered and would like to confirm my registration status.'))}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold rounded-lg transition-colors"
             >
-              <MessageCircle className="w-3 h-3" />
+              <img src="/whatsapp-icon.png" alt="WA" className="w-3 h-3 object-contain" />
               {t('Chat Panitia via WA', 'Chat Committee via WA')}
             </a>
           </div>
