@@ -82,12 +82,7 @@ const step4Schema = z.object({
   member2StudentId: z.string().min(1, 'Student ID is required'),
 });
 
-const step5Schema = z.object({
-  studentCardsFile: z.any().refine(val => val instanceof File, 'Student cards file is required'),
-  instagramProofFile: z.any().refine(val => val instanceof File, 'Instagram follow proof is required'),
-  twibbonProofFile: z.any().refine(val => val instanceof File, 'Twibbon upload proof is required'),
-  bmcFile: z.any().refine(val => val instanceof File, 'Business Model Canvas is required'),
-});
+// step5Schema not used - files validated manually in nextStep
 
 const step6Schema = z.object({
   paymentFile: z.any().optional(),
