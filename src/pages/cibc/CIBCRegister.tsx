@@ -158,15 +158,7 @@ const CIBCRegister = () => {
     },
   });
 
-  const step5Form = useForm({
-    resolver: zodResolver(step5Schema),
-    defaultValues: {
-      studentCardsFile: null,
-      instagramProofFile: null,
-      twibbonProofFile: null,
-      bmcFile: null,
-    },
-  });
+  // step5Form not needed - files are validated manually in nextStep
 
   const step6Form = useForm({
     resolver: zodResolver(step6Schema),
@@ -210,23 +202,7 @@ const CIBCRegister = () => {
     }
   }, [currentStep]);
 
-  // Helper: validate file size
-  const validateFileSize = (file: File, maxMB: number): boolean => {
-    if (file.size > maxMB * 1024 * 1024) {
-      toast.error(language === 'id' ? `File maksimal ${maxMB}MB` : `File max ${maxMB}MB`);
-      return false;
-    }
-    return true;
-  };
-
-  // Helper: validate PDF file
-  const validatePDF = (file: File): boolean => {
-    if (file.type !== 'application/pdf') {
-      toast.error(language === 'id' ? 'Format file harus PDF' : 'File must be PDF format');
-      return false;
-    }
-    return true;
-  };
+  // File validation helpers are used inline in FileUploadZone component
 
   // Final submission
   const onSubmit = async () => {
