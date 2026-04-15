@@ -117,7 +117,7 @@ const AdminUserManagement = () => {
 
       let query = supabase
         .from('users')
-        .select('id, email, name, phone, avatar_url, is_active, last_login_at, created_at, updated_at')
+        .select('id, email, name, phone, avatar_url, is_active, status, is_verified, last_login_at, created_at, updated_at')
         .order('created_at', { ascending: false });
 
       if (filter !== 'all') {

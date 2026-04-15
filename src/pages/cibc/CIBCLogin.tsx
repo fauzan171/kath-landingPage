@@ -176,7 +176,7 @@ const CIBCLogin: React.FC = () => {
         if (supabase) {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('id, email, name, phone, avatar_url, is_active, last_login_at, created_at, updated_at')
+            .select('id, email, name, phone, avatar_url, is_active, status, role, rejection_reason, force_password_change, last_login_at, created_at, updated_at')
             .eq('id', user.id)
             .maybeSingle();
 
