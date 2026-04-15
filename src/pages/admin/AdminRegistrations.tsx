@@ -94,7 +94,7 @@ const AdminRegistrations = () => {
   const filteredTeams = teams.filter(team => {
     if (filter !== 'all' && team.status !== filter) return false;
     if (search && !team.name.toLowerCase().includes(search.toLowerCase()) &&
-        !(team.team_code || '').toLowerCase().includes(search.toLowerCase())) return false;
+        !(team.code || '').toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -202,7 +202,7 @@ const AdminRegistrations = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-gray-800">{team.name}</h3>
                       <span className="text-xs px-2 py-0.5 bg-gray-100 rounded font-mono">
-                        {team.team_code}
+                        {team.code}
                       </span>
                       {getStatusBadge(team.status)}
                     </div>
@@ -222,9 +222,9 @@ const AdminRegistrations = () => {
                       </div>
                     )}
 
-                    {team.notes && (
+                    {team.payment_status === 'rejected' && (
                       <p className="mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded">
-                        {team.notes}
+                        Payment rejected
                       </p>
                     )}
                   </div>
@@ -371,7 +371,7 @@ const AdminRegistrations = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs text-gray-500">Team Code</label>
-                    <p className="font-mono">{selectedTeam.team_code}</p>
+                    <p className="font-mono">{selectedTeam.code}</p>
                   </div>
                   <div>
                     <label className="text-xs text-gray-500">Category</label>

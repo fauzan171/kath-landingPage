@@ -123,7 +123,6 @@ const JudgeGrading = () => {
           file_url,
           file_name,
           content,
-          field_values,
           submitted_at,
           task_id,
           team_id
@@ -145,7 +144,7 @@ const JudgeGrading = () => {
       if (submissionData?.team_id) {
         const { data: team } = await supabase
           .from('teams')
-          .select('id, name, institution, leader_id')
+          .select('id, name, institution')
           .eq('id', submissionData.team_id)
           .single();
 
@@ -153,24 +152,22 @@ const JudgeGrading = () => {
           // Get leader name from team_members
           let leaderName = '';
           let leaderEmail = '';
-          if (team.leader_id) {
-            const { data: leaderProfile } = await supabase
-              .from('team_members')
-              .select('user_id, role')
-              .eq('team_id', team.id)
-              .eq('role', 'leader')
+          const { data: leaderProfile } = await supabase
+            .from('team_members')
+            .select('user_id, role')
+            .eq('team_id', team.id)
+            .eq('role', 'leader')
+            .single();
+
+          if (leaderProfile) {
+            const { data: leaderUser } = await supabase
+              .from('users')
+              .select('name, email')
+              .eq('id', leaderProfile.user_id)
               .single();
 
-            if (leaderProfile) {
-              const { data: leaderUser } = await supabase
-                .from('users')
-                .select('name, email')
-                .eq('id', leaderProfile.user_id)
-                .single();
-
-              leaderName = leaderUser?.name || '';
-              leaderEmail = leaderUser?.email || '';
-            }
+            leaderName = leaderUser?.name || '';
+            leaderEmail = leaderUser?.email || '';
           }
 
           // Fallback: get first member as leader if no explicit leader
@@ -209,7 +206,7 @@ const JudgeGrading = () => {
         file_url: submissionData?.file_url || undefined,
         file_name: submissionData?.file_name || undefined,
         content: submissionData?.content || undefined,
-        field_values: submissionData?.field_values || undefined,
+        field_values: undefined,
         submitted_at: submissionData?.submitted_at || undefined,
         task: {
           id: taskData?.id || '',
@@ -449,7 +446,6 @@ const JudgeGrading = () => {
       .update({
         total_score: aggregateScore,
         status: 'graded',
-        graded_at: new Date().toISOString(),
       })
       .eq('id', subId);
   };

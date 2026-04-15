@@ -155,7 +155,7 @@ export const supabaseCompetitionService = {
   getCompetition: async (): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+      .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
       .eq('code', COMPETITION_CODE)
       .maybeSingle();
 
@@ -172,7 +172,7 @@ export const supabaseCompetitionService = {
   getActive: async (): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+      .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
       .eq('code', COMPETITION_CODE)
       .eq('is_active', true)
       .maybeSingle();
@@ -231,7 +231,7 @@ export const supabaseCompetitionService = {
   getByCode: async (code: string): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+      .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
       .eq('code', code)
       .maybeSingle();
 
@@ -248,7 +248,7 @@ export const supabaseCompetitionService = {
   getById: async (id: string): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+      .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
       .eq('id', id)
       .maybeSingle();
 
@@ -305,7 +305,6 @@ export const supabaseCompetitionService = {
         auto_progress: false,
         requires_all_tasks: true,
         created_at: '',
-        updated_at: '',
         tasks: (stage.tasks as Task[]) || [],
         progress: (stage.stage_progress as number) || 0,
       }));
@@ -386,7 +385,7 @@ export const supabaseCompetitionService = {
 
     const { data, error } = await supabase
       .from('stages')
-      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
       .eq('competition_id', competition.id)
       .eq('is_active', true)
       .maybeSingle();
@@ -482,7 +481,7 @@ export const supabaseStageService = {
   getByCompetition: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
       .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
 
@@ -496,9 +495,9 @@ export const supabaseStageService = {
   getVisible: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
       .eq('competition_id', competitionId)
-      .eq('is_visible', true)
+      .eq('is_active', true)
       .order('order_index', { ascending: true });
 
     if (error) return [];
@@ -511,7 +510,7 @@ export const supabaseStageService = {
   getAll: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
       .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
 
@@ -525,7 +524,7 @@ export const supabaseStageService = {
   getById: async (id: string): Promise<Stage | null> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
       .eq('id', id)
       .single();
 
@@ -705,7 +704,7 @@ export const supabaseTeamService = {
   getByCompetition: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -719,7 +718,7 @@ export const supabaseTeamService = {
   getAll: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -771,7 +770,7 @@ export const supabaseTeamService = {
   getById: async (id: string): Promise<(Team & { members: TeamMember[] }) | null> => {
     const { data: team, error: teamError } = await supabase
       .from('teams')
-      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -780,9 +779,9 @@ export const supabaseTeamService = {
     const { data: members, error: membersError } = await supabase
       .from('team_members')
       .select('id, team_id, user_id, full_name, email, phone, student_id, institution, major, position, role, is_active, joined_at')
-      .eq('team_id', id)
-      .eq('is_active', true);
-
+    .select('id, team_id, user_id, full_name, email, phone, institution, role, is_active, joined_at')
+    .eq('team_id', id)
+    .eq('is_active', true);
     if (membersError) throw membersError;
 
     return {
@@ -902,10 +901,7 @@ export const supabaseTeamService = {
       full_name: string;
       email: string;
       phone?: string;
-      student_id?: string;
       institution?: string;
-      major?: string;
-      position?: string;
       role?: 'leader' | 'member' | 'mentor';
     }
   ): Promise<TeamMember> => {
@@ -1018,7 +1014,7 @@ export const supabaseSubmissionService = {
 
     const { data, error } = await supabase
       .from('submissions')
-      .select('id, task_id, team_id, competition_id, submitted_by, submitted_at, file_url, file_name, file_size, file_type, drive_file_id, link_url, content, field_values, status, total_score, graded_by, graded_at, feedback, criteria_scores, is_late, penalty_applied, created_at, updated_at')
+      .select('id, task_id, team_id, competition_id, file_url, file_name, file_size, drive_file_id, link_url, content, status, total_score, feedback, submitted_at, created_at, updated_at')
       .eq('team_id', teamData.id)
       .eq('competition_id', competitionId)
       .maybeSingle();
@@ -1075,9 +1071,7 @@ export const supabaseSubmissionService = {
     file_url?: string;
     file_name?: string;
     file_size?: number;
-    file_type?: string;
     drive_file_id?: string;
-    field_values?: Record<string, unknown>;
   }): Promise<Submission> => {
     const updateData: Record<string, unknown> = {};
     if (params.content !== undefined) updateData.content = params.content;
@@ -1091,9 +1085,7 @@ export const supabaseSubmissionService = {
     if (params.file_url !== undefined) updateData.file_url = params.file_url;
     if (params.file_name !== undefined) updateData.file_name = params.file_name;
     if (params.file_size !== undefined) updateData.file_size = params.file_size;
-    if (params.file_type !== undefined) updateData.file_type = params.file_type;
     if (params.drive_file_id !== undefined) updateData.drive_file_id = params.drive_file_id;
-    if (params.field_values !== undefined) updateData.field_values = params.field_values;
 
     const { data, error } = await supabase
       .from('submissions')
@@ -1147,7 +1139,7 @@ export const supabaseSubmissionService = {
   getMySubmissions: async (teamId: string): Promise<Submission[]> => {
     const { data, error } = await supabase
       .from('submissions')
-      .select('id, task_id, team_id, competition_id, submitted_by, submitted_at, file_url, file_name, file_size, file_type, drive_file_id, link_url, content, field_values, status, total_score, graded_by, graded_at, feedback, criteria_scores, is_late, penalty_applied, created_at, updated_at')
+      .select('id, task_id, team_id, competition_id, file_url, file_name, file_size, drive_file_id, link_url, content, status, total_score, feedback, submitted_at, created_at, updated_at')
       .eq('team_id', teamId)
       .order('created_at', { ascending: false });
 
@@ -1248,11 +1240,9 @@ export const supabaseSubmissionService = {
       file_url: uploadResult.fileUrl,
       file_name: uploadResult.fileName,
       file_size: uploadResult.fileSize,
-      file_type: file.type,
       drive_file_id: uploadResult.storageKey,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
-      is_late: false,
     };
 
     const { data, error } = await supabase
@@ -1293,10 +1283,8 @@ export const supabaseSubmissionService = {
       team_id: teamId,
       competition_id: competitionId,
       content,
-      field_values: fieldValues,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
-      is_late: false,
     };
 
     const { data, error } = await supabase
@@ -1452,17 +1440,15 @@ export const supabaseSubmissionService = {
   grade: async (
     id: string,
     totalScore: number,
-    criteriaScores?: Record<string, number>,
+    _criteriaScores?: Record<string, number>,
     feedback?: string
   ): Promise<Submission> => {
     const { data, error } = await supabase
       .from('submissions')
       .update({
         total_score: totalScore,
-        criteria_scores: criteriaScores,
         feedback,
         status: 'graded',
-        graded_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -1850,12 +1836,8 @@ export const supabasePaymentService = {
     const updatePayload: Record<string, unknown> = {
       payment_proof: paymentProofUrl,
       payment_status: 'pending',
+      payment_drive_id: storageKey,
     };
-    // These columns may not exist yet if migration v6.6.0 hasn't been run
-    try {
-      updatePayload.payment_uploaded_at = new Date().toISOString();
-      if (storageKey) updatePayload.payment_drive_id = storageKey;
-    } catch (_e) { /* ignore */ }
 
     const { data, error } = await supabase
       .from('teams')
@@ -1990,12 +1972,6 @@ export const supabasePaymentService = {
     const updatePayload: Record<string, unknown> = {
       payment_status: 'rejected',
     };
-    // These columns may not exist yet if migration v6.6.0 hasn't been run
-    try {
-      updatePayload.payment_rejection_reason = reason;
-      if (adminId) updatePayload.rejected_by = adminId;
-      updatePayload.rejected_at = new Date().toISOString();
-    } catch (_e) { /* ignore */ }
 
     const { data, error } = await supabase
       .from('teams')

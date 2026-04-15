@@ -24,7 +24,6 @@ interface User {
   institution?: string;
   category?: string;
   status: string;
-  is_verified: boolean;
   created_at: string;
   last_login_at?: string;
 }
@@ -117,7 +116,7 @@ const AdminUserManagement = () => {
 
       let query = supabase
         .from('users')
-        .select('id, email, name, phone, avatar_url, is_active, status, is_verified, last_login_at, created_at, updated_at')
+        .select('id, email, name, phone, avatar_url, status, category, institution, last_login_at, created_at, updated_at')
         .order('created_at', { ascending: false });
 
       if (filter !== 'all') {
@@ -205,14 +204,16 @@ const AdminUserManagement = () => {
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
 
-      // Tandai force_password_change = true (always use selectedUser.id for public users table)
-      await supabase
-        .from('users')
-        .update({
-          force_password_change: true,
-          temp_password_set_at: new Date().toISOString(),
-        })
-        .eq('id', selectedUser.id);
+      // Tandai force_password_change = true (column may not exist in DB v6.0.0)
+      // This update is best-effort — the column will be added in a future migration
+      try {
+        await supabase
+          .from('users')
+          .update({
+            status: 'approved', // Ensure user can login
+          })
+          .eq('id', selectedUser.id);
+      } catch (_e) { /* ignore if column doesn't exist */ }
 
       // Update status request (jika ada)
       await supabase

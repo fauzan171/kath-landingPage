@@ -176,7 +176,7 @@ const CIBCLogin: React.FC = () => {
         if (supabase) {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('id, email, name, phone, avatar_url, is_active, status, role, rejection_reason, force_password_change, last_login_at, created_at, updated_at')
+            .select('id, email, name, phone, avatar_url, status, role, rejection_reason, last_login_at, created_at, updated_at')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -281,7 +281,9 @@ const CIBCLogin: React.FC = () => {
             }
 
             // ✅ Cek force_password_change — user pakai password sementara dari admin
-            if (userData?.force_password_change === true) {
+            // Note: force_password_change column doesn't exist in DB v6.0.0 schema
+            // This feature is disabled until column is added via migration
+            if ((userData as Record<string, unknown>)?.force_password_change === true) {
               toast.warning(t('Ganti Password', 'Change Password'), {
                 description: t('Anda login dengan password sementara. Harap buat password permanen Anda.', 'You logged in with a temporary password. Please create your permanent password.'),
               });

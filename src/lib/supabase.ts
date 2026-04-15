@@ -46,7 +46,12 @@ export interface User {
   name: string;
   phone?: string;
   avatar_url?: string;
-  is_active: boolean;
+  institution?: string;
+  country?: string;
+  category?: string;
+  status: string;
+  rejection_reason?: string;
+  role: string;
   last_login_at?: string;
   created_at: string;
   updated_at: string;
@@ -92,7 +97,6 @@ export interface Competition {
   code: string;
   name: string;
   name_id?: string;
-  subtitle?: string;
   description?: string;
   description_id?: string;
   status: 'draft' | 'upcoming' | 'active' | 'completed' | 'archived';
@@ -101,12 +105,6 @@ export interface Competition {
   registration_end?: string;
   competition_start?: string;
   competition_end?: string;
-  event_start?: string;
-  event_end?: string;
-  target?: string;
-  prize?: string;
-  image?: string;
-  requirements?: string[];
   config: {
     totalPrize?: string;
     maxTeamSize?: number;
@@ -118,20 +116,28 @@ export interface Competition {
       prize?: string;
       description?: string;
     }>;
-  };
-  theme: {
+  } & Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  // Not in DB, used in UI only
+  subtitle?: string;
+  event_start?: string;
+  event_end?: string;
+  target?: string;
+  prize?: string;
+  image?: string;
+  requirements?: string[];
+  theme?: {
     primaryColor?: string;
     secondaryColor?: string;
     heroImage?: string;
     logo?: string;
   };
-  settings: {
+  settings?: {
     autoProgressStages?: boolean;
     publicLeaderboard?: boolean;
     blindGrading?: boolean;
   };
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Stage {
@@ -145,9 +151,11 @@ export interface Stage {
   end_date: string;
   status: 'draft' | 'upcoming' | 'active' | 'completed';
   is_active: boolean;
-  is_visible: boolean;
-  auto_progress: boolean;
-  requires_all_tasks: boolean;
+  created_at?: string;
+  // Not in DB, used in UI only
+  is_visible?: boolean;
+  auto_progress?: boolean;
+  requires_all_tasks?: boolean;
 }
 
 export interface Task {
@@ -188,31 +196,32 @@ export interface Team {
   id: string;
   competition_id: string;
   name: string;
-  team_code?: string;
   code?: string;
   category?: 'startup' | 'student' | 'corporate' | 'open';
-  sub_theme?: 'Energy' | 'Health' | 'Food' | 'Finance' | 'Beauty' | 'Manufacture';
-  status: 'draft' | 'pending' | 'verified' | 'rejected';
   institution?: string;
+  status: 'draft' | 'pending' | 'verified' | 'rejected';
+  payment_status?: 'unpaid' | 'pending' | 'verified' | 'rejected';
+  payment_proof?: string;
+  payment_drive_id?: string;
+  verified_by?: string;
+  verified_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Not in DB, used in UI only
+  team_code?: string;
+  sub_theme?: string;
   country?: string;
   total_score?: number;
   rank?: number;
-  payment_status?: 'unpaid' | 'pending' | 'verified' | 'rejected';
-  payment_proof?: string;
   payment_uploaded_at?: string;
-  payment_drive_id?: string;
   payment_rejection_reason?: string;
   student_cards_url?: string;
   instagram_proof_url?: string;
   twibbon_proof_url?: string;
   bmc_url?: string;
   notes?: string;
-  verified_by?: string;
-  verified_at?: string;
   rejected_by?: string;
   rejected_at?: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface TeamMember {
@@ -222,10 +231,7 @@ export interface TeamMember {
   full_name: string;
   email: string;
   phone?: string;
-  student_id?: string;
   institution?: string;
-  major?: string;
-  position?: string;
   role: 'leader' | 'member' | 'mentor';
   is_active: boolean;
   joined_at: string;
@@ -235,6 +241,10 @@ export interface TeamMember {
     email: string;
     institution?: string;
   };
+  // Not in DB, used in UI only
+  student_id?: string;
+  major?: string;
+  position?: string;
 }
 
 export interface Submission {
@@ -242,26 +252,27 @@ export interface Submission {
   task_id: string;
   team_id: string;
   competition_id: string;
-  submitted_by?: string;
-  submitted_at?: string;
   file_url?: string;
   file_name?: string;
   file_size?: number;
-  file_type?: string;
   drive_file_id?: string;
   link_url?: string;
   content?: string;
-  field_values?: Record<string, unknown>;
   status: 'draft' | 'submitted' | 'under_review' | 'needs_revision' | 'graded' | 'final' | 'late';
   total_score?: number;
+  feedback?: string;
+  submitted_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Not in DB, used in UI only
+  submitted_by?: string;
+  file_type?: string;
+  field_values?: Record<string, unknown>;
   graded_by?: string;
   graded_at?: string;
-  feedback?: string;
   criteria_scores?: Record<string, number>;
   is_late?: boolean;
   penalty_applied?: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Announcement {
@@ -418,7 +429,6 @@ export async function createSubmission(
       file_url: uploadResult.fileUrl,
       file_name: uploadResult.fileName,
       file_size: uploadResult.fileSize,
-      file_type: file.type,
       drive_file_id: uploadResult.storageKey,
       status: 'submitted',
       submitted_at: new Date().toISOString()
@@ -481,7 +491,7 @@ export async function getCompetitionByCode(code: string): Promise<Competition | 
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('competitions')
-    .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+    .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
     .eq('code', code)
     .single();
 
@@ -493,7 +503,7 @@ export async function getActiveCompetitions(): Promise<Competition[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('competitions')
-    .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
+    .select('id, code, name, name_id, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, config, created_at, updated_at')
     .in('status', ['active', 'upcoming'])
     .order('created_at', { ascending: false });
 
@@ -509,7 +519,7 @@ export async function getCompetitionStages(competitionId: string): Promise<Stage
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('stages')
-    .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
+    .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, created_at')
     .eq('competition_id', competitionId)
     .order('order_index', { ascending: true });
 
@@ -563,10 +573,7 @@ export async function addTeamMember(
     full_name: string;
     email: string;
     phone?: string;
-    student_id?: string;
     institution?: string;
-    major?: string;
-    position?: string;
     role?: 'leader' | 'member' | 'mentor';
   }
 ): Promise<TeamMember> {
@@ -589,7 +596,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
   if (!supabase) return null;
   const { data: team, error: teamError } = await supabase
     .from('teams')
-    .select('id, competition_id, name, team_code, code, category, sub_theme, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
+    .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
     .eq('id', teamId)
     .single();
 
@@ -597,7 +604,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
 
   const { data: members, error: membersError } = await supabase
     .from('team_members')
-    .select('id, team_id, user_id, full_name, email, phone, student_id, institution, major, position, role, is_active, joined_at')
+    .select('id, team_id, user_id, full_name, email, phone, institution, role, is_active, joined_at')
     .eq('team_id', teamId)
     .eq('is_active', true);
 
