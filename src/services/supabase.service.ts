@@ -155,7 +155,7 @@ export const supabaseCompetitionService = {
   getCompetition: async (): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('*')
+      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
       .eq('code', COMPETITION_CODE)
       .maybeSingle();
 
@@ -172,7 +172,7 @@ export const supabaseCompetitionService = {
   getActive: async (): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('*')
+      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
       .eq('code', COMPETITION_CODE)
       .eq('is_active', true)
       .maybeSingle();
@@ -231,7 +231,7 @@ export const supabaseCompetitionService = {
   getByCode: async (code: string): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('*')
+      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
       .eq('code', code)
       .maybeSingle();
 
@@ -248,7 +248,7 @@ export const supabaseCompetitionService = {
   getById: async (id: string): Promise<Competition | null> => {
     const { data, error } = await supabase
       .from('competitions')
-      .select('*')
+      .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
       .eq('id', id)
       .maybeSingle();
 
@@ -386,7 +386,7 @@ export const supabaseCompetitionService = {
 
     const { data, error } = await supabase
       .from('stages')
-      .select('*')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
       .eq('competition_id', competition.id)
       .eq('is_active', true)
       .maybeSingle();
@@ -482,7 +482,7 @@ export const supabaseStageService = {
   getByCompetition: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('*')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
       .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
 
@@ -496,7 +496,7 @@ export const supabaseStageService = {
   getVisible: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('*')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
       .eq('competition_id', competitionId)
       .eq('is_visible', true)
       .order('order_index', { ascending: true });
@@ -511,7 +511,7 @@ export const supabaseStageService = {
   getAll: async (competitionId: string): Promise<Stage[]> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('*')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
       .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
 
@@ -525,7 +525,7 @@ export const supabaseStageService = {
   getById: async (id: string): Promise<Stage | null> => {
     const { data, error } = await supabase
       .from('stages')
-      .select('*')
+      .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
       .eq('id', id)
       .single();
 
@@ -586,7 +586,7 @@ export const supabaseTaskService = {
   getByStage: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
       .eq('stage_id', stageId)
       .eq('is_published', true)
       .order('order_index', { ascending: true });
@@ -601,7 +601,7 @@ export const supabaseTaskService = {
   getPublished: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
       .eq('stage_id', stageId)
       .eq('is_published', true)
       .order('order_index', { ascending: true });
@@ -616,7 +616,7 @@ export const supabaseTaskService = {
   getAll: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
       .eq('stage_id', stageId)
       .order('order_index', { ascending: true });
 
@@ -630,7 +630,7 @@ export const supabaseTaskService = {
   getByCompetition: async (competitionId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('order_index', { ascending: true });
 
@@ -644,7 +644,7 @@ export const supabaseTaskService = {
   getById: async (id: string): Promise<Task | null> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -705,7 +705,7 @@ export const supabaseTeamService = {
   getByCompetition: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('*')
+      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -719,7 +719,7 @@ export const supabaseTeamService = {
   getAll: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('*')
+      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -771,7 +771,7 @@ export const supabaseTeamService = {
   getById: async (id: string): Promise<(Team & { members: TeamMember[] }) | null> => {
     const { data: team, error: teamError } = await supabase
       .from('teams')
-      .select('*')
+      .select('id, competition_id, name, team_code, code, category, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -779,7 +779,7 @@ export const supabaseTeamService = {
 
     const { data: members, error: membersError } = await supabase
       .from('team_members')
-      .select('*')
+      .select('id, team_id, user_id, full_name, email, phone, student_id, institution, major, position, role, is_active, joined_at')
       .eq('team_id', id)
       .eq('is_active', true);
 
@@ -1018,7 +1018,7 @@ export const supabaseSubmissionService = {
 
     const { data, error } = await supabase
       .from('submissions')
-      .select('*')
+      .select('id, task_id, team_id, competition_id, submitted_by, submitted_at, file_url, file_name, file_size, file_type, drive_file_id, link_url, content, field_values, status, total_score, graded_by, graded_at, feedback, criteria_scores, is_late, penalty_applied, created_at, updated_at')
       .eq('team_id', teamData.id)
       .eq('competition_id', competitionId)
       .maybeSingle();
@@ -1147,7 +1147,7 @@ export const supabaseSubmissionService = {
   getMySubmissions: async (teamId: string): Promise<Submission[]> => {
     const { data, error } = await supabase
       .from('submissions')
-      .select('*')
+      .select('id, task_id, team_id, competition_id, submitted_by, submitted_at, file_url, file_name, file_size, file_type, drive_file_id, link_url, content, field_values, status, total_score, graded_by, graded_at, feedback, criteria_scores, is_late, penalty_applied, created_at, updated_at')
       .eq('team_id', teamId)
       .order('created_at', { ascending: false });
 
@@ -1506,7 +1506,7 @@ export const supabaseAnnouncementService = {
   getPublished: async (competitionId: string): Promise<Announcement[]> => {
     const { data, error } = await supabase
       .from('announcements')
-      .select('*')
+      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
       .eq('competition_id', competitionId)
       .eq('is_published', true)
       .order('published_at', { ascending: false });
@@ -1521,7 +1521,7 @@ export const supabaseAnnouncementService = {
   getAll: async (competitionId: string): Promise<Announcement[]> => {
     const { data, error } = await supabase
       .from('announcements')
-      .select('*')
+      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -1618,7 +1618,7 @@ export const supabaseNotificationService = {
 
     const { data, error } = await supabase
       .from('notifications')
-      .select('*')
+      .select('id, user_id, title, message, type, link, is_read, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -1721,7 +1721,7 @@ export const supabaseContentService = {
   getAll: async (): Promise<CIBCContent[]> => {
     const { data, error } = await supabase
       .from('cibc_content')
-      .select('*')
+      .select('id, section, content, is_published, updated_at')
       .order('section', { ascending: true });
 
     if (error) return [];

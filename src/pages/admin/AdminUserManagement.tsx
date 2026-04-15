@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabaseAdmin';
 
 // ============================================
 // Types
@@ -62,50 +61,13 @@ const AdminUserManagement = () => {
     try {
       const userId = userToDelete.id;
 
-      // Use admin client for all deletions to bypass RLS
-      const client = (isAdminClientConfigured() && supabaseAdmin) ? supabaseAdmin : supabase;
-
-      // Delete from all related tables first (to handle foreign keys)
-      // Tables with implicit RESTRICT on FK to users(id)
-      const relatedDeletes = [
-        client.from('submissions').delete().eq('submitted_by', userId),
-        client.from('submissions').delete().eq('graded_by', userId),
-        client.from('judge_scores').delete().eq('judge_id', userId),
-        client.from('notifications').delete().eq('user_id', userId),
-        client.from('team_members').delete().eq('user_id', userId),
-        // judge_assignments.assigned_by has no CASCADE - set to null instead
-        client.from('judge_assignments').update({ assigned_by: null }).eq('assigned_by', userId),
-        // password_reset_requests.processed_by has no CASCADE
-        client.from('password_reset_requests').update({ processed_by: null }).eq('processed_by', userId),
-        // audit_logs has ON DELETE SET NULL, but delete explicitly too
-        client.from('audit_logs').delete().eq('user_id', userId),
-        // password_reset_requests with CASCADE on user_id
-        client.from('password_reset_requests').delete().eq('user_id', userId),
-      ];
-
-      // Execute all related deletes
-      const results = await Promise.allSettled(relatedDeletes);
-      results.forEach((result, i) => {
-        if (result.status === 'rejected') {
-          console.warn(`Related delete [${i}] failed:`, result.reason);
-        }
+      // Use edge function for admin delete (server-side service role)
+      const { data, error: fnError } = await supabase.functions.invoke('admin-ops', {
+        body: { action: 'delete-user', userId },
       });
 
-      // Delete from auth.users (using admin client)
-      if (isAdminClientConfigured() && supabaseAdmin) {
-        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-        if (authError && !authError.message?.includes('User not found')) {
-          console.warn('Auth deletion warning:', authError);
-        }
-      }
-
-      // Delete from users table
-      const { error: dbError } = await client
-        .from('users')
-        .delete()
-        .eq('id', userId);
-
-      if (dbError) throw dbError;
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
 
       // Optimistic update: remove from local state immediately
       setUsers(prev => prev.filter(u => u.id !== userId));
@@ -155,7 +117,7 @@ const AdminUserManagement = () => {
 
       let query = supabase
         .from('users')
-        .select('*')
+        .select('id, email, name, phone, avatar_url, is_active, last_login_at, created_at, updated_at')
         .order('created_at', { ascending: false });
 
       if (filter !== 'all') {
@@ -230,50 +192,18 @@ const AdminUserManagement = () => {
     }
     setIsResetting(true);
     try {
-      const { supabaseAdmin, isAdminClientConfigured } = await import('@/lib/supabaseAdmin');
+      // Use edge function for admin password update (server-side service role)
+      const { data, error: fnError } = await supabase.functions.invoke('admin-ops', {
+        body: {
+          action: 'update-user-password',
+          userId: selectedUser.id,
+          email: selectedUser.email,
+          password: passwordToUse,
+        },
+      });
 
-      if (!isAdminClientConfigured() || !supabaseAdmin) {
-        // Fallback: tampilkan saja tanpa update Auth
-        toast.warning('Service Role Key belum dikonfigurasi. Sampaikan password ke user secara manual.', { duration: 6000 });
-        setResetResult({ userId: selectedUser.id, email: selectedUser.email, newPassword: passwordToUse });
-        setIsResetting(false);
-        return;
-      }
-
-      let authUserId = selectedUser.id;
-
-      // Coba update password via Admin API
-      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-        selectedUser.id,
-        { password: passwordToUse }
-      );
-
-      if (updateError) {
-        if (updateError.message?.includes('User not found') || (updateError as { code?: string }).code === 'user_not_found') {
-          // User tidak ada di auth.users — buat akun baru di Auth
-          toast.loading('User belum terdaftar di Auth. Membuat akun...', { id: 'creating-auth' });
-
-          const { data: newAuthUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-            email: selectedUser.email,
-            password: passwordToUse,
-            email_confirm: true,   // langsung verified, tanpa perlu konfirmasi email
-          });
-
-          toast.dismiss('creating-auth');
-          if (createError) throw createError;
-          if (!newAuthUser?.user) throw new Error('Gagal membuat akun Auth');
-
-          authUserId = newAuthUser.user.id;
-
-          // Don't update primary key - instead, log a warning and skip
-          console.warn(`[AdminUserManagement] User ID mismatch: auth=${authUserId}, db=${selectedUser.id}. Skipping ID update.`);
-
-
-          toast.success('Akun Auth berhasil dibuat untuk user ini.');
-        } else {
-          throw updateError;
-        }
-      }
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
 
       // Tandai force_password_change = true (always use selectedUser.id for public users table)
       await supabase

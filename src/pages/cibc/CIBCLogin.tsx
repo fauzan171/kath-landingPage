@@ -5,7 +5,7 @@
  * Color Theme: Cream (#E6DDC5) & Black
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Trophy, Users } from '../../icons';
@@ -32,6 +32,7 @@ const CIBCLogin: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [alertError, setAlertError] = useState<string | null>(null);
   const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
+  const gsapCtx = useRef<gsap.Context | null>(null);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -101,19 +102,25 @@ const CIBCLogin: React.FC = () => {
     checkSession();
   }, [navigate]);
 
-  // GSAP Animations
+  // GSAP Animations with cleanup
   useEffect(() => {
-    gsap.fromTo(
-      '.login-card',
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-    );
+    gsapCtx.current = gsap.context(() => {
+      gsap.fromTo(
+        '.login-card',
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+      );
 
-    gsap.fromTo(
-      '.stat-item',
-      { opacity: 0, x: -30 },
-      { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.3 }
-    );
+      gsap.fromTo(
+        '.stat-item',
+        { opacity: 0, x: -30 },
+        { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.3 }
+      );
+    });
+
+    return () => {
+      gsapCtx.current?.revert();
+    };
   }, []);
 
   const validateForm = (): boolean => {
@@ -169,7 +176,7 @@ const CIBCLogin: React.FC = () => {
         if (supabase) {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('*')
+            .select('id, email, name, phone, avatar_url, is_active, last_login_at, created_at, updated_at')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -188,7 +195,7 @@ const CIBCLogin: React.FC = () => {
           if (userRole !== 'admin' && userRole !== 'super_admin') {
             // Check if user record exists
             if (!userData) {
-              console.warn('[Login] No user record found in users table for:', user.id);
+              console.warn('[Login] No user record found in users table');
               // User record doesn't exist - this might happen if trigger didn't fire
               // Create the user record now
               await supabase
@@ -296,7 +303,7 @@ const CIBCLogin: React.FC = () => {
         }
       }
     } catch (error: unknown) {
-      console.error('Login error:', error);
+      // Sanitized error logging - no sensitive data
       const errorMessage = error instanceof Error ? error.message : t('Email atau password salah. Silakan coba lagi.', 'Invalid email or password. Please try again.');
       setAlertError(errorMessage);
       toast.error(t('Login gagal', 'Login failed'), {

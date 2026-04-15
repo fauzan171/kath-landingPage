@@ -49,8 +49,8 @@ export const verifyPassword = async (password: string, hashed: string): Promise<
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     return hashHex === storedHash;
-  } catch (error) {
-    console.error('Password verification failed:', error);
+  } catch {
+    // Don't log password verification details
     return false;
   }
 };
@@ -121,8 +121,11 @@ export const registrationRateLimiter = new RateLimiter(5, 300000); // 5 attempts
 
 /**
  * Session timeout utilities
+ * NOTE: SessionProvider.tsx handles session timeout independently.
+ * These functions are kept for backward compatibility but the primary
+ * timeout mechanism is in SessionProvider.
  */
-export const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+export const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes (matches SessionProvider default)
 
 export const checkSessionTimeout = (): boolean => {
   const lastActivity = localStorage.getItem('lastActivity');

@@ -7,7 +7,7 @@ import useLenis from './hooks/useLenis';
 import { siteConfig } from './config';
 
 // Route Protection
-import { AdminRoute, JudgeRoute, ParticipantRoute } from './components/ProtectedRoute';
+import { AdminRoute, JudgeRoute, ParticipantRoute, AuthenticatedRoute } from './components/ProtectedRoute';
 
 // Sections (Landing Page Utama)
 import Navigation from './sections/Navigation';
@@ -156,8 +156,8 @@ function App() {
       <Route path="/cibc/forgot-password" element={<ForgotPassword />} />
       <Route path="/cibc/verify-email" element={<VerifyEmail />} />
       <Route path="/cibc/reset-password" element={<ResetPassword />} />
-      <Route path="/cibc/change-password" element={<ChangePassword />} />
-      <Route path="/cibc/rejected" element={<Rejected />} />
+      <Route path="/cibc/change-password" element={<AuthenticatedRoute><ChangePassword /></AuthenticatedRoute>} />
+      <Route path="/cibc/rejected" element={<AuthenticatedRoute><Rejected /></AuthenticatedRoute>} />
       <Route path="/cibc/dashboard" element={<ParticipantRoute><CIBCDashboard /></ParticipantRoute>} />
 
       {/* Public Competition Pages */}

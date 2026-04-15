@@ -238,7 +238,7 @@ const JudgeGrading = () => {
       // Load existing scores from judge_scores table
       const { data: existingScoreData } = await supabase
         .from('judge_scores')
-        .select('*')
+        .select('id, judge_id, submission_id, criterion_key, score, max_score, feedback')
         .eq('judge_id', user.id)
         .eq('submission_id', submissionId);
 

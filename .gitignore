@@ -65,4 +65,6 @@ dev.vars
 !.dev.vars.example
 !.env.example
 supabase/.temp
+supabase/supabase/.temp
+app/dist/
 r2-cors.json

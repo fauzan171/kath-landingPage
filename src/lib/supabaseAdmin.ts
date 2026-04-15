@@ -1,45 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
-
 /**
- * Supabase Admin Client — menggunakan service_role key
+ * @deprecated DO NOT USE THIS MODULE.
  *
- * ⚠️ SECURITY WARNING:
- * This module exposes the service_role key in the client-side bundle.
- * This is acceptable ONLY because:
- * 1. The key is only used behind ProtectedRoute + AdminRoute
- * 2. All admin actions are logged in audit_logs
- * 3. The app is a competition platform, not a financial app
+ * All admin operations have been migrated to the `admin-ops` Supabase Edge Function.
+ * This file is kept only as a fallback reference.
  *
- * For production, migrate admin operations to Supabase Edge Functions.
+ * The VITE_SUPABASE_SERVICE_ROLE_KEY should be REMOVED from .env.
+ * The service role key is now only accessible server-side via the edge function.
+ *
+ * If you need admin operations, use:
+ *   supabase.functions.invoke('admin-ops', { body: { action: '...', ... } })
  */
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+// This module is intentionally left non-functional.
+// Admin operations are handled by supabase/functions/admin-ops/index.ts
 
-// Only create admin client if key is properly configured
-const isConfigured = Boolean(
-  serviceRoleKey &&
-  serviceRoleKey !== 'your-service-role-key-here' &&
-  serviceRoleKey.length > 20
-);
-
-if (isConfigured && import.meta.env.DEV) {
-  console.warn(
-    '[Security] VITE_SUPABASE_SERVICE_ROLE_KEY is configured. ' +
-    'This key will be visible in the client bundle. ' +
-    'For production, migrate admin operations to Supabase Edge Functions.'
-  );
-}
-
-export const supabaseAdmin = isConfigured
-  ? createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    })
-  : null;
-
-export const isAdminClientConfigured = (): boolean => {
-  return Boolean(supabaseAdmin);
-};
+export const supabaseAdmin = null;
+export const isAdminClientConfigured = (): boolean => false;

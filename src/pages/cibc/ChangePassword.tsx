@@ -79,7 +79,6 @@ const ChangePassword: React.FC = () => {
       // 3. Redirect ke dashboard setelah 2 detik
       setTimeout(() => navigate('/cibc/dashboard'), 2000);
     } catch (err) {
-      console.error('[ChangePassword] Error:', err);
       const msg = err instanceof Error ? err.message : t('Gagal mengganti password.', 'Failed to change password.');
       toast.error(msg);
     } finally {

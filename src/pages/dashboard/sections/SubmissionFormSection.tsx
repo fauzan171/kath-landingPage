@@ -11,7 +11,7 @@
  * - File validation: PDF only for tasks, image only for payment
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Upload, FileText, AlertCircle, CheckCircle, Clock,
   Loader2, Info, X, CreditCard, Image
@@ -57,6 +57,7 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const isSubmittingRef = useRef(false);
 
   // Payment proof state
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
@@ -181,6 +182,10 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
       return;
     }
 
+    // Prevent double submission
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     // DEADLINE CHECK: Block submission after deadline
     if (isDeadlinePassed(selectedTask)) {
       toast.error(language === 'id'
@@ -257,6 +262,7 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
     } finally {
       setUploading(false);
       setUploadProgress(0);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -656,7 +662,8 @@ const SubmissionFormSection: React.FC<SubmissionFormSectionProps> = ({
             {file && !uploading && (
               <button
                 onClick={handleSubmit}
-                className="w-full mt-4 py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20"
+                disabled={uploading}
+                className="w-full mt-4 py-3.5 bg-[#FFB22C] hover:bg-[#FFB22C]/90 text-[#0F0F0F] font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-[#FFB22C]/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Upload className="w-4 h-4" />
                 {getTaskStatus(selectedTask.id).status === 'needs_revision'

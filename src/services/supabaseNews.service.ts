@@ -80,7 +80,7 @@ export const supabaseNewsService = {
   async getAll(category?: NewsCategory | 'all'): Promise<News[]> {
     let query = sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
 
@@ -100,7 +100,7 @@ export const supabaseNewsService = {
   async getBySlug(slug: string): Promise<News | null> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('slug', slug)
       .single();
 
@@ -114,7 +114,7 @@ export const supabaseNewsService = {
   async getById(id: string): Promise<News | null> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -128,7 +128,7 @@ export const supabaseNewsService = {
   async getByCategory(category: NewsCategory): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('category', category)
       .eq('is_published', true)
       .order('published_at', { ascending: false });
@@ -143,7 +143,7 @@ export const supabaseNewsService = {
   async getFeatured(limit: number = 3): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(limit);
@@ -158,7 +158,7 @@ export const supabaseNewsService = {
   async search(query: string): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('is_published', true)
       .or(`title.ilike.%${query}%,title_id.ilike.%${query}%,excerpt.ilike.%${query}%,excerpt_id.ilike.%${query}%`)
       .order('published_at', { ascending: false });
@@ -177,7 +177,7 @@ export const supabaseNewsService = {
   async getAllAdmin(): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;

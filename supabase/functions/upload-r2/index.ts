@@ -5,11 +5,22 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "https://esm.sh/
 import { getSignedUrl } from "https://esm.sh/@aws-sdk/s3-request-presigner@3.515.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+const getAllowedOrigin = (req: Request): string => {
+  const origin = req.headers.get('Origin') || '';
+  const allowedOrigins = [
+    'https://katheventorganizer.com',
+    'https://www.katheventorganizer.com',
+    'http://localhost:5173', // dev only
+    'http://localhost:4173', // preview
+  ];
+  return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+};
+
+const getCorsHeaders = (req: Request) => ({
+  'Access-Control-Allow-Origin': getAllowedOrigin(req),
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
-};
+});
 
 // Allowed MIME types for security
 const ALLOWED_TYPES = {
@@ -71,6 +82,7 @@ async function verifyAuth(req: Request): Promise<{ userId: string } | null> {
 
 serve(async (req) => {
   // Handle CORS preflight requests
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -94,6 +106,29 @@ serve(async (req) => {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
+      }
+
+      // Ownership validation: only allow deleting files that belong to the authenticated user's team
+      const keyParts = key.split('/');
+      const keyTeamId = keyParts[1]; // uploads/{teamId}/... or payments/{teamId}/...
+      if (keyTeamId && keyTeamId !== authResult.userId) {
+        // Verify user is member of the team that owns this file
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+        const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        const { data: membership } = await supabase
+          .from('team_members')
+          .select('team_id')
+          .eq('user_id', authResult.userId)
+          .eq('team_id', keyTeamId)
+          .maybeSingle();
+
+        if (!membership) {
+          return new Response(JSON.stringify({ error: 'Forbidden: You do not own this file' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
       }
 
       const S3 = new S3Client({

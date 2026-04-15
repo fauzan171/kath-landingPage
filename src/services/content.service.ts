@@ -189,7 +189,7 @@ export const heroService = {
     if (!supabase) return null;
     const { data, error } = await supabase
       .from('hero_content')
-      .select('*')
+      .select('id, title, title_id, subtitle, description, description_id, background_image, background_video, cta_text, cta_text_id, cta_link, secondary_cta_text, secondary_cta_link, is_active, updated_at')
       .eq('is_active', true)
       .single();
     if (error) return null;
@@ -218,7 +218,7 @@ export const servicesService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('services')
-      .select('*')
+      .select('id, name, name_id, description, description_id, icon, image, features, features_id, price_range, is_featured, order_index, is_active, created_at, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -228,7 +228,7 @@ export const servicesService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('services')
-      .select('*')
+      .select('id, name, name_id, description, description_id, icon, image, features, features_id, price_range, is_featured, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -274,7 +274,7 @@ export const portfolioService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('portfolio')
-      .select('*')
+      .select('id, title, title_id, category, location, year, description, description_id, image, images, video_url, client_name, event_date, guests_count, is_featured, order_index, is_active, created_at, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -284,7 +284,7 @@ export const portfolioService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('portfolio')
-      .select('*')
+      .select('id, title, title_id, category, location, year, description, description_id, image, images, video_url, client_name, event_date, guests_count, is_featured, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -295,7 +295,7 @@ export const portfolioService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('portfolio')
-      .select('*')
+      .select('id, title, title_id, category, location, year, description, description_id, image, images, video_url, client_name, event_date, guests_count, is_featured, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .eq('is_featured', true)
       .order('order_index', { ascending: true });
@@ -342,7 +342,7 @@ export const featuredEventsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('featured_events')
-      .select('*')
+      .select('id, title, title_id, description, description_id, image, category, rotation, order_index, is_active, created_at, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -352,7 +352,7 @@ export const featuredEventsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('featured_events')
-      .select('*')
+      .select('id, title, title_id, description, description_id, image, category, rotation, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -398,7 +398,7 @@ export const newsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
       .order('created_at', { ascending: false });
     if (error) return [];
     return data || [];
@@ -408,7 +408,7 @@ export const newsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
     if (error) return [];
@@ -419,7 +419,7 @@ export const newsService = {
     if (!supabase) return null;
     const { data, error } = await supabase
       .from('news')
-      .select('*')
+      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
       .eq('slug', slug)
       .single();
     if (error) return null;
@@ -477,7 +477,7 @@ export const testimonialsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('testimonials')
-      .select('*')
+      .select('id, name, role, company, avatar, content, content_id, rating, event_type, is_featured, order_index, is_active, created_at, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -487,7 +487,7 @@ export const testimonialsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('testimonials')
-      .select('*')
+      .select('id, name, role, company, avatar, content, content_id, rating, event_type, is_featured, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -533,7 +533,7 @@ export const faqService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('faq')
-      .select('*')
+      .select('id, question, question_id, answer, answer_id, category, order_index, is_active, created_at, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -543,7 +543,7 @@ export const faqService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('faq')
-      .select('*')
+      .select('id, question, question_id, answer, answer_id, category, order_index, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -589,7 +589,7 @@ export const statisticsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('statistics')
-      .select('*')
+      .select('id, label, label_id, value, suffix, icon, order_index, is_active, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -599,7 +599,7 @@ export const statisticsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('statistics')
-      .select('*')
+      .select('id, label, label_id, value, suffix, icon, order_index, is_active, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -628,7 +628,7 @@ export const contactInfoService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('contact_info')
-      .select('*')
+      .select('id, type, label, value, link, icon, is_active, order_index, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -638,7 +638,7 @@ export const contactInfoService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('contact_info')
-      .select('*')
+      .select('id, type, label, value, link, icon, is_active, order_index, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -684,7 +684,7 @@ export const navigationService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('navigation')
-      .select('*')
+      .select('id, label, label_id, href, is_external, parent_id, order_index, is_active, updated_at')
       .order('order_index', { ascending: true });
     if (error) return [];
     return data || [];
@@ -694,7 +694,7 @@ export const navigationService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('navigation')
-      .select('*')
+      .select('id, label, label_id, href, is_external, parent_id, order_index, is_active, updated_at')
       .eq('is_active', true)
       .order('order_index', { ascending: true });
     if (error) return [];
@@ -740,7 +740,7 @@ export const siteSettingsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('site_settings')
-      .select('*');
+      .select('id, key, value, value_json, description, updated_at');
     if (error) return [];
     return data || [];
   },

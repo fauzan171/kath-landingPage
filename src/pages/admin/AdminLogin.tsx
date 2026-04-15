@@ -4,13 +4,15 @@
  * Separate login for administrators (admin, super_admin, finance_admin)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/config/environment';
+import { useCSRFToken } from '@/components/CSRFProtectedForm';
+import { loginRateLimiter } from '@/utils/security';
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'finance_admin'];
 
@@ -24,6 +26,8 @@ const AdminLogin = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [alertError, setAlertError] = useState<string | null>(null);
+  const { token: csrfToken, validateAndRefresh: validateCSRF } = useCSRFToken();
+  const gsapCtx = useRef<gsap.Context | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,12 +35,18 @@ const AdminLogin = () => {
     // Check if already logged in
     checkSession();
 
-    // GSAP Animation
-    gsap.fromTo(
-      '.login-card',
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-    );
+    // GSAP Animation with cleanup
+    gsapCtx.current = gsap.context(() => {
+      gsap.fromTo(
+        '.login-card',
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+      );
+    });
+
+    return () => {
+      gsapCtx.current?.revert();
+    };
   }, []);
 
   const checkSession = async () => {
@@ -80,7 +90,28 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // CSRF Token validation
+    const formElement = e.target as HTMLFormElement;
+    const submittedToken = new FormData(formElement).get('csrfToken') as string;
+    if (!validateCSRF(submittedToken)) {
+      toast.error('Security validation failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+
     if (!validateForm()) return;
+
+    // Rate limiting check
+    const rateLimitResult = loginRateLimiter.checkLimit(formData.email);
+    if (!rateLimitResult.allowed) {
+      const retryMinutes = Math.ceil((rateLimitResult.retryAfter || 300000) / 60000);
+      toast.error('Too many login attempts', {
+        description: `Please try again in ${retryMinutes} minute(s).`,
+      });
+      setIsLoading(false);
+      return;
+    }
 
     setAlertError(null);
     setIsLoading(true);
@@ -135,7 +166,7 @@ const AdminLogin = () => {
         navigate('/admin');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      // Don't log sensitive error details in production
       const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
       setAlertError(errorMessage);
       toast.error('Login failed', { description: errorMessage });
@@ -177,6 +208,7 @@ const AdminLogin = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            <input type="hidden" name="csrfToken" value={csrfToken} />
             {/* Error Alert */}
             {alertError && (
               <div className="mb-2 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">

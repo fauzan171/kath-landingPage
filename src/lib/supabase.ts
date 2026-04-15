@@ -191,6 +191,7 @@ export interface Team {
   team_code?: string;
   code?: string;
   category?: 'startup' | 'student' | 'corporate' | 'open';
+  sub_theme?: 'Energy' | 'Health' | 'Food' | 'Finance' | 'Beauty' | 'Manufacture';
   status: 'draft' | 'pending' | 'verified' | 'rejected';
   institution?: string;
   country?: string;
@@ -201,6 +202,10 @@ export interface Team {
   payment_uploaded_at?: string;
   payment_drive_id?: string;
   payment_rejection_reason?: string;
+  student_cards_url?: string;
+  instagram_proof_url?: string;
+  twibbon_proof_url?: string;
+  bmc_url?: string;
   notes?: string;
   verified_by?: string;
   verified_at?: string;
@@ -476,7 +481,7 @@ export async function getCompetitionByCode(code: string): Promise<Competition | 
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('competitions')
-    .select('*')
+    .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
     .eq('code', code)
     .single();
 
@@ -488,7 +493,7 @@ export async function getActiveCompetitions(): Promise<Competition[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('competitions')
-    .select('*')
+    .select('id, code, name, name_id, subtitle, description, description_id, status, is_active, registration_start, registration_end, competition_start, competition_end, event_start, event_end, target, prize, image, requirements, config, theme, settings, created_at, updated_at')
     .in('status', ['active', 'upcoming'])
     .order('created_at', { ascending: false });
 
@@ -504,7 +509,7 @@ export async function getCompetitionStages(competitionId: string): Promise<Stage
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('stages')
-    .select('*')
+    .select('id, competition_id, name, name_id, description, order_index, start_date, end_date, status, is_active, is_visible, auto_progress, requires_all_tasks')
     .eq('competition_id', competitionId)
     .order('order_index', { ascending: true });
 
@@ -516,7 +521,7 @@ export async function getStageTasks(stageId: string): Promise<Task[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('tasks')
-    .select('*')
+    .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
     .eq('stage_id', stageId)
     .eq('is_published', true)
     .order('order_index', { ascending: true });
@@ -584,7 +589,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
   if (!supabase) return null;
   const { data: team, error: teamError } = await supabase
     .from('teams')
-    .select('*')
+    .select('id, competition_id, name, team_code, code, category, sub_theme, status, institution, country, total_score, rank, payment_status, payment_proof, payment_uploaded_at, payment_drive_id, payment_rejection_reason, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, notes, verified_by, verified_at, rejected_by, rejected_at, created_at, updated_at')
     .eq('id', teamId)
     .single();
 
@@ -592,7 +597,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
 
   const { data: members, error: membersError } = await supabase
     .from('team_members')
-    .select('*')
+    .select('id, team_id, user_id, full_name, email, phone, student_id, institution, major, position, role, is_active, joined_at')
     .eq('team_id', teamId)
     .eq('is_active', true);
 
@@ -612,7 +617,7 @@ export async function getPublishedAnnouncements(competitionId: string): Promise<
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('announcements')
-    .select('*')
+    .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
     .eq('competition_id', competitionId)
     .eq('is_published', true)
     .order('published_at', { ascending: false });
