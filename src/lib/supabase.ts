@@ -596,7 +596,7 @@ export async function getTeamById(teamId: string): Promise<(Team & { members: Te
   if (!supabase) return null;
   const { data: team, error: teamError } = await supabase
     .from('teams')
-    .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
+    .select('id, competition_id, name, code, category, sub_theme, institution, status, payment_status, payment_proof, payment_drive_id, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, verified_by, verified_at, created_at, updated_at')
     .eq('id', teamId)
     .single();
 

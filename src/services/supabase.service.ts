@@ -704,7 +704,7 @@ export const supabaseTeamService = {
   getByCompetition: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, sub_theme, institution, status, payment_status, payment_proof, payment_drive_id, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, verified_by, verified_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -718,7 +718,7 @@ export const supabaseTeamService = {
   getAll: async (competitionId: string): Promise<Team[]> => {
     const { data, error } = await supabase
       .from('teams')
-      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, sub_theme, institution, status, payment_status, payment_proof, payment_drive_id, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, verified_by, verified_at, created_at, updated_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 
@@ -770,7 +770,7 @@ export const supabaseTeamService = {
   getById: async (id: string): Promise<(Team & { members: TeamMember[] }) | null> => {
     const { data: team, error: teamError } = await supabase
       .from('teams')
-      .select('id, competition_id, name, code, category, institution, status, payment_status, payment_proof, payment_drive_id, verified_by, verified_at, created_at, updated_at')
+      .select('id, competition_id, name, code, category, sub_theme, institution, status, payment_status, payment_proof, payment_drive_id, student_cards_url, instagram_proof_url, twibbon_proof_url, bmc_url, verified_by, verified_at, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -778,11 +778,9 @@ export const supabaseTeamService = {
 
     const { data: members, error: membersError } = await supabase
       .from('team_members')
-      .select('id, team_id, user_id, full_name, email, phone, student_id, institution, major, position, role, is_active, joined_at')
-    .select('id, team_id, user_id, full_name, email, phone, institution, role, is_active, joined_at')
-    .eq('team_id', id)
-    .eq('is_active', true);
-    if (membersError) throw membersError;
+      .select('id, team_id, user_id, full_name, email, phone, institution, role, is_active, joined_at')
+      .eq('team_id', id)
+      .eq('is_active', true);
 
     return {
       ...team,
