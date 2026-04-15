@@ -5,10 +5,21 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Download } from 'lucide-react'; // Ikon Play diganti jadi Download
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COMPETITION_DATA } from '../data/cibcData';
-import { downloadBMCTemplate } from '../data/bmcTemplate';
 import { CountdownTimer } from '../components/CountdownTimer';
 
 gsap.registerPlugin(ScrollTrigger);
+
+/**
+ * Download the CIBC 2026 Guidebook PDF
+ */
+const downloadGuidebook = () => {
+  const link = document.createElement('a');
+  link.href = '/docs/GUIDEBOOK-CIBC-2026.pdf';
+  link.download = 'GUIDEBOOK-CIBC-2026.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -150,9 +161,9 @@ export const HeroSection = () => {
             </span>
           </button>
 
-          {/* Button 2: Download Guide */}
+          {/* Button 2: Download Guidebook */}
           <button
-            onClick={() => downloadBMCTemplate(language)}
+            onClick={downloadGuidebook}
             className="relative group overflow-hidden w-full sm:w-auto px-6 py-3.5 bg-transparent border border-white/25 text-white font-body text-xs uppercase tracking-wider rounded-full transition-transform duration-300 flex items-center justify-center gap-2 hover:scale-[1.03]"
           >
               <div className="absolute left-1/2 top-[250%] -translate-x-1/2 w-[250%] aspect-square transition-all duration-1000 group-hover:top-[-15%] opacity-0 group-hover:opacity-100 z-0 pointer-events-none" style={{ transitionTimingFunction: 'cubic-bezier(0.68,-0.55,0.27,1.55)' }}>
@@ -161,7 +172,7 @@ export const HeroSection = () => {
               </div>
               <span className="relative z-10 flex items-center gap-2 group-hover:text-[#0F0F0F] transition-colors duration-500 font-bold">
                 <Download className="w-4 h-4 text-[#FFB22C] group-hover:text-[#0F0F0F] transition-colors" />
-                {language === 'id' ? 'Unduh Panduan' : 'Download Guide'}
+                {language === 'id' ? 'Unduh Guidebook' : 'Download Guidebook'}
               </span>
           </button>
         </div>

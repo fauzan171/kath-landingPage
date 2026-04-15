@@ -13,12 +13,12 @@ interface TimeLeft {
 
 /**
  * Shared hook to fetch countdown deadline from Supabase.
- * Reads the first active or visible stage's end_date.
- * Falls back to configurable default if no stage has end_date.
+ * Prioritizes competition.registration_end for "Registration closes in" countdown.
+ * Falls back to active stage's end_date, then configurable default.
  * Returns both the deadline date string and computed timeLeft.
  *
  * Features real-time Supabase subscription so admin changes
- * to stages are reflected immediately on the landing page.
+ * to competition or stages are reflected immediately on the landing page.
  */
 export function useCountdownDeadline(fallbackDaysFromNow: number = 30) {
   const [deadline, setDeadline] = useState<string | null>(null);
@@ -32,8 +32,14 @@ export function useCountdownDeadline(fallbackDaysFromNow: number = 30) {
 
   const loadDeadline = useCallback(async () => {
     try {
-      // 1. Get the competition first to obtain its ID
+      // 1. Get the competition first - check registration_end
       const competition = await supabaseCompetitionService.getCompetition();
+      if (competition?.registration_end) {
+        setDeadline(competition.registration_end);
+        setLoading(false);
+        return;
+      }
+
       if (competition) {
         // 2. Try active stages first (works for admin/authenticated users)
         const allStages = await supabaseStageService.getByCompetition(competition.id);
@@ -86,16 +92,26 @@ export function useCountdownDeadline(fallbackDaysFromNow: number = 30) {
     if (!isSupabaseConfigured() || !supabase) return;
 
     const channel = supabase
-      .channel('countdown-stages-changes')
+      .channel('countdown-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // INSERT, UPDATE, DELETE
+          event: '*',
+          schema: 'public',
+          table: 'competitions',
+        },
+        () => {
+          loadDeadline();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
           schema: 'public',
           table: 'stages',
         },
         () => {
-          // Re-fetch deadline whenever any stage changes
           loadDeadline();
         }
       )

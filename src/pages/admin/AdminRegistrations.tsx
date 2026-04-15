@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Check, X, Clock, Search, Loader2, Users, Building2, Eye } from 'lucide-react';
+import { Check, X, Clock, Search, Loader2, Users, Building2, Eye, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { teamsService, type Team } from '@/services/cibc.service';
 import { competitionService } from '@/services/cibc.service';
@@ -284,6 +284,59 @@ const AdminRegistrations = () => {
                 </div>
               )}
 
+              {/* Registration Documents */}
+              {(team.student_cards_url || team.instagram_proof_url || team.twibbon_proof_url || team.bmc_url) && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-gray-500 mb-2">Registration Documents:</p>
+                  <div className="flex flex-wrap gap-3">
+                    {team.student_cards_url && (
+                      <a
+                        href={team.student_cards_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs hover:bg-blue-100 transition-colors"
+                      >
+                        <FileText className="w-3 h-3" />
+                        Student Cards
+                      </a>
+                    )}
+                    {team.instagram_proof_url && (
+                      <a
+                        href={team.instagram_proof_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-pink-50 text-pink-700 rounded-lg text-xs hover:bg-pink-100 transition-colors"
+                      >
+                        <FileText className="w-3 h-3" />
+                        Instagram Follow Proof
+                      </a>
+                    )}
+                    {team.twibbon_proof_url && (
+                      <a
+                        href={team.twibbon_proof_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs hover:bg-purple-100 transition-colors"
+                      >
+                        <FileText className="w-3 h-3" />
+                        Twibbon Proof
+                      </a>
+                    )}
+                    {team.bmc_url && (
+                      <a
+                        href={team.bmc_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs hover:bg-amber-100 transition-colors"
+                      >
+                        <FileText className="w-3 h-3" />
+                        BMC
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Created Date */}
               <div className="mt-4 pt-4 border-t flex items-center gap-2 text-xs text-gray-400">
                 <Clock className="w-3 h-3" />
@@ -345,6 +398,49 @@ const AdminRegistrations = () => {
                   <div>
                     <label className="text-xs text-gray-500">Payment Drive ID</label>
                     <p className="mt-1 text-sm text-gray-700">{selectedTeam.payment_drive_id}</p>
+                  </div>
+                )}
+
+                {/* Registration Documents in Modal */}
+                {(selectedTeam.student_cards_url || selectedTeam.instagram_proof_url || selectedTeam.twibbon_proof_url || selectedTeam.bmc_url) && (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-2 block">Registration Documents</label>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTeam.student_cards_url && (
+                        <a href={selectedTeam.student_cards_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs hover:bg-blue-100">
+                          <FileText className="w-3 h-3" /> Student Cards
+                        </a>
+                      )}
+                      {selectedTeam.instagram_proof_url && (
+                        <a href={selectedTeam.instagram_proof_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-pink-50 text-pink-700 rounded-lg text-xs hover:bg-pink-100">
+                          <FileText className="w-3 h-3" /> Instagram Proof
+                        </a>
+                      )}
+                      {selectedTeam.twibbon_proof_url && (
+                        <a href={selectedTeam.twibbon_proof_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs hover:bg-purple-100">
+                          <FileText className="w-3 h-3" /> Twibbon Proof
+                        </a>
+                      )}
+                      {selectedTeam.bmc_url && (
+                        <a href={selectedTeam.bmc_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs hover:bg-amber-100">
+                          <FileText className="w-3 h-3" /> BMC
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedTeam.payment_proof && (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-2 block">Payment Proof</label>
+                    <a href={selectedTeam.payment_proof} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs hover:bg-green-100">
+                      <FileText className="w-3 h-3" /> View Payment Proof
+                    </a>
                   </div>
                 )}
               </div>
