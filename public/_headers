@@ -12,11 +12,11 @@
   # Content Security Policy (updated for Supabase + Cloudflare R2 + Media)
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: blob: *.cloudinary.com *.supabase.co *.r2.cloudflarestorage.com *.r2.dev pub-ad49462c90174c58a599d6fd34f90bf6.r2.dev; media-src 'self' data: blob: cdn.pixabay.com *.r2.dev; connect-src 'self' *.cloudflare.com *.supabase.co wss://*.supabase.co https://*.supabase.co *.r2.cloudflarestorage.com *.r2.dev; frame-ancestors 'none';
 
-  # Cache Control for static assets
-  Cache-Control: public, max-age=31536000, immutable
+  # Default cache - short cache for HTML, long for assets
+  Cache-Control: public, max-age=0, must-revalidate
 
-# HTML files - no cache for dynamic content
-/*.html
+# HTML files - no cache for SPA routing
+/index.html
   Cache-Control: public, max-age=0, must-revalidate
 
 # Assets with hash - long term cache
