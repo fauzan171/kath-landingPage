@@ -585,10 +585,10 @@ export const supabaseTaskService = {
   getByStage: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
+      .select('id, stage_id, competition_id, name, name_id, description, type, is_required, is_published, max_score, created_at')
       .eq('stage_id', stageId)
       .eq('is_published', true)
-      .order('order_index', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -600,10 +600,10 @@ export const supabaseTaskService = {
   getPublished: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
+      .select('id, stage_id, competition_id, name, name_id, description, type, is_required, is_published, max_score, created_at')
       .eq('stage_id', stageId)
       .eq('is_published', true)
-      .order('order_index', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (error) return [];
     return data || [];
@@ -615,9 +615,9 @@ export const supabaseTaskService = {
   getAll: async (stageId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
+      .select('id, stage_id, competition_id, name, name_id, description, type, is_required, is_published, max_score, created_at')
       .eq('stage_id', stageId)
-      .order('order_index', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (error) return [];
     return data || [];
@@ -629,9 +629,9 @@ export const supabaseTaskService = {
   getByCompetition: async (competitionId: string): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
+      .select('id, stage_id, competition_id, name, name_id, description, type, is_required, is_published, max_score, created_at')
       .eq('competition_id', competitionId)
-      .order('order_index', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -643,7 +643,7 @@ export const supabaseTaskService = {
   getById: async (id: string): Promise<Task | null> => {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, stage_id, competition_id, name, name_id, description, description_id, instructions, type, max_file_size_mb, max_file_size, max_score, allowed_extensions, file_types, deadline, is_required, is_published, order_index, rubric, rubric_data, custom_fields, created_at, updated_at')
+      .select('id, stage_id, competition_id, name, name_id, description, type, is_required, is_published, max_score, created_at')
       .eq('id', id)
       .single();
 
@@ -1490,7 +1490,7 @@ export const supabaseAnnouncementService = {
   getPublished: async (competitionId: string): Promise<Announcement[]> => {
     const { data, error } = await supabase
       .from('announcements')
-      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
+      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, created_at')
       .eq('competition_id', competitionId)
       .eq('is_published', true)
       .order('published_at', { ascending: false });
@@ -1505,7 +1505,7 @@ export const supabaseAnnouncementService = {
   getAll: async (competitionId: string): Promise<Announcement[]> => {
     const { data, error } = await supabase
       .from('announcements')
-      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
+      .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, created_at')
       .eq('competition_id', competitionId)
       .order('created_at', { ascending: false });
 

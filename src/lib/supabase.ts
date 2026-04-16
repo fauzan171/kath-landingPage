@@ -624,7 +624,7 @@ export async function getPublishedAnnouncements(competitionId: string): Promise<
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('announcements')
-    .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, views_count, created_at, updated_at')
+    .select('id, competition_id, title, title_id, content, content_id, type, is_published, published_at, created_at')
     .eq('competition_id', competitionId)
     .eq('is_published', true)
     .order('published_at', { ascending: false });
