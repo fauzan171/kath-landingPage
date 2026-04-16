@@ -776,7 +776,7 @@ export const supabaseTeamService = {
 
     if (teamError) return null;
 
-    const { data: members, error: membersError } = await supabase
+    const { data: members } = await supabase
       .from('team_members')
       .select('id, team_id, user_id, full_name, email, phone, institution, role, is_active, joined_at')
       .eq('team_id', id)
@@ -1274,7 +1274,7 @@ export const supabaseSubmissionService = {
     teamId: string,
     competitionId: string,
     content: string,
-    fieldValues?: Record<string, unknown>
+    _fieldValues?: Record<string, unknown>
   ): Promise<Submission> => {
     const payload: Record<string, unknown> = {
       task_id: taskId,
@@ -1965,7 +1965,7 @@ export const supabasePaymentService = {
   /**
    * Reject payment (admin)
    */
-  rejectPayment: async (teamId: string, reason: string, adminId: string | null): Promise<Team> => {
+  rejectPayment: async (teamId: string, reason: string, _adminId: string | null): Promise<Team> => {
     // Build update payload — only include columns that exist in the DB
     const updatePayload: Record<string, unknown> = {
       payment_status: 'rejected',

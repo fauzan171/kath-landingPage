@@ -242,7 +242,6 @@ const SubmissionForm = () => {
         await supabaseSubmissionService.update(existingSubmission.id, {
           content: submissionContent,
           status: 'draft',
-          field_values: fieldValues,
         });
       } else {
         await supabaseSubmissionService.createWithContent(
@@ -342,12 +341,8 @@ const SubmissionForm = () => {
             file_url: primaryFile.fileUrl,
             file_name: primaryFile.fileName,
             file_size: primaryFile.fileSize,
-            file_type: primaryFile.fileType,
             drive_file_id: primaryFile.storageKey,
           }),
-          field_values: allFilesMeta
-            ? { ...fieldValues, ...allFilesMeta }
-            : fieldValues,
         });
       } else {
         // Create new submission with file metadata
@@ -363,13 +358,9 @@ const SubmissionForm = () => {
               team_id: teamId,
               competition_id: id,
               content: submissionContent,
-              field_values: allFilesMeta
-                ? { ...fieldValues, ...allFilesMeta }
-                : fieldValues,
               file_url: primaryFile.fileUrl,
               file_name: primaryFile.fileName,
               file_size: primaryFile.fileSize,
-              file_type: primaryFile.fileType,
               drive_file_id: primaryFile.storageKey,
               status: 'submitted',
               submitted_at: new Date().toISOString(),
