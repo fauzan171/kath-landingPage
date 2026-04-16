@@ -157,7 +157,7 @@ const JudgeGrading = () => {
             .select('user_id, role')
             .eq('team_id', team.id)
             .eq('role', 'leader')
-            .single();
+            .maybeSingle();
 
           if (leaderProfile) {
             const { data: leaderUser } = await supabase

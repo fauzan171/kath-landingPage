@@ -17,55 +17,32 @@ const sb = supabaseClient!;
 // TYPES
 // ============================================
 
-export type NewsCategory = 'competition' | 'announcement' | 'news' | 'update' | 'tips';
+export type NewsCategory = string;
 
 export interface News {
   id: string;
   // Content (Bilingual)
   title: string;
   title_id?: string;       // Indonesian translation
-  slug: string;
-  excerpt: string;
-  excerpt_id?: string;
   content: string;
   content_id?: string;
   // Media
-  image?: string;
-  // Classification
-  category: NewsCategory;
-  // Metadata
-  author: string;
-  author_id?: string;
+  image_url?: string;
   // Publishing
   is_published: boolean;
   published_at?: string;
-  scheduled_at?: string;
-  // Stats
-  views: number;
-  // SEO
-  meta_title?: string;
-  meta_description?: string;
   // Timestamps
   created_at: string;
-  updated_at: string;
 }
 
 export interface NewsFormData {
   title: string;
   title_id?: string;
-  slug: string;
-  excerpt: string;
-  excerpt_id?: string;
   content: string;
   content_id?: string;
-  image?: string;
-  category: NewsCategory;
-  author?: string;
-  meta_title?: string;
-  meta_description?: string;
+  image_url?: string;
   is_published?: boolean;
   published_at?: string;
-  scheduled_at?: string;
 }
 
 // ============================================
@@ -77,16 +54,12 @@ export const supabaseNewsService = {
    * Get all published news (public)
    * Optionally filter by category
    */
-  async getAll(category?: NewsCategory | 'all'): Promise<News[]> {
+  async getAll(): Promise<News[]> {
     let query = sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
-
-    if (category && category !== 'all') {
-      query = query.eq('category', category);
-    }
 
     const { data, error } = await query;
 
@@ -95,13 +68,13 @@ export const supabaseNewsService = {
   },
 
   /**
-   * Get news by URL slug (for detail page)
+   * Get news by title (for detail page)
    */
-  async getBySlug(slug: string): Promise<News | null> {
+  async getByTitle(title: string): Promise<News | null> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
-      .eq('slug', slug)
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
+      .eq('title', title)
       .single();
 
     if (error) return null;
@@ -114,7 +87,7 @@ export const supabaseNewsService = {
   async getById(id: string): Promise<News | null> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('id', id)
       .single();
 
@@ -123,13 +96,12 @@ export const supabaseNewsService = {
   },
 
   /**
-   * Get news by category
+   * Get all published news
    */
-  async getByCategory(category: NewsCategory): Promise<News[]> {
+  async getAllPublished(): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
-      .eq('category', category)
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
 
@@ -143,7 +115,7 @@ export const supabaseNewsService = {
   async getFeatured(limit: number = 3): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(limit);
@@ -158,9 +130,9 @@ export const supabaseNewsService = {
   async search(query: string): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('is_published', true)
-      .or(`title.ilike.%${query}%,title_id.ilike.%${query}%,excerpt.ilike.%${query}%,excerpt_id.ilike.%${query}%`)
+      .or(`title.ilike.%${query}%,title_id.ilike.%${query}%`)
       .order('published_at', { ascending: false });
 
     if (error) throw error;
@@ -177,7 +149,7 @@ export const supabaseNewsService = {
   async getAllAdmin(): Promise<News[]> {
     const { data, error } = await sb
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, scheduled_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -192,9 +164,6 @@ export const supabaseNewsService = {
       .from('news')
       .insert({
         ...news,
-        author: news.author || 'CIBC Team',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -211,7 +180,6 @@ export const supabaseNewsService = {
       .from('news')
       .update({
         ...updates,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -243,7 +211,6 @@ export const supabaseNewsService = {
       .update({
         is_published: true,
         published_at: publishedAt || new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -261,7 +228,6 @@ export const supabaseNewsService = {
       .from('news')
       .update({
         is_published: false,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -272,28 +238,10 @@ export const supabaseNewsService = {
   },
 
   /**
-   * Increment view count (when user reads news)
+   * Increment view count (no-op - views column does not exist)
    */
-  async incrementView(id: string): Promise<void> {
-    const { error } = await sb.rpc('increment_news_view', {
-      p_news_id: id
-    });
-
-    if (error) {
-      // Fallback: manual increment if RPC fails
-      const { data: news } = await sb
-        .from('news')
-        .select('views')
-        .eq('id', id)
-        .single();
-
-      if (news) {
-        await sb
-          .from('news')
-          .update({ views: (news.views || 0) + 1 })
-          .eq('id', id);
-      }
-    }
+  async incrementView(_id: string): Promise<void> {
+    // No-op: views column does not exist in the news table
   },
 
   /**
@@ -303,12 +251,10 @@ export const supabaseNewsService = {
     total: number;
     published: number;
     draft: number;
-    totalViews: number;
-    byCategory: Record<NewsCategory, number>;
   }> {
     const { data: allNews, error } = await sb
       .from('news')
-      .select('category, is_published, views');
+      .select('is_published');
 
     if (error) throw error;
 
@@ -318,14 +264,6 @@ export const supabaseNewsService = {
       total: news.length,
       published: news.filter(n => n.is_published).length,
       draft: news.filter(n => !n.is_published).length,
-      totalViews: news.reduce((sum, n) => sum + (n.views || 0), 0),
-      byCategory: {
-        competition: news.filter(n => n.category === 'competition').length,
-        announcement: news.filter(n => n.category === 'announcement').length,
-        news: news.filter(n => n.category === 'news').length,
-        update: news.filter(n => n.category === 'update').length,
-        tips: news.filter(n => n.category === 'tips').length,
-      },
     };
   },
 };
@@ -355,13 +293,12 @@ export function getLocalizedTitle(news: News, locale: 'en' | 'id' = 'en'): strin
 }
 
 /**
- * Get localized excerpt
+ * Get localized content (used as excerpt replacement)
  */
 export function getLocalizedExcerpt(news: News, locale: 'en' | 'id' = 'en'): string {
-  if (locale === 'id' && news.excerpt_id) {
-    return news.excerpt_id;
-  }
-  return news.excerpt;
+  // excerpt column does not exist; return a truncated version of content
+  const content = getLocalizedContent(news, locale);
+  return content.length > 150 ? content.substring(0, 150) + '...' : content;
 }
 
 /**

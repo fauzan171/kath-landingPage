@@ -87,22 +87,12 @@ export interface News {
   id: string;
   title: string;
   title_id?: string;
-  slug: string;
-  excerpt?: string;
-  excerpt_id?: string;
   content?: string;
   content_id?: string;
-  image?: string;
-  category: string;
-  author: string;
-  author_id?: string;
+  image_url?: string;
   is_published: boolean;
   published_at?: string;
-  views: number;
-  meta_title?: string;
-  meta_description?: string;
   created_at: string;
-  updated_at: string;
 }
 
 export interface Testimonial {
@@ -398,7 +388,7 @@ export const newsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .order('created_at', { ascending: false });
     if (error) return [];
     return data || [];
@@ -408,19 +398,19 @@ export const newsService = {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
     if (error) return [];
     return data || [];
   },
 
-  getBySlug: async (slug: string): Promise<News | null> => {
+  getByTitle: async (title: string): Promise<News | null> => {
     if (!supabase) return null;
     const { data, error } = await supabase
       .from('news')
-      .select('id, title, title_id, slug, excerpt, excerpt_id, content, content_id, image, category, author, author_id, is_published, published_at, views, meta_title, meta_description, created_at, updated_at')
-      .eq('slug', slug)
+      .select('id, title, title_id, content, content_id, image_url, is_published, published_at, created_at')
+      .eq('title', title)
       .single();
     if (error) return null;
     return data;

@@ -68,7 +68,7 @@ const AdminGrading = () => {
                 .select('user_id')
                 .eq('team_id', team.id)
                 .eq('role', 'leader')
-                .single();
+                .maybeSingle();
 
               if (leaderMember) {
                 const { data: leaderUser } = await supabase
