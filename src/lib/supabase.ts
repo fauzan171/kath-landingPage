@@ -176,7 +176,7 @@ export interface Task {
   deadline?: string;
   is_required: boolean;
   is_published: boolean;
-  order_index: number;
+  order_index?: number; // Not in DB
   rubric?: Array<RubricCriterion | LegacyRubricCriterion>;
   rubric_data?: RubricData;
   custom_fields?: Array<{
@@ -285,7 +285,7 @@ export interface Announcement {
   type: 'general' | 'urgent' | 'result' | 'reminder' | 'system' | 'info' | 'warning' | 'success';
   is_published: boolean;
   published_at?: string;
-  views_count: number;
+  views_count?: number; // Not in DB
   created_at: string;
   updated_at?: string;
 }
