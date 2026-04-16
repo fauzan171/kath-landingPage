@@ -319,19 +319,6 @@ const SubmissionForm = () => {
       // Use the first uploaded file as the primary file for the submission record
       const primaryFile = uploadedFiles.length > 0 ? uploadedFiles[0] : null;
 
-      // Store all uploaded files metadata in field_values for reference
-      const allFilesMeta = uploadedFiles.length > 0
-        ? {
-            files: uploadedFiles.map(f => ({
-              name: f.fileName,
-              url: f.fileUrl,
-              storageKey: f.storageKey,
-              size: f.fileSize,
-            })),
-            file_count: uploadedFiles.length,
-          }
-        : undefined;
-
       if (existingSubmission) {
         // Update existing submission with file metadata in dedicated columns
         await supabaseSubmissionService.update(existingSubmission.id, {
