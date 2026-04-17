@@ -597,21 +597,25 @@ const TeamDetailModal = ({ team, onClose }: TeamDetailModalProps) => {
                             </div>
 
                             {/* Details */}
-                            {log.details && Object.keys(log.details).length > 0 && (
+                            {log.details && Object.keys(log.details).length > 0 && (() => {
+                              const fileName = typeof log.details.file_name === 'string' ? log.details.file_name : '';
+                              const status = typeof log.details.status === 'string' ? log.details.status : '';
+                              return (
                               <div className="mt-1.5 text-xs text-gray-500">
-                                {log.details.file_name && (
+                                {fileName && (
                                   <span className="flex items-center gap-1">
                                     <FileText className="w-3 h-3" />
-                                    {String(log.details.file_name)}
+                                    {fileName}
                                   </span>
                                 )}
-                                {log.details.status && (
+                                {status && (
                                   <span className="ml-2">
-                                    Status: <span className="font-medium">{String(log.details.status).replace(/_/g, ' ')}</span>
+                                    Status: <span className="font-medium">{status.replace(/_/g, ' ')}</span>
                                   </span>
                                 )}
                               </div>
-                            )}
+                              );
+                            })()}
 
                             {/* Exact timestamp */}
                             <div className="mt-1 text-xs text-gray-400">

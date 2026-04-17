@@ -39,9 +39,9 @@ const AdminRegistrations = () => {
           (data as TeamWithMembers[]).map(async (team) => {
             const { data: members } = await supabase!
               .from('team_members')
-              .select('id, user_id, role, full_name, email, institution')
+              .select('id, team_id, user_id, role, full_name, email, phone, institution, is_active, joined_at')
               .eq('team_id', team.id);
-            return { ...team, members: members || [] };
+            return { ...team, members: (members || []) as TeamMember[] };
           })
         );
         setTeams(teamsWithMembers);
