@@ -26,6 +26,7 @@ export type {
   Notification,
   CIBCContent,
   PaymentUploadResult,
+  AuditLog,
 } from './supabase.service';
 
 // Re-export all services from supabase.service.ts
@@ -40,6 +41,7 @@ export {
   supabaseNotificationService,
   supabaseContentService,
   supabasePaymentService,
+  supabaseAuditService,
   uploadPaymentProof,
   supabaseServices,
 } from './supabase.service';
@@ -56,6 +58,7 @@ import {
   supabaseNotificationService,
   supabaseContentService,
   supabasePaymentService,
+  supabaseAuditService,
 } from './supabase.service';
 
 // Export with old names for backward compatibility
@@ -68,6 +71,7 @@ export const announcementsService = supabaseAnnouncementService;
 export const notificationsService = supabaseNotificationService;
 export const cibcContentService = supabaseContentService;
 export const paymentService = supabasePaymentService;
+export const auditService = supabaseAuditService;
 
 // Combined service object for backward compatibility
 import { supabaseServices } from './supabase.service';

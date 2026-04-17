@@ -4,11 +4,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Check, X, Clock, Search, Loader2, Users, Building2, Eye, FileText } from 'lucide-react';
+import { Check, X, Clock, Search, Loader2, Users, Building2, Eye, FileText, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { teamsService, type Team } from '@/services/cibc.service';
 import { competitionService } from '@/services/cibc.service';
 import { supabase } from '@/lib/supabase';
+import TeamDetailModal from './TeamDetailModal';
 
 interface TeamWithMembers extends Team {
   members?: {
@@ -30,6 +31,7 @@ const AdminRegistrations = () => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'verified' | 'rejected'>('pending');
   const [search, setSearch] = useState('');
   const [selectedTeam, setSelectedTeam] = useState<TeamWithMembers | null>(null);
+  const [detailTeam, setDetailTeam] = useState<TeamWithMembers | null>(null);
 
   useEffect(() => {
     loadTeams();
@@ -69,6 +71,18 @@ const AdminRegistrations = () => {
         adminId = user?.id || null;
       }
       await teamsService.verify(teamId, adminId);
+
+      // Audit log
+      try {
+        await supabase!.from('audit_logs').insert({
+          user_id: adminId,
+          action: 'verify_team',
+          entity_type: 'team',
+          entity_id: teamId,
+          details: { team_name: teams.find(t => t.id === teamId)?.name },
+        });
+      } catch (_e) { /* silent */ }
+
       toast.success('Team verified successfully!');
       loadTeams();
     } catch (_error) {
@@ -82,6 +96,19 @@ const AdminRegistrations = () => {
     setProcessing(teamId);
     try {
       await teamsService.reject(teamId, reason);
+
+      // Audit log
+      try {
+        const { data: { user } } = await supabase!.auth.getUser();
+        await supabase!.from('audit_logs').insert({
+          user_id: user?.id,
+          action: 'reject_team',
+          entity_type: 'team',
+          entity_id: teamId,
+          details: { team_name: teams.find(t => t.id === teamId)?.name, reason },
+        });
+      } catch (_e) { /* silent */ }
+
       toast.success('Team rejected');
       loadTeams();
     } catch (_error) {
@@ -263,8 +290,17 @@ const AdminRegistrations = () => {
                   <button
                     onClick={() => setSelectedTeam(team)}
                     className="p-2 hover:bg-gray-100 rounded-lg"
+                    title="Quick View"
                   >
                     <Eye className="w-4 h-4 text-gray-500" />
+                  </button>
+                  <button
+                    onClick={() => setDetailTeam(team)}
+                    className="flex items-center gap-1 px-3 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 text-sm font-medium"
+                    title="Lihat Detail Lengkap"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Detail
                   </button>
                 </div>
               </div>
@@ -347,7 +383,7 @@ const AdminRegistrations = () => {
         )}
       </div>
 
-      {/* Team Detail Modal */}
+      {/* Quick View Modal (Legacy) */}
       {selectedTeam && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -473,6 +509,13 @@ const AdminRegistrations = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* Full Team Detail Modal */}
+      {detailTeam && (
+        <TeamDetailModal
+          team={detailTeam}
+          onClose={() => setDetailTeam(null)}
+        />
       )}
     </div>
   );

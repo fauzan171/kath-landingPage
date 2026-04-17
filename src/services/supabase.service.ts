@@ -74,6 +74,20 @@ export const supabaseAuthService = {
         email: data.user.email,
         name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
       }));
+
+      // Log login activity to audit_logs
+      try {
+        await supabase.from('audit_logs').insert({
+          user_id: data.user.id,
+          action: 'login',
+          entity_type: 'session',
+          details: { email: data.user.email, method: 'password' },
+        });
+        // Update last_login_at
+        await supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', data.user.id);
+      } catch (_e) {
+        // Don't fail login if audit logging fails
+      }
     }
 
     return data;
@@ -83,6 +97,20 @@ export const supabaseAuthService = {
    * Sign out the current user
    */
   signOut: async () => {
+    // Log logout before signing out
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'logout',
+          entity_type: 'session',
+        });
+      }
+    } catch (_e) {
+      // Don't fail logout if audit logging fails
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     localStorage.removeItem('user');
@@ -2045,6 +2073,121 @@ export const supabasePaymentService = {
 };
 
 // ============================================
+// Audit Log Service
+// ============================================
+
+export interface AuditLog {
+  id: string;
+  user_id: string;
+  action: string;
+  entity_type?: string;
+  entity_id?: string;
+  details?: Record<string, unknown>;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export const supabaseAuditService = {
+  /**
+   * Log an action to audit_logs
+   */
+  log: async (params: {
+    action: string;
+    entityType?: string;
+    entityId?: string;
+    details?: Record<string, unknown>;
+  }): Promise<void> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase.from('audit_logs').insert({
+        user_id: user.id,
+        action: params.action,
+        entity_type: params.entityType || null,
+        entity_id: params.entityId || null,
+        details: params.details || null,
+      });
+    } catch (e) {
+      console.error('Failed to write audit log:', e);
+    }
+  },
+
+  /**
+   * Get audit logs for specific users
+   */
+  getByUserIds: async (userIds: string[], limit = 100): Promise<(AuditLog & { user_name?: string; user_email?: string })[]> => {
+    if (userIds.length === 0) return [];
+
+    const { data: logs } = await supabase
+      .from('audit_logs')
+      .select('id, user_id, action, entity_type, entity_id, details, created_at')
+      .in('user_id', userIds)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (!logs || logs.length === 0) return [];
+
+    // Enrich with user data
+    const { data: users } = await supabase
+      .from('users')
+      .select('id, name, email')
+      .in('id', userIds);
+
+    const userMap = new Map((users || []).map(u => [u.id, u]));
+
+    return logs.map(log => ({
+      ...log,
+      user_name: userMap.get(log.user_id)?.name || 'Unknown',
+      user_email: userMap.get(log.user_id)?.email || '',
+    }));
+  },
+
+  /**
+   * Get audit logs for a team (all members)
+   */
+  getByTeam: async (teamId: string, limit = 100): Promise<(AuditLog & { user_name?: string; user_email?: string })[]> => {
+    // Get member user IDs
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', teamId)
+      .eq('is_active', true);
+
+    const userIds = (members || []).map(m => m.user_id).filter(Boolean) as string[];
+    return supabaseAuditService.getByUserIds(userIds, limit);
+  },
+
+  /**
+   * Get recent audit logs (admin - all users)
+   */
+  getRecent: async (limit = 50): Promise<(AuditLog & { user_name?: string; user_email?: string })[]> => {
+    const { data: logs } = await supabase
+      .from('audit_logs')
+      .select('id, user_id, action, entity_type, entity_id, details, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (!logs || logs.length === 0) return [];
+
+    const userIds = [...new Set(logs.map(l => l.user_id))];
+    const { data: users } = await supabase
+      .from('users')
+      .select('id, name, email')
+      .in('id', userIds);
+
+    const userMap = new Map((users || []).map(u => [u.id, u]));
+
+    return logs.map(log => ({
+      ...log,
+      user_name: userMap.get(log.user_id)?.name || 'Unknown',
+      user_email: userMap.get(log.user_id)?.email || '',
+    }));
+  },
+};
+
+// ============================================
 // Export all services
 // ============================================
 
@@ -2059,6 +2202,7 @@ export const supabaseServices = {
   notification: supabaseNotificationService,
   content: supabaseContentService,
   payment: supabasePaymentService,
+  audit: supabaseAuditService,
 };
 
 export default supabaseServices;

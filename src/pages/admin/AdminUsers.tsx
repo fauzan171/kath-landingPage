@@ -3,19 +3,21 @@
  */
 
 import { useState, useEffect, memo } from 'react';
-import { Search, Users, Building2, Loader2, MoreVertical, CheckCircle, Ban } from 'lucide-react';
+import { Search, Users, Building2, Loader2, MoreVertical, CheckCircle, Ban, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { teamsService, competitionService, type Team } from '@/services/cibc.service';
+import TeamDetailModal from './TeamDetailModal';
 
 // Memoized table row component for better performance
 interface TeamRowProps {
   team: Team;
   onDisqualify: (id: string) => void;
   onReinstate: (id: string) => void;
+  onViewDetail: (team: Team) => void;
   getStatusBadge: (status: string) => React.ReactNode;
 }
 
-const TeamTableRow = memo(function TeamTableRow({ team, onDisqualify, onReinstate, getStatusBadge }: TeamRowProps) {
+const TeamTableRow = memo(function TeamTableRow({ team, onDisqualify, onReinstate, onViewDetail, getStatusBadge }: TeamRowProps) {
   return (
     <tr className="hover:bg-gray-50">
       <td className="p-4">
@@ -64,6 +66,13 @@ const TeamTableRow = memo(function TeamTableRow({ team, onDisqualify, onReinstat
               <CheckCircle className="w-4 h-4" />
             </button>
           )}
+          <button
+            onClick={() => onViewDetail(team)}
+            className="p-2 hover:bg-amber-50 rounded-lg text-amber-600"
+            title="Lihat Detail"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
           <button className="p-2 hover:bg-gray-100 rounded-lg">
             <MoreVertical className="w-4 h-4 text-gray-400" />
           </button>
@@ -78,6 +87,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'verified' | 'pending' | 'rejected'>('all');
+  const [detailTeam, setDetailTeam] = useState<Team | null>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
@@ -233,6 +243,7 @@ const AdminUsers = () => {
                 team={team}
                 onDisqualify={handleDisqualify}
                 onReinstate={handleReinstate}
+                onViewDetail={(t) => setDetailTeam(t)}
                 getStatusBadge={getStatusBadge}
               />
             ))}
@@ -246,6 +257,14 @@ const AdminUsers = () => {
           </div>
         )}
       </div>
+
+      {/* Team Detail Modal */}
+      {detailTeam && (
+        <TeamDetailModal
+          team={detailTeam}
+          onClose={() => setDetailTeam(null)}
+        />
+      )}
     </div>
   );
 };
