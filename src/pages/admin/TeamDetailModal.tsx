@@ -7,8 +7,8 @@ import { useState, useEffect } from 'react';
 import {
   X, Users, Building2, Clock, FileText, ExternalLink,
   User, Mail, Phone, GraduationCap, Crown, Shield,
-  Send, CheckCircle, AlertCircle, Loader2, Activity,
-  Calendar, Image, Link2, MessageSquare
+  Send, CheckCircle, Loader2, Activity,
+  Calendar, Image, Link2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Team, TeamMember, Submission } from '@/lib/supabase';
@@ -401,7 +401,7 @@ const TeamDetailModal = ({ team, onClose }: TeamDetailModalProps) => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {members.map((member, idx) => (
+                  {members.map((member) => (
                     <div key={member.id} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
@@ -602,12 +602,12 @@ const TeamDetailModal = ({ team, onClose }: TeamDetailModalProps) => {
                                 {log.details.file_name && (
                                   <span className="flex items-center gap-1">
                                     <FileText className="w-3 h-3" />
-                                    {log.details.file_name as string}
+                                    {String(log.details.file_name)}
                                   </span>
                                 )}
                                 {log.details.status && (
                                   <span className="ml-2">
-                                    Status: <span className="font-medium">{(log.details.status as string).replace(/_/g, ' ')}</span>
+                                    Status: <span className="font-medium">{String(log.details.status).replace(/_/g, ' ')}</span>
                                   </span>
                                 )}
                               </div>

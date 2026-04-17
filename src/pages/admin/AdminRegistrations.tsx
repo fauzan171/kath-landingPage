@@ -9,19 +9,11 @@ import { toast } from 'sonner';
 import { teamsService, type Team } from '@/services/cibc.service';
 import { competitionService } from '@/services/cibc.service';
 import { supabase } from '@/lib/supabase';
+import type { TeamMember } from '@/lib/supabase';
 import TeamDetailModal from './TeamDetailModal';
 
 interface TeamWithMembers extends Team {
-  members?: {
-    id: string;
-    user_id: string;
-    role: string;
-    user?: {
-      name: string;
-      email: string;
-      institution?: string;
-    };
-  }[];
+  members?: TeamMember[];
 }
 
 const AdminRegistrations = () => {
