@@ -8,10 +8,13 @@ const getAllowedOrigin = (req: Request): string => {
   const allowedOrigins = [
     'https://katheventorganizer.com',
     'https://www.katheventorganizer.com',
+    'https://kath-cibc.andifauzan986.workers.dev',
     'http://localhost:5173',
     'http://localhost:4173',
   ];
-  return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  if (allowedOrigins.includes(origin)) return origin;
+  if (origin.match(/^https:\/\/[a-z0-9-]+\.workers\.dev$/)) return origin;
+  return allowedOrigins[0];
 };
 
 const getCorsHeaders = (req: Request) => ({

@@ -1,0 +1,3 @@
+[submodule ".claude/test-automation-skills-agents"]
+	path = .claude/test-automation-skills-agents
+	url = https://github.com/fugazi/test-automation-skills-agents.git

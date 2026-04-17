@@ -10,10 +10,15 @@ const getAllowedOrigin = (req: Request): string => {
   const allowedOrigins = [
     'https://katheventorganizer.com',
     'https://www.katheventorganizer.com',
+    'https://kath-cibc.andifauzan986.workers.dev',
     'http://localhost:5173', // dev only
     'http://localhost:4173', // preview
   ];
-  return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  // If the request origin is allowed, return it; otherwise default to first
+  if (allowedOrigins.includes(origin)) return origin;
+  // Also allow any *.workers.dev subdomain for Cloudflare deployments
+  if (origin.match(/^https:\/\/[a-z0-9-]+\.workers\.dev$/)) return origin;
+  return allowedOrigins[0];
 };
 
 const getCorsHeaders = (req: Request) => ({
@@ -88,6 +93,27 @@ serve(async (req) => {
   }
 
   try {
+    // 0. Validate required environment variables early to give clear errors
+    const r2Endpoint = Deno.env.get('R2_ENDPOINT');
+    const r2AccessKey = Deno.env.get('R2_ACCESS_KEY_ID');
+    const r2SecretKey = Deno.env.get('R2_SECRET_ACCESS_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? Deno.env.get('VITE_SUPABASE_URL');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('VITE_SUPABASE_ANON_KEY');
+
+    const missingVars: string[] = [];
+    if (!r2Endpoint) missingVars.push('R2_ENDPOINT');
+    if (!r2AccessKey) missingVars.push('R2_ACCESS_KEY_ID');
+    if (!r2SecretKey) missingVars.push('R2_SECRET_ACCESS_KEY');
+    if (!supabaseUrl) missingVars.push('SUPABASE_URL');
+    if (!supabaseAnonKey) missingVars.push('SUPABASE_ANON_KEY');
+
+    if (missingVars.length > 0) {
+      console.error('Missing required environment variables:', missingVars.join(', '));
+      return new Response(JSON.stringify({
+        error: `Server configuration error: missing env vars [${missingVars.join(', ')}]. Run: supabase secrets set ${missingVars.map(v => `${v}=...`).join(' ')}`
+      }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // 1. Verify authentication using Supabase Auth
     const authResult = await verifyAuth(req);
     if (!authResult) {
@@ -187,13 +213,13 @@ serve(async (req) => {
       }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // 5. Configure R2 Client using AWS SDK
+    // 5. Configure R2 Client using AWS SDK (vars already validated above)
     const S3 = new S3Client({
       region: "auto",
-      endpoint: Deno.env.get('R2_ENDPOINT') ?? '',
+      endpoint: r2Endpoint!,
       credentials: {
-        accessKeyId: Deno.env.get('R2_ACCESS_KEY_ID') ?? '',
-        secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY') ?? '',
+        accessKeyId: r2AccessKey!,
+        secretAccessKey: r2SecretKey!,
       },
     });
 
